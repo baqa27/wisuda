@@ -131,13 +131,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/export-data-final', [AdminController::class, 'exportDataFinal'])->name('admin.export-data-final');
 
         // ---- QR Code ----
-
-        // ==========================
-// 📱 SCANNER PRESENSI (Simple)
-// ==========================
-Route::get('/scanner', function() {
-    return view('scanner');
-});
         Route::prefix('qr')->group(function () {
             // ✅ PERBAIKAN: Route GET untuk menampilkan halaman QR
             Route::get('/generate', function() {
