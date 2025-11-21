@@ -18,7 +18,7 @@ class WisudaController extends Controller
         $mhs = Auth::user();
 
         $yudisiumTerverifikasi = PersyaratanYudisium::where('mahasiswa_id', $mhs->id)
-            ->where('status_verifikasi', 'terverifikasi')
+            ->where('status', 'terverifikasi')
             ->exists();
 
         $pendaftaran = PendaftaranWisuda::where('mahasiswa_id', $mhs->id)->first();
@@ -34,7 +34,7 @@ class WisudaController extends Controller
         $mhs = Auth::user();
 
         $yudisium = PersyaratanYudisium::where('mahasiswa_id', $mhs->id)
-            ->where('status_verifikasi', 'terverifikasi')
+            ->where('status', 'terverifikasi')
             ->first();
 
         if (!$yudisium) {
@@ -220,7 +220,7 @@ class WisudaController extends Controller
         $mhs = Auth::user();
 
         $cek = [
-            'yudisium' => PersyaratanYudisium::where('mahasiswa_id', $mhs->id)->where('status_verifikasi', 'terverifikasi')->exists(),
+            'yudisium' => PersyaratanYudisium::where('mahasiswa_id', $mhs->id)->where('status', 'terverifikasi')->exists(),
             'pendaftaran_wisuda' => PendaftaranWisuda::where('mahasiswa_id', $mhs->id)->where('status', 'lunas')->exists(),
             'persyaratan_wajib' => PersyaratanWisuda::where('mahasiswa_id', $mhs->id)->whereIn('jenis', ['toefl', 'sertifikasi', 'tahfidz', 'bebas_perpus', 'foto_wisuda'])->where('status', 'terverifikasi')->count() >= 5,
             'data_tambahan' => DataMahasiswaFinal::where('mahasiswa_id', $mhs->id)->exists()

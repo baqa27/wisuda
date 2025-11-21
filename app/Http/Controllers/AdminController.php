@@ -19,7 +19,7 @@ class AdminController extends Controller
             'total_mahasiswa' => User::where('role', 'mahasiswa')->count(),
             'yudisium_menunggu' => PendaftaranYudisium::where('status', 'menunggu_verifikasi')->count(),
             'wisuda_menunggu' => PendaftaranWisuda::where('status', 'menunggu_verifikasi')->count(),
-            'persyaratan_yudisium_menunggu' => PersyaratanYudisium::where('status_verifikasi', 'menunggu')->count(),
+            'persyaratan_yudisium_menunggu' => PersyaratanYudisium::where('status', 'menunggu')->count(),
             'persyaratan_wisuda_menunggu' => PersyaratanWisuda::where('status', 'menunggu')->count(),
             'siap_wisuda' => DataMahasiswaFinal::where('status', 'siap_wisuda')->count(),
         ];
@@ -60,7 +60,7 @@ class AdminController extends Controller
     public function verifikasiPersyaratanYudisium()
     {
         $persyaratan = PersyaratanYudisium::with('mahasiswa')
-            ->where('status_verifikasi', 'menunggu')
+            ->where('status', 'menunggu')
             ->latest()
             ->get();
 
@@ -76,7 +76,7 @@ class AdminController extends Controller
 
         PersyaratanYudisium::where('id', $id)
             ->update([
-                'status_verifikasi' => $request->status,
+                'status' => $request->status,
                 'catatan_admin' => $request->catatan
             ]);
 
@@ -165,5 +165,80 @@ class AdminController extends Controller
         }
 
         return response()->download(Storage::disk('public')->path($filePath));
+    }
+
+    /* Download Bukti Bayar */
+    public function downloadBuktiBayar($filename)
+    {
+        return $this->downloadFile('bukti_bayar', $filename);
+    }
+
+    /* Download Persyaratan Yudisium */
+    public function downloadFileYudisium($filename)
+    {
+        return $this->downloadFile('persyaratan/yudisium', $filename);
+    }
+
+    /* Download Persyaratan Wisuda */
+    public function downloadFileWisuda($filename)
+    {
+        return $this->downloadFile('persyaratan/wisuda', $filename);
+    }
+
+    /* View Bukti Bayar Wisuda */
+    public function viewBuktiBayarWisuda($filename)
+    {
+        return $this->downloadFile('bukti_bayar/wisuda', $filename);
+    }
+
+    /* View Bukti Bayar Yudisium */
+    public function viewBuktiBayarYudisium($filename)
+    {
+        return $this->downloadFile('bukti_bayar/yudisium', $filename);
+    }
+
+    /* View Persyaratan Yudisium */
+    public function viewFileYudisium($filename)
+    {
+        return $this->downloadFile('persyaratan/yudisium', $filename);
+    }
+
+    /* View Persyaratan Wisuda */
+    public function viewFileWisuda($filename)
+    {
+        return $this->downloadFile('persyaratan/wisuda', $filename);
+    }
+
+    /* Export Data Final */
+    public function exportDataFinal()
+    {
+        $data = DataMahasiswaFinal::with('mahasiswa')->get();
+
+        // Create CSV
+        $filename = 'data_final_' . now()->format('Y-m-d_His') . '.csv';
+        $file = fopen('php://memory', 'w');
+
+        fputcsv($file, ['ID', 'NIM', 'Nama', 'Prodi', 'Status', 'Tanggal', 'Catatan']);
+
+        foreach ($data as $item) {
+            fputcsv($file, [
+                $item->id,
+                $item->mahasiswa->nim,
+                $item->mahasiswa->name,
+                $item->mahasiswa->prodi,
+                $item->status,
+                $item->created_at,
+                $item->catatan ?? '-'
+            ]);
+        }
+
+        rewind($file);
+        $content = stream_get_contents($file);
+        fclose($file);
+
+        return response($content, 200, [
+            'Content-Type' => 'text/csv; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
     }
 }

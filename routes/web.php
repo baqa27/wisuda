@@ -133,11 +133,7 @@ Route::middleware('auth')->group(function () {
         // ---- QR Code ----
 
         // ==========================
-// 📱 SCANNER PRESENSI (Simple)
-// ==========================
-Route::get('/scanner', function() {
-    return view('scanner');
-});
+
         Route::prefix('qr')->group(function () {
             // ✅ PERBAIKAN: Route GET untuk menampilkan halaman QR
             Route::get('/generate', function() {
@@ -154,6 +150,16 @@ Route::get('/scanner', function() {
 });
 
 // ==========================
-// 📱 API PRESENSI QR
+// 📱 PUBLIC API - QR CODE SCANNING (Untuk aplikasi/sistem lain)
 // ==========================
-Route::post('/api/presensi/checkin', [QrController::class, 'checkinPresensi'])->name('presensi.checkin');
+// ✅ Endpoint untuk check-in presensi (POST dengan token + kode_unik)
+Route::post('/api/qr/checkin', [QrController::class, 'checkinPresensi'])->name('api.qr.checkin');
+
+// ✅ Endpoint untuk cek status QR (GET dengan token) - tanpa auth, untuk public scanner
+Route::get('/api/qr/status/{token}', [QrController::class, 'checkStatusPresensi'])->name('api.qr.status');
+
+// ✅ Endpoint untuk list semua presensi yang sudah digunakan (GET) - untuk reporting
+Route::get('/api/qr/list-presensi', [QrController::class, 'listPresensi'])->name('api.qr.list-presensi');
+
+// ✅ Endpoint untuk download file QR (GET) - bisa diakses public
+Route::get('/api/qr/file/{id}', [QrController::class, 'viewQr'])->name('api.qr.file');

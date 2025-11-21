@@ -4,34 +4,36 @@
 
 @section('content')
     <!-- Header -->
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Proses Yudisium</h1>
-        <p class="text-gray-600">Lengkapi tahapan yudisium untuk melanjutkan ke wisuda</p>
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold bg-linear-to-r from-[#0A0061] to-[#0061DF] bg-clip-text text-transparent">
+            Proses Yudisium
+        </h1>
+        <p class="text-gray-600 text-lg mt-2">Lengkapi tahapan yudisium untuk melanjutkan ke wisuda</p>
     </div>
 
     <!-- Progress Bar -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div class="auth-card p-6 mb-6">
         <div class="mb-4">
             <div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-gray-700">Progress Yudisium</span>
-                <span class="text-sm font-medium text-blue-600" id="progress-percentage">0%</span>
+                <span class="text-sm font-semibold text-gray-700">Progress Yudisium</span>
+                <span class="text-sm font-bold text-[#0061DF]" id="progress-percentage">0%</span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                <div class="bg-blue-600 h-2.5 rounded-full" id="progress-bar" style="width: 0%"></div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div class="bg-linear-to-r from-[#0A0061] to-[#0061DF] h-3 rounded-full transition-all duration-500" id="progress-bar" style="width: 0%"></div>
             </div>
         </div>
     </div>
 
     <!-- Tahapan Yudisium -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div class="auth-card p-6 mb-6">
         <div class="flex items-center justify-between mb-6">
-            <h2 class="text-lg font-semibold text-gray-800">Tahapan Yudisium</h2>
+            <h2 class="text-lg font-bold text-gray-800">Tahapan Yudisium</h2>
             @if (!$pendaftaran)
                 <form method="POST" action="{{ route('yudisium.daftar') }}">
                     @csrf
                     <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
-                        <i class="fas fa-plus mr-2"></i>Daftar Yudisium
+                        class="btn-primary px-6 py-3 font-semibold flex items-center gap-2">
+                        <i class="fas fa-plus"></i>Daftar Yudisium
                     </button>
                 </form>
             @endif
@@ -41,23 +43,28 @@
             {{-- =======================
                 STEP 1 - PENDAFTARAN
             ======================= --}}
-            <div class="flex items-start">
+            <div class="flex items-start gap-4">
                 <div class="shrink-0">
                     <div
-                        class="w-10 h-10 rounded-full flex items-center justify-center
+                        class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white text-lg
                         {{ $pendaftaran ? 'bg-green-500' : 'bg-gray-300' }}">
-                        <i class="fas {{ $pendaftaran ? 'fa-check' : 'fa-file-alt' }} text-white text-sm"></i>
+                        <i class="fas {{ $pendaftaran ? 'fa-check' : 'fa-1' }}"></i>
                     </div>
                 </div>
 
-                <div class="ml-4 flex-1">
-                    <h3 class="font-medium text-gray-900">1. Pendaftaran Yudisium</h3>
-                    <p class="text-sm text-gray-600 mt-1">
+                <div class="flex-1">
+                    <h3 class="font-bold text-gray-900 text-lg">Pendaftaran Yudisium</h3>
+                    <p class="text-gray-600 mt-2">
                         @if ($pendaftaran)
-                            <span class="text-green-600">Selesai</span> - Kode: {{ $pendaftaran->kode_invoice }}
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-[10px] bg-green-100 text-green-700 font-semibold text-sm">
+                                <i class="fas fa-check-circle"></i> Selesai
+                            </span>
+                            <span class="ml-2 text-gray-700">Kode: <strong class="font-mono">{{ $pendaftaran->kode_invoice }}</strong></span>
                         @else
-                            <span class="text-gray-500">Belum dimulai</span>
-                            <p class="text-xs text-gray-500 mt-1">Klik tombol "Daftar Yudisium" untuk memulai proses</p>
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-[10px] bg-gray-100 text-gray-700 font-semibold text-sm">
+                                <i class="fas fa-clock"></i> Belum dimulai
+                            </span>
+                            <p class="text-sm text-gray-600 mt-2">Klik tombol "Daftar Yudisium" untuk memulai proses</p>
                         @endif
                     </p>
                 </div>
@@ -214,7 +221,7 @@
             <div class="flex items-start">
                 <div class="shrink-0">
                     @php
-                        $status = $persyaratan->status_verifikasi ?? null;
+                        $status = $persyaratan->status ?? null;
                         $bg = 'bg-gray-300';
                         $icon = 'fa-tasks';
                         if ($status === 'terverifikasi') {
@@ -286,16 +293,15 @@
     {{-- =======================
         STATUS TERAKHIR
     ======================= --}}
-    @if ($persyaratan && $persyaratan->status_verifikasi == 'terverifikasi')
-        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-            <div class="flex items-center">
-                <i class="fas fa-check-circle text-green-600 text-xl mr-3"></i>
-                <div>
-                    <h3 class="font-semibold text-green-800">Yudisium Terverifikasi!</h3>
-                    <p class="text-green-700">Selamat! Yudisium Anda telah diverifikasi. Silakan lanjutkan ke proses
-                        wisuda.</p>
+    @if ($persyaratan && $persyaratan->status == 'terverifikasi')
+        <div class="auth-card border-l-4 border-l-green-500 p-6 mb-6">
+            <div class="flex items-start gap-4">
+                <i class="fas fa-check-circle text-green-600 text-2xl mt-1"></i>
+                <div class="flex-1">
+                    <h3 class="font-bold text-green-800 text-lg">Yudisium Terverifikasi!</h3>
+                    <p class="text-green-700 mt-1">Selamat! Yudisium Anda telah diverifikasi. Silakan lanjutkan ke proses wisuda.</p>
                     <a href="{{ route('wisuda.index') }}"
-                        class="inline-block mt-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition duration-200">
+                        class="inline-block mt-4 btn-primary px-6 py-3 font-semibold">
                         <i class="fas fa-arrow-right mr-2"></i>Lanjut ke Wisuda
                     </a>
                 </div>
@@ -306,17 +312,27 @@
     {{-- =======================
         INFORMASI UMUM
     ======================= --}}
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h2 class="text-lg font-semibold text-blue-800 mb-4">Informasi Yudisium</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-700">
-            <div class="flex items-start"><i class="fas fa-info-circle mt-1 mr-2"></i>Yudisium adalah proses penilaian
-                akhir untuk menentukan kelulusan mahasiswa</div>
-            <div class="flex items-start"><i class="fas fa-clock mt-1 mr-2"></i>Proses verifikasi membutuhkan waktu 2-3
-                hari kerja</div>
-            <div class="flex items-start"><i class="fas fa-file-alt mt-1 mr-2"></i>Pastikan semua dokumen yang diupload
-                jelas dan terbaca</div>
-            <div class="flex items-start"><i class="fas fa-sync-alt mt-1 mr-2"></i>Dapat upload ulang bukti bayar kapan
-                saja selama menunggu verifikasi</div>
+    <div class="auth-card border-l-4 border-l-blue-500 p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fas fa-info-circle text-blue-600"></i>Informasi Yudisium
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+            <div class="flex items-start gap-2">
+                <i class="fas fa-check-circle text-[#0061DF] mt-1 shrink-0"></i>
+                <span>Yudisium adalah proses penilaian akhir untuk menentukan kelulusan mahasiswa</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <i class="fas fa-check-circle text-[#0061DF] mt-1 shrink-0"></i>
+                <span>Proses verifikasi membutuhkan waktu 2-3 hari kerja</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <i class="fas fa-check-circle text-[#0061DF] mt-1 shrink-0"></i>
+                <span>Pastikan semua dokumen yang diupload jelas dan terbaca</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <i class="fas fa-check-circle text-[#0061DF] mt-1 shrink-0"></i>
+                <span>Dapat upload ulang bukti bayar kapan saja selama menunggu verifikasi</span>
+            </div>
         </div>
     </div>
 
@@ -335,7 +351,7 @@
             @if ($pendaftaran && $pendaftaran->status == 'lunas')
                 progress += 33;
             @endif
-            @if ($persyaratan && $persyaratan->status_verifikasi == 'terverifikasi')
+            @if ($persyaratan && $persyaratan->status == 'terverifikasi')
                 progress += 34;
             @endif
 

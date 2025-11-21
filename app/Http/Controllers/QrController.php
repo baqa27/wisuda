@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\DataMahasiswaFinal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log; // ✅ TAMBAH INI
+use Illuminate\Support\Facades\Log;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class QrController extends Controller
@@ -64,22 +64,29 @@ class QrController extends Controller
             $kodeUnik = $this->generateKodeUnik($mahasiswa->nim);
 
             // Buat payload yang lebih sederhana untuk QR
-            $payload = json_encode([
+            // Tambahkan juga URL API checkin agar pihak lain bisa langsung memanggil endpoint
+            $payloadData = [
                 'token' => $token,
                 'kode_unik' => $kodeUnik,
                 'nim' => $mahasiswa->nim,
-                'timestamp' => now()->timestamp
-            ]);
+                'timestamp' => now()->timestamp,
+            ];
 
-            // Generate QR Code sebagai PNG (lebih kompatibel)
-            $qrImage = QrCode::format('png')
+            // Jika aplikasi memiliki URL app url di .env, gunakan itu; fallback ke route relative
+            $appUrl = config('app.url') ?? env('APP_URL');
+            $checkinUrl = rtrim($appUrl, '/') . '/api/qr/checkin';
+
+            $payload = json_encode(array_merge($payloadData, ['checkin_url' => $checkinUrl]));
+
+            // Generate QR Code sebagai SVG (kompatibel tanpa imagick)
+            $qrImage = QrCode::format('svg')
                 ->size(300)
                 ->margin(1)
                 ->errorCorrection('H')
                 ->generate($payload);
 
-            // Simpan file QR
-            $fileName = 'qr_' . $mahasiswa->nim . '_' . time() . '.png';
+            // Simpan file QR (SVG tidak memerlukan imagick)
+            $fileName = 'qr_' . $mahasiswa->nim . '_' . time() . '.svg';
             $filePath = 'qr_codes/' . $fileName;
 
             // Pastikan folder exists
@@ -95,13 +102,13 @@ class QrController extends Controller
                 'mahasiswa_id' => $mahasiswaId,
                 'token' => $token,
                 'kode_unik' => $kodeUnik,
-                'file_qr' => $filePath, // Hanya path tanpa 'public/'
+                'file_qr' => $filePath,
                 'status' => 'aktif',
                 'expired_at' => now()->addDays(7)
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error creating QR: ' . $e->getMessage()); // ✅ FIX: Gunakan Log facade
+            Log::error('Error creating QR: ' . $e->getMessage());
             return null;
         }
     }
@@ -124,7 +131,6 @@ class QrController extends Controller
     {
         $qr = QrPresensi::with('mahasiswa')->findOrFail($id);
 
-        // Path yang benar - file_qr sudah relative ke storage/app/public
         $filePath = $qr->file_qr;
 
         if (!Storage::disk('public')->exists($filePath)) {
@@ -133,13 +139,12 @@ class QrController extends Controller
 
         $fileName = 'qr_presensi_' . $qr->mahasiswa->nim . '.png';
 
-        // ✅ FIX: Gunakan response()->download() bukan Storage::download()
         return response()->download(
             Storage::disk('public')->path($filePath),
-            $fileName,
+            'qr_presensi_' . $qr->mahasiswa->nim . '.svg',
             [
-                'Content-Type' => 'image/png',
-                'Content-Disposition' => 'attachment; filename="' . $fileName . '"'
+                'Content-Type' => 'image/svg+xml',
+                'Content-Disposition' => 'attachment; filename="qr_presensi_' . $qr->mahasiswa->nim . '.svg"'
             ]
         );
     }

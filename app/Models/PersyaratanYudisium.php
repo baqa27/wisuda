@@ -17,7 +17,7 @@ class PersyaratanYudisium extends Model
         'dosen_pembimbing',
         'file_ktp',
         'file_ijazah',
-        'status_verifikasi',
+        'status',
         'catatan_admin',
     ];
 

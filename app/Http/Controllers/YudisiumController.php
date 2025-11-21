@@ -146,7 +146,7 @@ class YudisiumController extends Controller
             'dosen_pembimbing' => $request->dosen_pembimbing,
             'file_ktp' => $fileKtp,
             'file_ijazah' => $fileIjazah,
-            'status_verifikasi' => 'menunggu',
+            'status' => 'menunggu',
         ]);
 
         return redirect()->route('yudisium.index')->with('success', 'Persyaratan yudisium berhasil disimpan. Menunggu verifikasi admin.');
@@ -174,7 +174,7 @@ class YudisiumController extends Controller
             ->firstOrFail();
 
         // Hanya bisa edit jika status revisi
-        if ($persyaratan->status_verifikasi !== 'revisi') {
+        if ($persyaratan->status !== 'revisi') {
             return redirect()->route('yudisium.index')->with('error', 'Tidak dapat mengedit persyaratan.');
         }
 
@@ -199,7 +199,7 @@ class YudisiumController extends Controller
         $data = [
             'judul_ta' => $request->judul_ta,
             'dosen_pembimbing' => $request->dosen_pembimbing,
-            'status_verifikasi' => 'menunggu',
+            'status' => 'menunggu',
             'catatan_admin' => null,
         ];
 

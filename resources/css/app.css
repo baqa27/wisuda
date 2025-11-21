@@ -6,6 +6,284 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* ========================
+   COLORS & GRADIENTS
+   ======================== */
+
+:root {
+    --primary-gradient: linear-gradient(95.08deg, #0A0061 -3.06%, #0061DF 95.31%);
+    --primary-dark: #0A0061;
+    --primary-light: #0061DF;
+    --neutral-dark: #767676;
+    --neutral-light: #D9D9D9;
+    --white: #FFFFFF;
+}
+
+/* ========================
+   BACKGROUND & LAYOUT
+   ======================== */
+
+.auth-gradient-bg {
+    background: linear-gradient(180deg, #0A0061 0%, #0061DF 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-gradient-bg::before,
+.auth-gradient-bg::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: #0061DF;
+    filter: blur(72px);
+    opacity: 0.5;
+}
+
+.auth-gradient-bg::before {
+    width: 115px;
+    height: 493px;
+    top: 801px;
+    right: -456px;
+}
+
+.auth-gradient-bg::after {
+    width: 170px;
+    height: 493px;
+    top: 962px;
+    right: -600px;
+}
+
+/* ========================
+   CARD STYLES
+   ======================== */
+
+.auth-card {
+    background: white;
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+}
+
+.auth-card-primary {
+    background: var(--primary-gradient);
+    border-radius: 40px;
+    padding: 50px;
+    color: white;
+}
+
+/* ========================
+   FORM INPUTS
+   ======================== */
+
+.auth-input {
+    width: 100%;
+    padding: 20px;
+    border: 1px solid var(--neutral-dark);
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+    background: white;
+    color: var(--neutral-dark);
+}
+
+.auth-input::placeholder {
+    color: var(--neutral-dark);
+    opacity: 0.6;
+}
+
+.auth-input:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(0, 97, 223, 0.1);
+}
+
+/* Input with icon wrapper */
+.input-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.input-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    color: var(--neutral-dark);
+}
+
+/* ========================
+   BUTTONS
+   ======================== */
+
+.auth-button {
+    width: 100%;
+    background: var(--primary-gradient);
+    color: white;
+    padding: 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.auth-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(10, 0, 97, 0.3);
+}
+
+.auth-button:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 20px 40px rgba(0, 97, 223, 0.4);
+}
+
+/* ========================
+   TYPOGRAPHY
+   ======================== */
+
+.text-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 58px;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.text-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 19px;
+    color: var(--neutral-dark);
+}
+
+.text-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24px;
+    color: var(--neutral-dark);
+}
+
+.text-description {
+    font-family: 'Inter', sans-serif;
+    font-size: 40px;
+    font-weight: 300;
+    line-height: 48px;
+    color: var(--primary-light);
+    text-align: center;
+}
+
+/* ========================
+   LAYOUT CONTAINERS
+   ======================== */
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+}
+
+/* ========================
+   CUSTOM ELEMENTS
+   ======================== */
+
+.demo-box {
+    background: #f0f9ff;
+    border: 1px solid #dbeafe;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.info-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.info-card-header {
+    background: var(--primary-light);
+    color: white;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.icon-container {
+    width: 45px;
+    height: 45px;
+    background: var(--primary-gradient);
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+/* ========================
+   RESPONSIVE
+   ======================== */
+
+@media (max-width: 768px) {
+    .text-title {
+        font-size: 32px;
+        line-height: 40px;
+    }
+
+    .text-description {
+        font-size: 24px;
+        line-height: 32px;
+    }
+
+    .btn-primary {
+        padding: 15px;
+        font-size: 18px;
+    }
 }
