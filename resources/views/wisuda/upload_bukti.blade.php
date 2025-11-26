@@ -83,8 +83,15 @@
                             </label>
                             <input type="file" name="bukti_bayar" id="bukti_bayar"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                                accept=".jpg,.jpeg,.png,.pdf" required>
-                            <p class="mt-1 text-xs text-gray-500">Format: JPG, JPEG, PNG, PDF (Maks. 2MB)</p>
+                                accept=".pdf" required>
+                            <p class="mt-1 text-xs text-gray-500">Format: PDF (Maks. 2MB)</p>
+                            <div id="selected-file-preview" class="mt-3 p-3 border border-blue-200 rounded-lg bg-blue-50 text-sm text-blue-800 flex items-center gap-2" style="display:none;">
+                                <i class="fas fa-file-pdf text-lg"></i>
+                                <div>
+                                    <p class="font-semibold">File siap diupload</p>
+                                    <p id="selected-file-name" class="font-mono text-xs"></p>
+                                </div>
+                            </div>
                             @error('bukti_bayar')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -309,6 +316,8 @@
 
             // Preview file sebelum upload
             const fileInput = document.getElementById('bukti_bayar');
+            const filePreview = document.getElementById('selected-file-preview');
+            const fileNameTarget = document.getElementById('selected-file-name');
             if (fileInput) {
                 fileInput.addEventListener('change', function(e) {
                     const file = e.target.files[0];
@@ -321,12 +330,22 @@
                         }
 
                         // Validasi tipe file
-                        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+                        const allowedTypes = ['application/pdf'];
                         if (!allowedTypes.includes(file.type)) {
-                            alert('Hanya file JPG, PNG, atau PDF yang diizinkan');
+                            alert('Hanya file PDF yang diizinkan');
                             e.target.value = '';
+                            if (filePreview) {
+                                filePreview.style.display = 'none';
+                            }
                             return;
                         }
+
+                        if (filePreview && fileNameTarget) {
+                            fileNameTarget.textContent = file.name;
+                            filePreview.style.display = 'flex';
+                        }
+                    } else if (filePreview) {
+                        filePreview.style.display = 'none';
                     }
                 });
             }

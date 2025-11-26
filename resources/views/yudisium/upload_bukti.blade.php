@@ -1,7 +1,115 @@
 <div>
     <!-- Life is available only in the present moment. - Thich Nhat Hanh -->
 </div>
-@extends('layouts.mahasiswa')
+@extends('layouts.mahasiswa_blank')
+
+@section('title', 'Pembayaran Yudisium')
+
+@section('content')
+    <div class="relative w-full min-h-screen bg-white overflow-x-hidden flex flex-col items-center">
+
+        {{-- Background Elements --}}
+        <div class="absolute w-[886px] h-[886px] -left-[456px] top-[658px] pointer-events-none z-0 hidden md:block">
+            <div class="absolute w-[206.67px] h-[886px] left-[339.66px] top-0 bg-[#0061DF] blur-[72px]"></div>
+            <div class="absolute w-[305.52px] h-[886px] left-0 top-[289.34px] bg-[#0061DF] blur-[72px] rotate-90"></div>
+        </div>
+        <div class="absolute w-[493px] h-[493px] left-[1259px] top-[308px] pointer-events-none z-0 hidden md:block">
+            <div class="absolute w-[115px] h-[493px] left-[189px] top-0 bg-[#0061DF] blur-[72px]"></div>
+            <div class="absolute w-[170px] h-[493px] left-0 top-[161px] bg-[#0061DF] blur-[72px] rotate-90"></div>
+        </div>
+
+        {{-- Top Navigation Bar --}}
+        <div class="absolute top-[35px] z-20 w-full flex justify-center px-4">
+            <div class="flex flex-row justify-between md:justify-center items-center px-6 md:gap-[175px] w-full max-w-[1262px] h-[82px] bg-[#0061DF] rounded-[10px] shadow-lg overflow-hidden">
+                <a href="{{ route('yudisium.index') }}" class="flex flex-row items-center gap-2.5 group hover:opacity-80 transition-opacity whitespace-nowrap">
+                    <div class="w-6 h-6 relative flex justify-center items-center">
+                        <i class="fas fa-medal text-white text-xl"></i>
+                    </div>
+                    <span class="font-['Inter'] font-bold text-[16px] md:text-[24px] leading-[29px] text-white hidden sm:inline">Daftar Yudisium</span>
+                </a>
+                <a href="{{ route('dashboard') }}" class="flex flex-row items-center gap-2.5 group hover:opacity-80 transition-opacity">
+                    <div class="w-6 h-6 relative flex justify-center items-center">
+                        <i class="fas fa-home text-white text-xl"></i>
+                    </div>
+                    <span class="font-['Inter'] font-light text-[16px] md:text-[24px] leading-[29px] text-white">Home</span>
+                </a>
+                <a href="{{ route('wisuda.index') }}" class="flex flex-row items-center gap-2.5 group hover:opacity-80 transition-opacity whitespace-nowrap">
+                    <div class="w-6 h-6 relative flex justify-center items-center">
+                        <i class="fas fa-graduation-cap text-white text-xl"></i>
+                    </div>
+                    <span class="font-['Inter'] font-light text-[16px] md:text-[24px] leading-[29px] text-white hidden sm:inline">Daftar Wisuda</span>
+                </a>
+            </div>
+        </div>
+
+        {{-- Main Content --}}
+        <div class="relative z-10 flex flex-col items-center w-full max-w-[1262px] pt-[150px] px-4 pb-20">
+            
+            {{-- Detail Pembayaran --}}
+            <div class="w-full max-w-[1110px] bg-white border-[3px] border-black rounded-[10px] p-5 mb-8">
+                <div class="flex items-center gap-2.5 mb-5 border-b border-black pb-2">
+                    <h2 class="font-['Inter'] font-semibold text-[32px] text-[#0061DF]">Detail Pembayaran</h2>
+                </div>
+                
+                <div class="flex flex-col gap-2.5">
+                    <div class="w-full h-[69px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] rounded-[10px] border border-black flex items-center justify-center">
+                        <span class="font-['Inter'] font-semibold text-[24px] text-white">Pembayaran Yudisium</span>
+                    </div>
+                    <div class="w-full h-[69px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] rounded-[10px] border border-black flex items-center justify-center">
+                        <span class="font-['Inter'] font-semibold text-[24px] text-white">Rp {{ number_format($pendaftaran->total_bayar, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="w-full h-[69px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] rounded-[10px] border border-black flex items-center justify-center">
+                        <span class="font-['Inter'] font-semibold text-[24px] text-white">{{ Auth::user()->name }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Pilih Pembayaran & Upload --}}
+            <div class="w-full max-w-[1110px] bg-white border-[3px] border-black rounded-[10px] p-5">
+                <div class="flex items-center gap-2.5 mb-5 border-b border-black pb-2">
+                    <h2 class="font-['Inter'] font-semibold text-[32px] text-[#0061DF]">Pilih Pembayaran & Upload Bukti</h2>
+                </div>
+
+                <div class="flex flex-row gap-10 mb-8 justify-center">
+                    {{-- DANA --}}
+                    <div class="w-[108px] h-[108px] border-2 border-black/10 rounded-[8px] flex items-center justify-center cursor-pointer hover:border-[#008CEB] transition-colors">
+                        <span class="font-bold text-[#008CEB]">DANA</span>
+                    </div>
+                    {{-- QRIS --}}
+                    <div class="w-[108px] h-[108px] border-2 border-black/10 rounded-[8px] flex items-center justify-center cursor-pointer hover:border-black transition-colors">
+                        <span class="font-bold text-black">QRIS</span>
+                    </div>
+                    {{-- BRIZZI --}}
+                    <div class="w-[108px] h-[108px] border-2 border-black/10 rounded-[8px] flex items-center justify-center cursor-pointer hover:border-[#29458F] transition-colors">
+                        <span class="font-bold text-[#29458F]">BRIZZI</span>
+                    </div>
+                </div>
+
+                <form action="{{ route('yudisium.proses-upload-bukti', $pendaftaran->id) }}" method="POST" enctype="multipart/form-data" class="flex flex-col items-center gap-5">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="w-full max-w-[500px]">
+                        <label class="block font-['Inter'] font-semibold text-[20px] text-[#0061DF] mb-2 text-center">Upload Bukti Transfer</label>
+                        <div class="relative w-full h-[200px] bg-[#D6D4FF] border border-dashed border-black rounded-[10px] flex flex-col justify-center items-center cursor-pointer hover:bg-[#c4c1ff] transition-colors group">
+                            <input type="file" name="bukti_bayar" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required accept="image/*">
+                            <i class="fas fa-cloud-upload-alt text-[50px] text-[#0061DF] mb-2"></i>
+                            <span class="font-['Inter'] text-[14px] text-[#0061DF]">Klik atau seret foto bukti bayar di sini</span>
+                        </div>
+                        @error('bukti_bayar')
+                            <p class="mt-1 text-sm text-red-600 text-center">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <button type="submit" class="w-full max-w-[1110px] h-[69px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] rounded-[10px] flex items-center justify-center hover:shadow-lg transition-all mt-4">
+                        <span class="font-['Inter'] font-bold text-[24px] text-white">Konfirmasi Pembayaran</span>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+@endsection
 
 @section('title', 'Upload Bukti Pembayaran Yudisium')
 

@@ -17,6 +17,10 @@ class PersyaratanYudisium extends Model
         'dosen_pembimbing',
         'file_ktp',
         'file_ijazah',
+        'no_whatsapp',
+        'sertifikasi_tahfidz',
+        'sertifikasi_toefl',
+        'surat_bebas_perpustakaan',
         'status',
         'catatan_admin',
     ];

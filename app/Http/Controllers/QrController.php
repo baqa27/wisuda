@@ -104,7 +104,7 @@ class QrController extends Controller
                 'kode_unik' => $kodeUnik,
                 'file_qr' => $filePath,
                 'status' => 'aktif',
-                'expired_at' => now()->addDays(7)
+                'expired_at' => null // Tidak ada expired date
             ]);
 
         } catch (\Exception $e) {
@@ -160,7 +160,6 @@ class QrController extends Controller
             ->where('token', $request->token)
             ->where('kode_unik', $request->kode_unik)
             ->where('status', 'aktif')
-            ->where('expired_at', '>', now())
             ->first();
 
         if (!$qr) {
@@ -207,8 +206,8 @@ class QrController extends Controller
                 'nim' => $qr->mahasiswa->nim,
                 'status' => $qr->status,
                 'waktu_checkin' => $qr->waktu_checkin?->format('d/m/Y H:i:s'),
-                'expired_at' => $qr->expired_at->format('d/m/Y H:i:s'),
-                'is_expired' => $qr->expired_at < now(),
+                'expired_at' => $qr->expired_at?->format('d/m/Y H:i:s'),
+                'is_expired' => $qr->expired_at ? $qr->expired_at < now() : false,
                 'is_used' => $qr->status === 'digunakan'
             ]
         ]);

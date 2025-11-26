@@ -200,7 +200,7 @@ class AdminController extends Controller
     /* View Persyaratan Yudisium */
     public function viewFileYudisium($filename)
     {
-        return $this->downloadFile('persyaratan/yudisium', $filename);
+        return $this->downloadFile('persyaratan_yudisium', $filename);
     }
 
     /* View Persyaratan Wisuda */

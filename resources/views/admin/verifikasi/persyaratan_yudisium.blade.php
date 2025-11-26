@@ -30,10 +30,10 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Mahasiswa</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Judul TA</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Dosen Pembimbing</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">File</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Upload</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Akademik</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Kontak</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Dokumen</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Diajukan</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Aksi</th>
                         </tr>
                     </thead>
@@ -45,30 +45,56 @@
                                     <div class="text-xs text-gray-500">{{ $item->mahasiswa->nim }}</div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-700">
-                                    {{ $item->judul_ta }}
+                                    <p class="font-semibold text-gray-900">{{ $item->judul_ta }}</p>
+                                    <p class="text-xs text-gray-500 mt-1">Dospem: {{ $item->dosen_pembimbing }}</p>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                    {{ $item->dosen_pembimbing }}
+                                    <div class="flex flex-col gap-1">
+                                        <span class="font-semibold text-gray-900 flex items-center gap-1">
+                                            <i class="fas fa-phone text-[#0061DF]"></i>
+                                            {{ $item->no_whatsapp ?? '-' }}
+                                        </span>
+                                        <span class="text-xs text-gray-500">Email: {{ $item->mahasiswa->email }}</span>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <td class="px-6 py-4 text-sm">
+                                    @php
+                                        $files = [
+                                            'KTP' => $item->file_ktp,
+                                            'Ijazah' => $item->file_ijazah,
+                                            'Sertifikat Tahfidz' => $item->sertifikasi_tahfidz,
+                                            'Sertifikat TOEFL' => $item->sertifikasi_toefl,
+                                            'Surat Bebas Perpustakaan' => $item->surat_bebas_perpustakaan,
+                                        ];
+                                    @endphp
                                     <div class="space-y-1">
-                                        <a href="{{ route('admin.view.persyaratan-yudisium', basename($item->file_ktp)) }}"
-                                            target="_blank"
-                                            class="inline-flex items-center gap-1 text-[#0061DF] hover:text-[#0A0061] font-semibold transition">
-                                            <i class="fas fa-file-pdf"></i> KTP
-                                        </a>
-                                        @if ($item->file_ijazah)
-                                            <br>
-                                            <a href="{{ route('admin.view.persyaratan-yudisium', basename($item->file_ijazah)) }}"
-                                                target="_blank"
-                                                class="inline-flex items-center gap-1 text-[#0061DF] hover:text-[#0A0061] font-semibold transition">
-                                                <i class="fas fa-file-pdf"></i> Ijazah
-                                            </a>
-                                        @endif
+                                        @foreach ($files as $label => $path)
+                                            @if ($path)
+                                                <a href="{{ route('admin.view.persyaratan-yudisium', basename($path)) }}"
+                                                    target="_blank"
+                                                    class="flex items-center gap-2 text-[#0061DF] hover:text-[#0A0061] font-semibold transition text-sm">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    <span>{{ $label }}</span>
+                                                </a>
+                                            @else
+                                                <div class="flex items-center gap-2 text-xs text-gray-400">
+                                                    <i class="fas fa-times-circle"></i>
+                                                    <span>{{ $label }} belum diunggah</span>
+                                                </div>
+                                            @endif
+                                        @endforeach
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                    {{ $item->created_at->format('d/m/Y H:i') }}
+                                    <div class="flex flex-col">
+                                        <span>{{ $item->created_at->format('d/m/Y H:i') }}</span>
+                                        <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                                            <i class="fas fa-clock"></i> Menunggu Verifikasi
+                                        </span>
+                                        @if($item->catatan_admin)
+                                            <span class="text-xs text-red-500 mt-1">Catatan terakhir: {{ $item->catatan_admin }}</span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex items-center gap-2">

@@ -58,7 +58,7 @@ class WisudaController extends Controller
     public function prosesPembayaran(Request $request, $id)
     {
         $request->validate([
-            'bukti_bayar' => 'required|image|mimes:jpeg,png,jpg|max:2048'
+            'bukti_bayar' => 'required|file|mimes:pdf|max:2048'
         ]);
 
         $pendaftaran = PendaftaranWisuda::where('mahasiswa_id', Auth::id())->findOrFail($id);

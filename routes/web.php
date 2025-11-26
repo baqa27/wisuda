@@ -58,6 +58,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/persyaratan', [YudisiumController::class, 'simpanPersyaratan'])->name('yudisium.persyaratan.simpan');
             Route::get('/persyaratan/edit', [YudisiumController::class, 'editPersyaratan'])->name('yudisium.persyaratan.edit');
             Route::put('/persyaratan/update', [YudisiumController::class, 'updatePersyaratan'])->name('yudisium.persyaratan.update');
+            Route::get('/selesai', [YudisiumController::class, 'selesai'])->name('yudisium.selesai');
 
             // Download
             Route::get('/download/{filename}', [YudisiumController::class, 'downloadFile'])->name('yudisium.download');

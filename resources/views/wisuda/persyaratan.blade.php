@@ -86,16 +86,31 @@
                             </form>
                         </div>
                     @else
-                        <form action="{{ route('wisuda.persyaratan.upload') }}" method="POST" enctype="multipart/form-data" class="mt-2">
+                        @php $dropzoneId = 'wisuda-' . $key; @endphp
+                        <form action="{{ route('wisuda.persyaratan.upload') }}" method="POST" enctype="multipart/form-data" class="mt-2 space-y-3">
                             @csrf
                             <input type="hidden" name="jenis" value="{{ $key }}">
 
-                            <div class="flex items-center space-x-2">
+                            <div class="relative w-full h-32 bg-blue-50 border border-dashed border-blue-400 rounded-lg overflow-hidden" data-target="{{ $dropzoneId }}">
                                 <input type="file"
                                        name="file"
-                                       class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                       class="absolute inset-0 w-full h-full opacity-0 cursor-pointer dragdrop-input"
+                                       data-preview="{{ $dropzoneId }}"
                                        accept=".pdf,.jpg,.jpeg,.png"
                                        required>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-3 pointer-events-none" id="placeholder-{{ $dropzoneId }}">
+                                    <i class="fas fa-folder-plus text-3xl text-blue-500 mb-2"></i>
+                                    <span class="text-sm text-blue-700">Seret file atau klik untuk upload</span>
+                                </div>
+                                <div class="absolute inset-0 hidden flex-col items-center justify-center text-center bg-green-50 px-3 pointer-events-none" id="success-{{ $dropzoneId }}">
+                                    <i class="fas fa-check-circle text-green-500 text-3xl mb-1"></i>
+                                    <p class="text-green-700 text-sm font-semibold">File siap diupload</p>
+                                    <p class="file-name text-[10px] text-green-600"></p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs text-gray-500">Format: PDF/JPG/PNG · Maks 2MB</p>
                                 <button type="submit"
                                         class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm font-medium">
                                     <i class="fas fa-upload mr-1"></i> Upload
@@ -171,3 +186,38 @@
     @endif
 </div>
 @endsection
+
+    @push('scripts')
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.dragdrop-input').forEach(function (input) {
+            var previewId = input.dataset.preview;
+            var placeholder = document.getElementById('placeholder-' + previewId);
+            var successState = document.getElementById('success-' + previewId);
+            var fileNameSpan = successState ? successState.querySelector('.file-name') : null;
+
+            input.addEventListener('change', function (event) {
+                var file = event.target.files[0];
+
+                if (!placeholder || !successState) {
+                    return;
+                }
+
+                if (file) {
+                    placeholder.classList.add('hidden');
+                    successState.classList.remove('hidden');
+                    if (fileNameSpan) {
+                        fileNameSpan.textContent = file.name;
+                    }
+                } else {
+                    placeholder.classList.remove('hidden');
+                    successState.classList.add('hidden');
+                    if (fileNameSpan) {
+                        fileNameSpan.textContent = '';
+                    }
+                }
+            });
+        });
+    });
+    </script>
+    @endpush

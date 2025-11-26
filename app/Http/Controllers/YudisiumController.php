@@ -79,7 +79,12 @@ class YudisiumController extends Controller
                 'status' => 'menunggu_verifikasi' // Status berubah menunggu verifikasi admin
             ]);
 
-            return redirect()->route('yudisium.index')->with('success', 'Bukti pembayaran berhasil diupload! Menunggu verifikasi admin.');
+            // Setelah bukti bayar berhasil, arahkan langsung ke persyaratan jika belum diisi
+            $redirectRoute = PersyaratanYudisium::where('mahasiswa_id', Auth::id())->exists()
+                ? 'yudisium.index'
+                : 'yudisium.persyaratan.form';
+
+            return redirect()->route($redirectRoute)->with('success', 'Bukti pembayaran berhasil diupload! Silakan lanjutkan pengisian persyaratan.');
         }
 
         return back()->with('error', 'Gagal mengupload bukti pembayaran.');
@@ -108,8 +113,16 @@ class YudisiumController extends Controller
 
         // Cek apakah pembayaran sudah lunas (sudah diverifikasi admin)
         $pendaftaran = PendaftaranYudisium::where('mahasiswa_id', $mahasiswa->id)
-            ->where('status', 'lunas')
             ->firstOrFail();
+
+        if (!$pendaftaran->bukti_bayar) {
+            return redirect()->route('yudisium.upload-bukti', $pendaftaran->id)
+                ->with('error', 'Silakan upload bukti pembayaran terlebih dahulu.');
+        }
+
+        if (!in_array($pendaftaran->status, ['menunggu_verifikasi', 'lunas'])) {
+            return redirect()->route('yudisium.index')->with('error', 'Pembayaran perlu diselesaikan sebelum mengisi persyaratan.');
+        }
 
         // Cek apakah sudah mengisi persyaratan
         $persyaratan = PersyaratanYudisium::where('mahasiswa_id', $mahasiswa->id)->first();
@@ -128,8 +141,12 @@ class YudisiumController extends Controller
         $request->validate([
             'judul_ta' => 'required|string|max:255',
             'dosen_pembimbing' => 'required|string|max:100',
+            'no_whatsapp' => 'required|string|max:20',
             'file_ktp' => 'required|file|mimes:pdf,jpeg,png|max:2048',
             'file_ijazah' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
+            'sertifikasi_tahfidz' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
+            'sertifikasi_toefl' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
+            'surat_bebas_perpustakaan' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
         ]);
 
         $mahasiswa = Auth::user();
@@ -139,17 +156,42 @@ class YudisiumController extends Controller
         $fileIjazah = $request->hasFile('file_ijazah')
             ? $request->file('file_ijazah')->store('persyaratan_yudisium', 'public')
             : null;
+        $sertifikasiTahfidz = $request->hasFile('sertifikasi_tahfidz')
+            ? $request->file('sertifikasi_tahfidz')->store('persyaratan_yudisium', 'public')
+            : null;
+        $sertifikasiToefl = $request->hasFile('sertifikasi_toefl')
+            ? $request->file('sertifikasi_toefl')->store('persyaratan_yudisium', 'public')
+            : null;
+        $suratBebasPerpustakaan = $request->hasFile('surat_bebas_perpustakaan')
+            ? $request->file('surat_bebas_perpustakaan')->store('persyaratan_yudisium', 'public')
+            : null;
 
         PersyaratanYudisium::create([
             'mahasiswa_id' => $mahasiswa->id,
             'judul_ta' => $request->judul_ta,
             'dosen_pembimbing' => $request->dosen_pembimbing,
+            'no_whatsapp' => $request->no_whatsapp,
             'file_ktp' => $fileKtp,
             'file_ijazah' => $fileIjazah,
+            'sertifikasi_tahfidz' => $sertifikasiTahfidz,
+            'sertifikasi_toefl' => $sertifikasiToefl,
+            'surat_bebas_perpustakaan' => $suratBebasPerpustakaan,
             'status' => 'menunggu',
         ]);
 
-        return redirect()->route('yudisium.index')->with('success', 'Persyaratan yudisium berhasil disimpan. Menunggu verifikasi admin.');
+        return redirect()->route('yudisium.selesai')->with('success', 'Persyaratan yudisium berhasil disimpan.');
+
+    }
+
+    /**
+     * Halaman selesai yudisium
+     */
+    public function selesai()
+    {
+        $mahasiswa = Auth::user();
+        $persyaratan = PersyaratanYudisium::where('mahasiswa_id', $mahasiswa->id)->firstOrFail();
+
+        return view('yudisium.selesai', compact('persyaratan'));
     }
 
     /**
@@ -189,8 +231,12 @@ class YudisiumController extends Controller
         $request->validate([
             'judul_ta' => 'required|string|max:255',
             'dosen_pembimbing' => 'required|string|max:100',
+            'no_whatsapp' => 'required|string|max:20',
             'file_ktp' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
             'file_ijazah' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
+            'sertifikasi_tahfidz' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
+            'sertifikasi_toefl' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
+            'surat_bebas_perpustakaan' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
         ]);
 
         $persyaratan = PersyaratanYudisium::where('mahasiswa_id', Auth::id())
@@ -199,27 +245,26 @@ class YudisiumController extends Controller
         $data = [
             'judul_ta' => $request->judul_ta,
             'dosen_pembimbing' => $request->dosen_pembimbing,
+            'no_whatsapp' => $request->no_whatsapp,
             'status' => 'menunggu',
             'catatan_admin' => null,
         ];
 
-        // Update file KTP jika ada
-        if ($request->hasFile('file_ktp')) {
-            // Hapus file lama
-            if (Storage::disk('public')->exists($persyaratan->file_ktp)) {
-                Storage::disk('public')->delete($persyaratan->file_ktp);
+        // Helper function to handle file update
+        $handleFileUpdate = function ($fieldName, $request, $persyaratan, &$data) {
+            if ($request->hasFile($fieldName)) {
+                if ($persyaratan->$fieldName && Storage::disk('public')->exists($persyaratan->$fieldName)) {
+                    Storage::disk('public')->delete($persyaratan->$fieldName);
+                }
+                $data[$fieldName] = $request->file($fieldName)->store('persyaratan_yudisium', 'public');
             }
-            $data['file_ktp'] = $request->file('file_ktp')->store('persyaratan_yudisium', 'public');
-        }
+        };
 
-        // Update file ijazah jika ada
-        if ($request->hasFile('file_ijazah')) {
-            // Hapus file lama jika ada
-            if ($persyaratan->file_ijazah && Storage::disk('public')->exists($persyaratan->file_ijazah)) {
-                Storage::disk('public')->delete($persyaratan->file_ijazah);
-            }
-            $data['file_ijazah'] = $request->file('file_ijazah')->store('persyaratan_yudisium', 'public');
-        }
+        $handleFileUpdate('file_ktp', $request, $persyaratan, $data);
+        $handleFileUpdate('file_ijazah', $request, $persyaratan, $data);
+        $handleFileUpdate('sertifikasi_tahfidz', $request, $persyaratan, $data);
+        $handleFileUpdate('sertifikasi_toefl', $request, $persyaratan, $data);
+        $handleFileUpdate('surat_bebas_perpustakaan', $request, $persyaratan, $data);
 
         $persyaratan->update($data);
 
