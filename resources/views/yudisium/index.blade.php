@@ -85,19 +85,34 @@
                 <div class="w-full max-w-[800px] bg-white border-[3px] border-black rounded-[10px] p-10 flex flex-col items-center text-center">
                     <h1 class="font-['Inter'] font-bold text-[32px] text-[#0061DF] mb-8">HALAMAN NOTIFIKASI PEMBAYARAN YUDISIUM</h1>
 
-                    <div class="w-[100px] h-[100px] bg-green-500 rounded-full flex items-center justify-center mb-6">
-                        <i class="fas fa-check text-white text-[50px]"></i>
+                    <div class="w-[100px] h-[100px] bg-yellow-400 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-clock text-white text-[50px]"></i>
                     </div>
 
-                    <h2 class="font-['Inter'] font-bold text-[32px] text-[#0061DF] mb-4">Pembayaran Berhasil!</h2>
-                    <p class="font-['Inter'] text-[18px] text-black mb-8">Pembayaran Yudisium anda sedang di verifikasi oleh admin</p>
+                    <h2 class="font-['Inter'] font-bold text-[32px] text-[#0061DF] mb-4">Menunggu Verifikasi</h2>
+                    <p class="font-['Inter'] text-[18px] text-black mb-8">Bukti pembayaran Anda telah diterima dan sedang dicek admin. Harap tunggu sebelum melanjutkan ke persyaratan.</p>
 
                     <a href="{{ route('dashboard') }}" class="w-full max-w-[400px] h-[60px] flex items-center justify-center bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] rounded-[10px] text-white font-bold text-[20px] hover:shadow-lg transition-all">
                         Kembali ke Dashboard
                     </a>
                 </div>
 
-            @elseif (in_array($pendaftaran->status, ['lunas', 'menunggu_verifikasi']) && !$persyaratan)
+            @elseif ($pendaftaran->status == 'batal')
+                {{-- State 4: Pembayaran Ditolak Admin --}}
+                <div class="w-full max-w-[800px] bg-white border-[3px] border-red-400 rounded-[10px] p-10 flex flex-col items-center text-center">
+                    <h1 class="font-['Inter'] font-bold text-[32px] text-red-600 mb-4">Pembayaran Ditolak</h1>
+                    <p class="font-['Inter'] text-[18px] text-gray-700 mb-6">Admin menolak bukti pembayaran Anda. Silakan unggah ulang bukti yang sesuai.</p>
+
+                    <div class="w-[100px] h-[100px] bg-red-500 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-times text-white text-[50px]"></i>
+                    </div>
+
+                    <a href="{{ route('yudisium.upload-bukti', $pendaftaran->id) }}" class="px-8 py-4 bg-red-600 rounded-[10px] text-white font-bold text-[20px] hover:shadow-lg transition-all">
+                        Upload Bukti Baru
+                    </a>
+                </div>
+
+            @elseif ($pendaftaran->status == 'lunas' && !$persyaratan)
                 {{-- State 4: Lunas, Belum Isi Persyaratan --}}
                 <div class="w-full max-w-[800px] bg-white border-[3px] border-black rounded-[10px] p-10 flex flex-col items-center text-center">
                     <h1 class="font-['Inter'] font-bold text-[32px] text-[#0061DF] mb-4">Pembayaran Terverifikasi</h1>
@@ -114,8 +129,8 @@
                     <h1 class="font-['Inter'] font-bold text-[32px] text-[#0061DF] mb-8">HALAMAN NOTIFIKASI PENDAFTARAN YUDISIUM</h1>
 
                     @if($persyaratan->status == 'terverifikasi')
-                        <div class="w-[100px] h-[100px] bg-green-500 rounded-full flex items-center justify-center mb-6">
-                            <i class="fas fa-check-double text-white text-[50px]"></i>
+                        <div class="w-[100px] h-[100px] bg-[#0061DF] rounded-full flex items-center justify-center mb-6">
+                            <i class="fas fa-check text-white text-[50px]"></i>
                         </div>
                         <h2 class="font-['Inter'] font-bold text-[32px] text-[#0061DF] mb-4">Yudisium Selesai!</h2>
                         <p class="font-['Inter'] text-[18px] text-black mb-8">Selamat! Anda telah menyelesaikan proses Yudisium.</p>
@@ -232,6 +247,9 @@
                         } elseif (in_array($status, ['menunggu_verifikasi', 'menunggu_pembayaran'])) {
                             $icon = 'fa-clock';
                             $bg = 'bg-yellow-500';
+                        } elseif ($status === 'batal') {
+                            $icon = 'fa-times';
+                            $bg = 'bg-red-500';
                         }
                     @endphp
                     <div class="w-10 h-10 rounded-full {{ $bg }} flex items-center justify-center">
@@ -269,8 +287,17 @@
                                     @endif
                                 @break
 
+                                @case('batal')
+                                    <span class="text-red-600">Ditolak Admin - Upload ulang bukti bayar</span>
+                                    @if ($pendaftaran->bukti_bayar)
+                                        <span class="ml-2 text-red-500">
+                                            <i class="fas fa-info-circle mr-1"></i>Bukti sebelumnya tidak valid
+                                        </span>
+                                    @endif
+                                @break
+
                                 @default
-                                    <span class="text-red-600">Batal</span>
+                                    <span class="text-gray-500">Status tidak dikenal</span>
                             @endswitch
                         @else
                             <span class="text-gray-500">Menunggu pendaftaran</span>
@@ -278,7 +305,7 @@
                     </p>
 
                     {{-- Tombol Upload / Download --}}
-                    @if ($pendaftaran && in_array($pendaftaran->status, ['menunggu_pembayaran', 'menunggu_verifikasi']))
+                    @if ($pendaftaran && in_array($pendaftaran->status, ['menunggu_pembayaran', 'menunggu_verifikasi', 'batal']))
                         <div class="mt-2 flex space-x-2">
                             <a href="{{ route('yudisium.upload-bukti', $pendaftaran->id) }}"
                                 class="inline-flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm hover:bg-blue-200 transition duration-200">
@@ -296,7 +323,7 @@
                     @endif
 
                     <!-- Informasi Bank dan Nomor Rekening -->
-                    @if ($pendaftaran && in_array($pendaftaran->status, ['menunggu_pembayaran', 'menunggu_verifikasi']))
+                    @if ($pendaftaran && in_array($pendaftaran->status, ['menunggu_pembayaran', 'menunggu_verifikasi', 'batal']))
                         <div class="mt-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
                             <h4 class="font-medium text-blue-800 mb-3">Transfer ke Rekening Berikut:</h4>
 
@@ -404,7 +431,7 @@
                                 @endif
                             @endif
                         @else
-                            @if ($pendaftaran && in_array($pendaftaran->status, ['lunas', 'menunggu_verifikasi']))
+                            @if ($pendaftaran && $pendaftaran->status === 'lunas')
                                 <a href="{{ route('yudisium.persyaratan.form') }}"
                                     class="text-blue-600 hover:text-blue-800 font-medium">
                                     Isi Persyaratan
@@ -424,7 +451,7 @@
                         </div>
                     @endif
 
-                    @if ($pendaftaran && in_array($pendaftaran->status, ['lunas', 'menunggu_verifikasi']) && !$persyaratan)
+                    @if ($pendaftaran && $pendaftaran->status === 'lunas' && !$persyaratan)
                         <div class="mt-2">
                             <a href="{{ route('yudisium.persyaratan.form') }}"
                                 class="inline-flex items-center bg-green-100 text-green-700 px-3 py-1 rounded text-sm hover:bg-green-200 transition duration-200">
@@ -495,7 +522,7 @@
             @if ($pendaftaran)
                 progress += 33;
             @endif
-            @if ($pendaftaran && in_array($pendaftaran->status, ['lunas', 'menunggu_verifikasi']))
+            @if ($pendaftaran && $pendaftaran->status === 'lunas')
                 progress += 33;
             @endif
             @if ($persyaratan && $persyaratan->status == 'terverifikasi')

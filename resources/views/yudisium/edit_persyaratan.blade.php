@@ -41,7 +41,7 @@
 
         {{-- Main Content --}}
         <div class="relative z-10 flex flex-col items-center w-full max-w-[1262px] pt-[150px] px-4 pb-20">
-            
+
             {{-- Form Container --}}
             <div class="w-full bg-white rounded-[10px] shadow-lg p-8 md:p-12 border border-gray-200">
                 <h1 class="font-['Inter'] font-bold text-[24px] md:text-[32px] text-[#0061DF] mb-8 text-center">EDIT PERSYARATAN YUDISIUM</h1>
@@ -65,11 +65,11 @@
                 <form action="{{ route('yudisium.persyaratan.update') }}" method="POST" enctype="multipart/form-data" class="w-full">
                     @csrf
                     @method('PUT')
-                    
+
                     <div class="flex flex-col lg:flex-row gap-10">
                         {{-- Left Column: Data Mahasiswa --}}
                         <div class="flex-1 flex flex-col gap-6">
-                            
+
                             {{-- Nama --}}
                             <div class="flex flex-col gap-2">
                                 <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">Nama</label>
@@ -147,71 +147,44 @@
 
                         {{-- Right Column: Uploads --}}
                         <div class="flex-1 flex flex-col gap-8">
-                            
-                            {{-- Helper for file status --}}
+
                             @php
-                                function showFileStatus($path) {
-                                    if ($path) {
-                                        return '<span class="text-green-600 text-sm"><i class="fas fa-check-circle"></i> File sudah ada</span>';
-                                    }
-                                    return '<span class="text-gray-500 text-sm">Belum ada file</span>';
-                                }
+                                $dropzones = [
+                                    ['id' => 'file_ktp', 'label' => 'File KTP', 'name' => 'file_ktp', 'hint' => 'PDF maks 2MB', 'accept' => '.pdf,application/pdf'],
+                                    ['id' => 'sertifikasi_tahfidz', 'label' => 'Sertifikasi Tahfidz', 'name' => 'sertifikasi_tahfidz', 'hint' => 'PDF maks 2MB', 'accept' => '.pdf,application/pdf'],
+                                    ['id' => 'sertifikasi_toefl', 'label' => 'Sertifikasi TOEFL', 'name' => 'sertifikasi_toefl', 'hint' => 'PDF maks 2MB', 'accept' => '.pdf,application/pdf'],
+                                    ['id' => 'surat_bebas_perpustakaan', 'label' => 'Surat Bebas Perpustakaan', 'name' => 'surat_bebas_perpustakaan', 'hint' => 'PDF maks 2MB', 'accept' => '.pdf,application/pdf'],
+                                    ['id' => 'file_ijazah', 'label' => 'File Ijazah (Opsional)', 'name' => 'file_ijazah', 'hint' => 'PDF maks 2MB', 'accept' => '.pdf,application/pdf'],
+                                ];
                             @endphp
 
-                            {{-- File KTP --}}
-                            <div class="flex flex-col gap-2">
-                                <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">File KTP</label>
-                                <div class="mb-1">{!! showFileStatus($persyaratan->file_ktp) !!}</div>
-                                <div class="relative w-full h-[126px] bg-[#D6D4FF] border border-dashed border-black rounded-[10px] flex flex-col justify-center items-center cursor-pointer hover:bg-[#c4c1ff] transition-colors group">
-                                    <input type="file" name="file_ktp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                    <i class="fas fa-folder-plus text-[40px] text-[#0061DF] mb-2"></i>
-                                    <span class="font-['Inter'] text-[12px] text-[#0061DF]">Upload ulang untuk mengganti</span>
-                                </div>
-                            </div>
+                            @foreach ($dropzones as $dropzone)
+                                <div class="flex flex-col gap-2">
+                                    <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">{{ $dropzone['label'] }}</label>
+                                    <div class="relative w-full h-40 bg-[#D6D4FF] border border-dashed border-black rounded-[10px] p-4 overflow-hidden">
+                                        <div class="w-full h-full flex flex-col items-center justify-center text-center gap-1 pointer-events-none" id="placeholder-{{ $dropzone['id'] }}">
+                                            <i class="fas fa-folder-plus text-[40px] text-[#0061DF]"></i>
+                                            <span class="font-['Inter'] text-[12px] text-[#0061DF]">Upload ulang untuk mengganti</span>
+                                            <small class="text-[11px] text-[#4B4F8F]">{{ $dropzone['hint'] }}</small>
+                                        </div>
 
-                            {{-- Sertifikasi Tahfidz --}}
-                            <div class="flex flex-col gap-2">
-                                <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">Sertifikasi Tahfidz</label>
-                                <div class="mb-1">{!! showFileStatus($persyaratan->sertifikasi_tahfidz) !!}</div>
-                                <div class="relative w-full h-[126px] bg-[#D6D4FF] border border-dashed border-black rounded-[10px] flex flex-col justify-center items-center cursor-pointer hover:bg-[#c4c1ff] transition-colors group">
-                                    <input type="file" name="sertifikasi_tahfidz" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                    <i class="fas fa-folder-plus text-[40px] text-[#0061DF] mb-2"></i>
-                                    <span class="font-['Inter'] text-[12px] text-[#0061DF]">Upload ulang untuk mengganti</span>
-                                </div>
-                            </div>
+                                        <div class="absolute inset-0 hidden px-4 py-4" id="preview-wrapper-{{ $dropzone['id'] }}">
+                                            <div class="w-full h-full bg-[#D6D4FF] flex flex-col items-center justify-center gap-4 text-center">
+                                                <div class="w-full bg-white rounded-lg border border-[#0061DF]/30 shadow-sm p-4 flex items-center gap-3 text-left">
+                                                    <i class="fas fa-file-pdf text-2xl text-[#BA1B1D]" id="preview-icon-{{ $dropzone['id'] }}"></i>
+                                                <div class="flex-1">
+                                                    <p class="text-sm font-semibold text-[#0061DF] truncate" id="preview-name-{{ $dropzone['id'] }}"></p>
+                                                    <p class="text-xs text-gray-500" id="preview-info-{{ $dropzone['id'] }}"></p>
+                                                </div>
+                                            </div>
+                                                <button type="button" class="text-sm text-red-600 hover:underline" data-reset-preview="{{ $dropzone['id'] }}">Batal pilih file</button>
+                                            </div>
+                                        </div>
 
-                            {{-- Sertifikasi TOEFL --}}
-                            <div class="flex flex-col gap-2">
-                                <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">Sertifikasi TOEFL</label>
-                                <div class="mb-1">{!! showFileStatus($persyaratan->sertifikasi_toefl) !!}</div>
-                                <div class="relative w-full h-[126px] bg-[#D6D4FF] border border-dashed border-black rounded-[10px] flex flex-col justify-center items-center cursor-pointer hover:bg-[#c4c1ff] transition-colors group">
-                                    <input type="file" name="sertifikasi_toefl" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                    <i class="fas fa-folder-plus text-[40px] text-[#0061DF] mb-2"></i>
-                                    <span class="font-['Inter'] text-[12px] text-[#0061DF]">Upload ulang untuk mengganti</span>
+                                        <input type="file" id="input-{{ $dropzone['id'] }}" data-preview-id="{{ $dropzone['id'] }}" name="{{ $dropzone['name'] }}" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer previewable-file" accept="{{ $dropzone['accept'] }}">
+                                    </div>
                                 </div>
-                            </div>
-
-                            {{-- Surat Bebas Perpustakaan --}}
-                            <div class="flex flex-col gap-2">
-                                <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">Surat Bebas Perpustakaan</label>
-                                <div class="mb-1">{!! showFileStatus($persyaratan->surat_bebas_perpustakaan) !!}</div>
-                                <div class="relative w-full h-[126px] bg-[#D6D4FF] border border-dashed border-black rounded-[10px] flex flex-col justify-center items-center cursor-pointer hover:bg-[#c4c1ff] transition-colors group">
-                                    <input type="file" name="surat_bebas_perpustakaan" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                    <i class="fas fa-folder-plus text-[40px] text-[#0061DF] mb-2"></i>
-                                    <span class="font-['Inter'] text-[12px] text-[#0061DF]">Upload ulang untuk mengganti</span>
-                                </div>
-                            </div>
-
-                            {{-- File Ijazah (Optional) --}}
-                            <div class="flex flex-col gap-2">
-                                <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">File Ijazah (Opsional)</label>
-                                <div class="mb-1">{!! showFileStatus($persyaratan->file_ijazah) !!}</div>
-                                <div class="relative w-full h-[126px] bg-[#D6D4FF] border border-dashed border-black rounded-[10px] flex flex-col justify-center items-center cursor-pointer hover:bg-[#c4c1ff] transition-colors group">
-                                    <input type="file" name="file_ijazah" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                    <i class="fas fa-folder-plus text-[40px] text-[#0061DF] mb-2"></i>
-                                    <span class="font-['Inter'] text-[12px] text-[#0061DF]">Upload ulang untuk mengganti</span>
-                                </div>
-                            </div>
+                            @endforeach
 
                         </div>
                     </div>
@@ -232,26 +205,91 @@
     </div>
 @endsection
 
-@section('content')
-<div class="container">
-    <h4>Edit Persyaratan Yudisium</h4>
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInputs = document.querySelectorAll('.previewable-file');
+    const allowedMime = ['application/pdf'];
+    const allowedExtensions = ['.pdf'];
 
-    <form action="{{ url('yudisium/update-persyaratan') }}" method="POST" enctype="multipart/form-data">
-        @csrf
+    const togglePlaceholder = (previewId, show = true) => {
+        const placeholder = document.getElementById(`placeholder-${previewId}`);
+        if (!placeholder) return;
+        placeholder.classList.toggle('hidden', !show);
+    };
 
-        <label>Judul TA</label>
-        <input type="text" name="judul_ta" value="{{ $persyaratan->judul_ta }}" class="form-control" required>
+    const showPreview = (file, previewId) => {
+        const wrapper = document.getElementById(`preview-wrapper-${previewId}`);
+        const iconEl = document.getElementById(`preview-icon-${previewId}`);
+        const nameEl = document.getElementById(`preview-name-${previewId}`);
+        const infoEl = document.getElementById(`preview-info-${previewId}`);
 
-        <label>Dosen Pembimbing</label>
-        <input type="text" name="dosen_pembimbing" value="{{ $persyaratan->dosen_pembimbing }}" class="form-control" required>
+        if (!wrapper || !iconEl || !nameEl || !infoEl) return;
 
-        <label>File KTP (opsional)</label>
-        <input type="file" name="file_ktp" class="form-control">
+        nameEl.textContent = file.name;
+        infoEl.textContent = 'PDF siap diunggah';
 
-        <label>File Ijazah (opsional)</label>
-        <input type="file" name="file_ijazah" class="form-control">
+        togglePlaceholder(previewId, false);
+        wrapper.classList.remove('hidden');
+    };
 
-        <button type="submit" class="btn btn-primary mt-3">Update</button>
-    </form>
-</div>
-@endsection
+    const resetPreview = (previewId) => {
+        const wrapper = document.getElementById(`preview-wrapper-${previewId}`);
+        const iconEl = document.getElementById(`preview-icon-${previewId}`);
+        const nameEl = document.getElementById(`preview-name-${previewId}`);
+        const infoEl = document.getElementById(`preview-info-${previewId}`);
+        const input = document.getElementById(`input-${previewId}`);
+
+        if (wrapper) {
+            wrapper.classList.add('hidden');
+        }
+        if (nameEl) {
+            nameEl.textContent = '';
+        }
+        if (infoEl) {
+            infoEl.textContent = '';
+        }
+        if (iconEl) {
+            iconEl.classList.add('fa-file-pdf');
+        }
+        if (input) {
+            input.value = '';
+        }
+        togglePlaceholder(previewId, true);
+    };
+
+    fileInputs.forEach(input => {
+        input.addEventListener('change', event => {
+            const file = event.target.files[0];
+            const previewId = event.target.dataset.previewId;
+
+            if (!previewId) return;
+
+            if (!file) {
+                resetPreview(previewId);
+                return;
+            }
+
+            const isPdf = allowedMime.includes(file.type) || allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+
+            if (!isPdf) {
+                alert('Harap unggah file berformat PDF.');
+                event.target.value = '';
+                resetPreview(previewId);
+                return;
+            }
+
+            showPreview(file, previewId);
+        });
+    });
+
+    document.querySelectorAll('[data-reset-preview]').forEach(button => {
+        button.addEventListener('click', () => {
+            const previewId = button.dataset.resetPreview;
+            resetPreview(previewId);
+        });
+    });
+});
+</script>
+@endpush
+

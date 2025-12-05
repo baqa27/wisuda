@@ -79,12 +79,7 @@ class YudisiumController extends Controller
                 'status' => 'menunggu_verifikasi' // Status berubah menunggu verifikasi admin
             ]);
 
-            // Setelah bukti bayar berhasil, arahkan langsung ke persyaratan jika belum diisi
-            $redirectRoute = PersyaratanYudisium::where('mahasiswa_id', Auth::id())->exists()
-                ? 'yudisium.index'
-                : 'yudisium.persyaratan.form';
-
-            return redirect()->route($redirectRoute)->with('success', 'Bukti pembayaran berhasil diupload! Silakan lanjutkan pengisian persyaratan.');
+            return redirect()->route('yudisium.index')->with('success', 'Bukti pembayaran berhasil diupload dan sedang menunggu verifikasi admin.');
         }
 
         return back()->with('error', 'Gagal mengupload bukti pembayaran.');
@@ -120,8 +115,8 @@ class YudisiumController extends Controller
                 ->with('error', 'Silakan upload bukti pembayaran terlebih dahulu.');
         }
 
-        if (!in_array($pendaftaran->status, ['menunggu_verifikasi', 'lunas'])) {
-            return redirect()->route('yudisium.index')->with('error', 'Pembayaran perlu diselesaikan sebelum mengisi persyaratan.');
+        if ($pendaftaran->status !== 'lunas') {
+            return redirect()->route('yudisium.index')->with('error', 'Pembayaran harus disetujui admin sebelum mengisi persyaratan.');
         }
 
         // Cek apakah sudah mengisi persyaratan

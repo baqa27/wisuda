@@ -122,11 +122,11 @@
                             <div class="flex flex-col gap-2">
                                 <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">Semester</label>
                                 <div class="w-full p-4 border border-[#0061DF] rounded-[10px] bg-gray-50">
-                                    <span class="font-['Inter'] text-[16px] text-[#0061DF]">8</span> {{-- Hardcoded for now as per design, or dynamic if available --}}
+                                    <span class="font-['Inter'] text-[16px] text-[#0061DF]">8</span>
                                 </div>
                             </div>
 
-                            {{-- Judul TA (Required by Controller) --}}
+                            {{-- Judul TA --}}
                             <div class="flex flex-col gap-2">
                                 <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">Judul Tugas Akhir</label>
                                 <div class="w-full p-4 border border-[#0061DF] rounded-[10px] bg-white">
@@ -134,7 +134,7 @@
                                 </div>
                             </div>
 
-                            {{-- Dosen Pembimbing (Required by Controller) --}}
+                            {{-- Dosen Pembimbing --}}
                             <div class="flex flex-col gap-2">
                                 <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">Dosen Pembimbing</label>
                                 <div class="w-full p-4 border border-[#0061DF] rounded-[10px] bg-white">
@@ -147,90 +147,42 @@
                         {{-- Right Column: Uploads --}}
                         <div class="flex-1 flex flex-col gap-8">
 
-                            {{-- File KTP (Required by Controller) --}}
-                            <div class="flex flex-col gap-2">
-                                <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">File KTP</label>
-                                <div class="relative w-full h-[140px] bg-[#D6D4FF] border border-dashed border-black rounded-[10px] overflow-hidden" data-target="file_ktp">
-                                    <input type="file" name="file_ktp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer dragdrop-input" data-preview="file_ktp" accept=".pdf,.jpg,.jpeg,.png" required>
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center transition-opacity pointer-events-none" id="placeholder-file_ktp">
-                                        <i class="fas fa-folder-plus text-[40px] text-[#0061DF] mb-2"></i>
-                                        <span class="font-['Inter'] text-[12px] text-[#0061DF]">Seret file anda atau klik untuk upload</span>
-                                    </div>
-                                    <div class="absolute inset-0 hidden flex-col items-center justify-center text-center bg-green-50 pointer-events-none" id="success-file_ktp">
-                                        <i class="fas fa-check-circle text-green-500 text-[36px] mb-2"></i>
-                                        <p class="text-green-700 text-sm font-semibold">File siap diupload</p>
-                                        <p class="file-name text-xs text-green-600 font-mono"></p>
-                                    </div>
-                                </div>
-                            </div>
+                            @php
+                                $uploadFields = [
+                                    ['label' => 'File KTP', 'name' => 'file_ktp', 'id' => 'file_ktp', 'required' => true],
+                                    ['label' => 'Sertifikasi Tahfidz', 'name' => 'sertifikasi_tahfidz', 'id' => 'sertifikasi_tahfidz', 'required' => false],
+                                    ['label' => 'Sertifikasi TOEFL', 'name' => 'sertifikasi_toefl', 'id' => 'sertifikasi_toefl', 'required' => false],
+                                    ['label' => 'Surat Bebas Perpustakaan', 'name' => 'surat_bebas_perpustakaan', 'id' => 'surat_bebas_perpustakaan', 'required' => false],
+                                    ['label' => 'File Ijazah (Opsional)', 'name' => 'file_ijazah', 'id' => 'file_ijazah', 'required' => false],
+                                ];
+                            @endphp
 
-                            {{-- Sertifikasi Tahfidz --}}
-                            <div class="flex flex-col gap-2">
-                                <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">Sertifikasi Tahfidz</label>
-                                <div class="relative w-full h-[140px] bg-[#D6D4FF] border border-dashed border-black rounded-[10px] overflow-hidden" data-target="sertifikasi_tahfidz">
-                                    <input type="file" name="sertifikasi_tahfidz" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer dragdrop-input" data-preview="sertifikasi_tahfidz" accept=".pdf,.jpg,.jpeg,.png">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center transition-opacity pointer-events-none" id="placeholder-sertifikasi_tahfidz">
-                                        <i class="fas fa-folder-plus text-[40px] text-[#0061DF] mb-2"></i>
-                                        <span class="font-['Inter'] text-[12px] text-[#0061DF]">Seret file anda atau klik untuk upload</span>
-                                    </div>
-                                    <div class="absolute inset-0 hidden flex-col items-center justify-center text-center bg-green-50 pointer-events-none" id="success-sertifikasi_tahfidz">
-                                        <i class="fas fa-check-circle text-green-500 text-[36px] mb-2"></i>
-                                        <p class="text-green-700 text-sm font-semibold">File siap diupload</p>
-                                        <p class="file-name text-xs text-green-600 font-mono"></p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Sertifikasi TOEFL --}}
-                            <div class="flex flex-col gap-2">
-                                <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">Sertifikasi TOEFL</label>
-                                <div class="relative w-full h-[140px] bg-[#D6D4FF] border border-dashed border-black rounded-[10px] overflow-hidden" data-target="sertifikasi_toefl">
-                                    <input type="file" name="sertifikasi_toefl" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer dragdrop-input" data-preview="sertifikasi_toefl" accept=".pdf,.jpg,.jpeg,.png">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center transition-opacity pointer-events-none" id="placeholder-sertifikasi_toefl">
-                                        <i class="fas fa-folder-plus text-[40px] text-[#0061DF] mb-2"></i>
-                                        <span class="font-['Inter'] text-[12px] text-[#0061DF]">Seret file anda atau klik untuk upload</span>
-                                    </div>
-                                    <div class="absolute inset-0 hidden flex-col items-center justify-center text-center bg-green-50 pointer-events-none" id="success-sertifikasi_toefl">
-                                        <i class="fas fa-check-circle text-green-500 text-[36px] mb-2"></i>
-                                        <p class="text-green-700 text-sm font-semibold">File siap diupload</p>
-                                        <p class="file-name text-xs text-green-600 font-mono"></p>
+                            @foreach($uploadFields as $field)
+                                <div class="flex flex-col gap-2">
+                                    <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">{{ $field['label'] }}</label>
+                                    <div class="relative w-full h-40 bg-[#D6D4FF] border border-dashed border-black rounded-[10px] overflow-hidden">
+                                        <input id="input-{{ $field['id'] }}" type="file" name="{{ $field['name'] }}" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer dragdrop-input" data-preview="{{ $field['id'] }}" accept=".pdf,application/pdf" @if($field['required']) required @endif>
+                                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center text-[#0061DF] pointer-events-none" id="placeholder-{{ $field['id'] }}">
+                                            <i class="fas fa-folder-plus text-[40px] mb-2"></i>
+                                            <span class="font-['Inter'] text-[12px]">Klik atau seret file PDF (maks 2MB)</span>
+                                        </div>
+                                        <div class="absolute inset-0 hidden px-4 py-4" id="preview-{{ $field['id'] }}">
+                                            <div class="flex flex-col items-center justify-center text-center h-full">
+                                                <div class="flex items-center gap-4 p-4 bg-white/80 rounded-lg shadow w-full">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-[#FFE7E7] rounded-lg">
+                                                        <i class="fas fa-file-pdf text-[#D32F2F] text-2xl"></i>
+                                                    </div>
+                                                    <div class="text-left">
+                                                        <p class="selected-file-name font-semibold text-[#0A0A2A] text-sm truncate"></p>
+                                                        <p class="text-xs text-gray-600">PDF siap diunggah</p>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="mt-4 text-sm text-red-600 hover:underline reset-upload" data-input="input-{{ $field['id'] }}">Batalkan pilihan</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            {{-- Surat Bebas Perpustakaan --}}
-                            <div class="flex flex-col gap-2">
-                                <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">Surat Bebas Perpustakaan</label>
-                                <div class="relative w-full h-[140px] bg-[#D6D4FF] border border-dashed border-black rounded-[10px] overflow-hidden" data-target="surat_bebas_perpustakaan">
-                                    <input type="file" name="surat_bebas_perpustakaan" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer dragdrop-input" data-preview="surat_bebas_perpustakaan" accept=".pdf,.jpg,.jpeg,.png">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center transition-opacity pointer-events-none" id="placeholder-surat_bebas_perpustakaan">
-                                        <i class="fas fa-folder-plus text-[40px] text-[#0061DF] mb-2"></i>
-                                        <span class="font-['Inter'] text-[12px] text-[#0061DF]">Seret file anda atau klik untuk upload</span>
-                                    </div>
-                                    <div class="absolute inset-0 hidden flex-col items-center justify-center text-center bg-green-50 pointer-events-none" id="success-surat_bebas_perpustakaan">
-                                        <i class="fas fa-check-circle text-green-500 text-[36px] mb-2"></i>
-                                        <p class="text-green-700 text-sm font-semibold">File siap diupload</p>
-                                        <p class="file-name text-xs text-green-600 font-mono"></p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Ijazah Terakhir --}}
-                            <div class="flex flex-col gap-2">
-                                <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">Ijazah Terakhir</label>
-                                <div class="relative w-full h-[140px] bg-[#D6D4FF] border border-dashed border-black rounded-[10px] overflow-hidden" data-target="file_ijazah">
-                                    <input type="file" name="file_ijazah" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer dragdrop-input" data-preview="file_ijazah" accept=".pdf,.jpg,.jpeg,.png">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center transition-opacity pointer-events-none" id="placeholder-file_ijazah">
-                                        <i class="fas fa-folder-plus text-[40px] text-[#0061DF] mb-2"></i>
-                                        <span class="font-['Inter'] text-[12px] text-[#0061DF]">Seret file anda atau klik untuk upload</span>
-                                    </div>
-                                    <div class="absolute inset-0 hidden flex-col items-center justify-center text-center bg-green-50 pointer-events-none" id="success-file_ijazah">
-                                        <i class="fas fa-check-circle text-green-500 text-[36px] mb-2"></i>
-                                        <p class="text-green-700 text-sm font-semibold">File siap diupload</p>
-                                        <p class="file-name text-xs text-green-600 font-mono"></p>
-                                    </div>
-                                </div>
-                            </div>
+                            @endforeach
 
                         </div>
                     </div>
@@ -250,160 +202,53 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.dragdrop-input').forEach(function (input) {
-        var previewId = input.dataset.preview;
-        var placeholder = document.getElementById('placeholder-' + previewId);
-        var successState = document.getElementById('success-' + previewId);
-        var fileNameSpan = successState ? successState.querySelector('.file-name') : null;
+document.addEventListener('DOMContentLoaded', () => {
+    const allowedMimes = ['application/pdf'];
 
-        input.addEventListener('change', function (event) {
-            var file = event.target.files[0];
+    document.querySelectorAll('.dragdrop-input').forEach((input) => {
+        const previewId = input.dataset.preview;
+        const placeholder = document.getElementById(`placeholder-${previewId}`);
+        const previewPanel = document.getElementById(`preview-${previewId}`);
+        const nameSlot = previewPanel ? previewPanel.querySelector('.selected-file-name') : null;
+        const resetBtn = previewPanel ? previewPanel.querySelector('.reset-upload') : null;
 
-            if (!placeholder || !successState) {
+        const resetView = () => {
+            placeholder?.classList.remove('hidden');
+            previewPanel?.classList.add('hidden');
+            if (nameSlot) {
+                nameSlot.textContent = '';
+            }
+        };
+
+        input.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+
+            if (!file) {
+                resetView();
                 return;
             }
 
-            if (file) {
-                placeholder.classList.add('hidden');
-                successState.classList.remove('hidden');
-                if (fileNameSpan) {
-                    fileNameSpan.textContent = file.name;
-                }
-            } else {
-                placeholder.classList.remove('hidden');
-                successState.classList.add('hidden');
-                if (fileNameSpan) {
-                    fileNameSpan.textContent = '';
-                }
+            const isPdf = allowedMimes.includes(file.type) || file.name.toLowerCase().endsWith('.pdf');
+
+            if (!isPdf) {
+                alert('Harap pilih file berformat PDF.');
+                event.target.value = '';
+                resetView();
+                return;
             }
+
+            placeholder?.classList.add('hidden');
+            previewPanel?.classList.remove('hidden');
+            if (nameSlot) {
+                nameSlot.textContent = file.name;
+            }
+        });
+
+        resetBtn?.addEventListener('click', () => {
+            input.value = '';
+            resetView();
         });
     });
 });
 </script>
 @endpush
-
-@section('title', 'Form Persyaratan Yudisium')
-
-@section('content')
-<div class="max-w-4xl mx-auto">
-    <div class="mb-6">
-        <a href="{{ route('yudisium.index') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
-            <i class="fas fa-arrow-left mr-2"></i> Kembali ke Yudisium
-        </a>
-        <h1 class="text-2xl font-bold text-gray-800">Form Persyaratan Yudisium</h1>
-        <p class="text-gray-600">Lengkapi persyaratan yudisium Anda</p>
-    </div>
-
-    @if(session('success'))
-        <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-            <div class="flex items-center">
-                <i class="fas fa-check-circle text-green-600 mr-3"></i>
-                <div class="text-green-800">{{ session('success') }}</div>
-            </div>
-        </div>
-    @endif
-
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <form action="{{ route('yudisium.persyaratan.simpan') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Judul Tugas Akhir -->
-                <div class="md:col-span-2">
-                    <label for="judul_ta" class="block text-sm font-medium text-gray-700 mb-2">
-                        Judul Tugas Akhir <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="judul_ta" id="judul_ta"
-                           value="{{ old('judul_ta') }}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="Masukkan judul tugas akhir Anda"
-                           required>
-                    @error('judul_ta')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Dosen Pembimbing -->
-                <div class="md:col-span-2">
-                    <label for="dosen_pembimbing" class="block text-sm font-medium text-gray-700 mb-2">
-                        Dosen Pembimbing <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="dosen_pembimbing" id="dosen_pembimbing"
-                           value="{{ old('dosen_pembimbing') }}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="Masukkan nama dosen pembimbing"
-                           required>
-                    @error('dosen_pembimbing')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- File KTP -->
-                <div>
-                    <label for="file_ktp" class="block text-sm font-medium text-gray-700 mb-2">
-                        File KTP <span class="text-red-500">*</span>
-                    </label>
-                    <input type="file" name="file_ktp" id="file_ktp"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                           accept=".pdf,.jpg,.jpeg,.png"
-                           required>
-                    <p class="mt-1 text-xs text-gray-500">Format: PDF, JPG, PNG (Maks. 2MB)</p>
-                    @error('file_ktp')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- File Ijazah -->
-                <div>
-                    <label for="file_ijazah" class="block text-sm font-medium text-gray-700 mb-2">
-                        File Ijazah Terakhir (Opsional)
-                    </label>
-                    <input type="file" name="file_ijazah" id="file_ijazah"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                           accept=".pdf,.jpg,.jpeg,.png">
-                    <p class="mt-1 text-xs text-gray-500">Format: PDF, JPG, PNG (Maks. 2MB)</p>
-                    @error('file_ijazah')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-
-            <!-- Tombol Submit -->
-            <div class="mt-8 flex justify-end space-x-3">
-                <a href="{{ route('yudisium.index') }}"
-                   class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition duration-200">
-                    Batal
-                </a>
-                <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition duration-200">
-                    <i class="fas fa-save mr-2"></i> Simpan Persyaratan
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Informasi -->
-    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 class="font-semibold text-blue-800 mb-3">Informasi Penting</h3>
-        <ul class="text-sm text-blue-700 space-y-2">
-            <li class="flex items-start">
-                <i class="fas fa-info-circle mt-1 mr-2"></i>
-                Pastikan semua dokumen yang diupload jelas terbaca
-            </li>
-            <li class="flex items-start">
-                <i class="fas fa-info-circle mt-1 mr-2"></i>
-                File KTP wajib diupload dalam format PDF, JPG, atau PNG
-            </li>
-            <li class="flex items-start">
-                <i class="fas fa-info-circle mt-1 mr-2"></i>
-                Verifikasi persyaratan membutuhkan waktu 2-3 hari kerja
-            </li>
-            <li class="flex items-start">
-                <i class="fas fa-info-circle mt-1 mr-2"></i>
-                Jika perlu revisi, Anda dapat mengedit persyaratan nanti
-            </li>
-        </ul>
-    </div>
-</div>
-@endsection

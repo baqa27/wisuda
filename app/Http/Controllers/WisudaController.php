@@ -13,20 +13,44 @@ use Illuminate\Support\Facades\Storage;
 
 class WisudaController extends Controller
 {
+    private const REQUIRED_PERSYARATAN = [
+        'toefl',
+        'sertifikasi',
+        'tahfidz',
+        'bebas_perpus',
+        'foto_wisuda',
+    ];
     public function index()
     {
         $mhs = Auth::user();
 
-        $yudisiumTerverifikasi = PersyaratanYudisium::where('mahasiswa_id', $mhs->id)
-            ->where('status', 'terverifikasi')
-            ->exists();
+        $yudisiumRecord = PersyaratanYudisium::where('mahasiswa_id', $mhs->id)->first();
+        $yudisiumTerverifikasi = $yudisiumRecord && $yudisiumRecord->status === 'terverifikasi';
 
         $pendaftaran = PendaftaranWisuda::where('mahasiswa_id', $mhs->id)->first();
         $persyaratan = PersyaratanWisuda::where('mahasiswa_id', $mhs->id)->get();
         $dataFinal = DataMahasiswaFinal::where('mahasiswa_id', $mhs->id)->first();
         $qrCode = QrPresensi::where('mahasiswa_id', $mhs->id)->first();
+        $hasAllRequiredPersyaratan = $this->hasCompletedRequiredPersyaratan($mhs->id, $persyaratan, $yudisiumRecord);
 
-        return view('wisuda.index', compact('pendaftaran', 'persyaratan', 'dataFinal', 'qrCode', 'yudisiumTerverifikasi'));
+        $shouldRedirectToDataTambahan = $pendaftaran
+            && $pendaftaran->status === 'lunas'
+            && $hasAllRequiredPersyaratan
+            && !$dataFinal;
+
+        if ($shouldRedirectToDataTambahan) {
+            return redirect()
+                ->route('wisuda.data-tambahan')
+                ->with('info', 'Semua persyaratan sudah lengkap. Lengkapi data tambahan sebelum menunggu QR.');
+        }
+
+        return view('wisuda.index', compact(
+            'pendaftaran',
+            'persyaratan',
+            'dataFinal',
+            'qrCode',
+            'yudisiumTerverifikasi'
+        ));
     }
 
     public function daftarWisuda()
@@ -88,6 +112,17 @@ class WisudaController extends Controller
             ->firstOrFail();
 
         $persyaratan = PersyaratanWisuda::where('mahasiswa_id', Auth::id())->get();
+        $yudisium = PersyaratanYudisium::where('mahasiswa_id', Auth::id())->first();
+
+        if ($this->hasCompletedRequiredPersyaratan(Auth::id(), $persyaratan, $yudisium)
+            && !DataMahasiswaFinal::where('mahasiswa_id', Auth::id())->exists()) {
+            return redirect()
+                ->route('wisuda.data-tambahan')
+                ->with('info', 'Persyaratan sudah lengkap. Silakan lanjutkan ke data tambahan.');
+        }
+
+        // Ambil data yudisium untuk cek file yang sudah ada
+        // (sudah tersedia pada variabel $yudisium di atas)
 
         $jenisPersyaratan = [
             'toefl' => 'Sertifikat TOEFL',
@@ -98,7 +133,7 @@ class WisudaController extends Controller
             'buku_kenangan' => 'Buku Kenangan (Opsional)'
         ];
 
-        return view('wisuda.persyaratan', compact('jenisPersyaratan', 'pendaftaran', 'persyaratan'));
+        return view('wisuda.persyaratan', compact('jenisPersyaratan', 'pendaftaran', 'persyaratan', 'yudisium'));
     }
 
     public function uploadPersyaratan(Request $request)
@@ -132,12 +167,9 @@ class WisudaController extends Controller
 
     public function showFormDataTambahan()
     {
-        $verif = PersyaratanWisuda::where('mahasiswa_id', Auth::id())
-            ->whereIn('jenis', ['toefl', 'sertifikasi', 'tahfidz', 'bebas_perpus', 'foto_wisuda'])
-            ->where('status', 'terverifikasi')
-            ->count();
+        $yudisium = PersyaratanYudisium::where('mahasiswa_id', Auth::id())->first();
 
-        if ($verif < 5) {
+        if (! $this->hasCompletedRequiredPersyaratan(Auth::id(), null, $yudisium)) {
             return redirect()->route('wisuda.index')->with('error', 'Persyaratan belum lengkap.');
         }
 
@@ -218,11 +250,12 @@ class WisudaController extends Controller
     public function checkEligibility()
     {
         $mhs = Auth::user();
+        $yudisiumRecord = PersyaratanYudisium::where('mahasiswa_id', $mhs->id)->first();
 
         $cek = [
-            'yudisium' => PersyaratanYudisium::where('mahasiswa_id', $mhs->id)->where('status', 'terverifikasi')->exists(),
+            'yudisium' => $yudisiumRecord && $yudisiumRecord->status === 'terverifikasi',
             'pendaftaran_wisuda' => PendaftaranWisuda::where('mahasiswa_id', $mhs->id)->where('status', 'lunas')->exists(),
-            'persyaratan_wajib' => PersyaratanWisuda::where('mahasiswa_id', $mhs->id)->whereIn('jenis', ['toefl', 'sertifikasi', 'tahfidz', 'bebas_perpus', 'foto_wisuda'])->where('status', 'terverifikasi')->count() >= 5,
+            'persyaratan_wajib' => $this->hasCompletedRequiredPersyaratan($mhs->id, null, $yudisiumRecord),
             'data_tambahan' => DataMahasiswaFinal::where('mahasiswa_id', $mhs->id)->exists()
         ];
 
@@ -233,5 +266,45 @@ class WisudaController extends Controller
             'is_eligible' => $eligible,
             'qr_code' => $eligible ? QrPresensi::where('mahasiswa_id', $mhs->id)->first() : null
         ]);
+    }
+
+    private function hasCompletedRequiredPersyaratan(int $mahasiswaId, $persyaratanCollection = null, $yudisium = null): bool
+    {
+        $persyaratanData = $persyaratanCollection ?? PersyaratanWisuda::where('mahasiswa_id', $mahasiswaId)->get();
+        $yudisiumData = $yudisium ?? PersyaratanYudisium::where('mahasiswa_id', $mahasiswaId)->first();
+
+        $fulfilled = 0;
+
+        foreach (self::REQUIRED_PERSYARATAN as $jenis) {
+            $hasWisudaFile = $persyaratanData
+                ->where('jenis', $jenis)
+                ->where('status', 'terverifikasi')
+                ->isNotEmpty();
+
+            if ($hasWisudaFile || $this->fulfilledFromYudisium($jenis, $yudisiumData)) {
+                $fulfilled++;
+            }
+        }
+
+        return $fulfilled >= count(self::REQUIRED_PERSYARATAN);
+    }
+
+    private function fulfilledFromYudisium(string $jenis, $yudisium): bool
+    {
+        if (!$yudisium) {
+            return false;
+        }
+
+        $map = [
+            'toefl' => 'sertifikasi_toefl',
+            'tahfidz' => 'sertifikasi_tahfidz',
+            'bebas_perpus' => 'surat_bebas_perpustakaan',
+        ];
+
+        if (!array_key_exists($jenis, $map)) {
+            return false;
+        }
+
+        return !empty($yudisium->{$map[$jenis]});
     }
 }

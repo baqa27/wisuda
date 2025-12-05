@@ -110,12 +110,19 @@ class AdminController extends Controller
     /* Persyaratan Wisuda */
     public function verifikasiPersyaratanWisuda()
     {
-        $persyaratan = PersyaratanWisuda::with('mahasiswa')
-            ->where('status', 'menunggu')
-            ->latest()
+        // Ambil ID mahasiswa yang memiliki persyaratan dengan status 'menunggu'
+        $mahasiswaIds = PersyaratanWisuda::where('status', 'menunggu')
+            ->pluck('mahasiswa_id')
+            ->unique();
+
+        // Ambil data mahasiswa beserta persyaratannya
+        $mahasiswa = User::whereIn('id', $mahasiswaIds)
+            ->with(['persyaratanWisuda' => function ($query) {
+                $query->orderBy('jenis');
+            }])
             ->get();
 
-        return view('admin.verifikasi.persyaratan_wisuda', compact('persyaratan'));
+        return view('admin.verifikasi.persyaratan_wisuda', compact('mahasiswa'));
     }
 
     public function updatePersyaratanWisuda(Request $request, $id)

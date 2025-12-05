@@ -134,10 +134,8 @@ Route::middleware('auth')->group(function () {
         // ---- QR Code ----
         Route::prefix('qr')->group(function () {
             // ✅ PERBAIKAN: Route GET untuk menampilkan halaman QR
-            Route::get('/generate', function() {
-                $qrList = \App\Models\QrPresensi::with('mahasiswa')->latest()->get();
-                return view('admin.generate_qr', compact('qrList'));
-            })->name('admin.generate-qr.form');
+            Route::get('/generate', [QrController::class, 'showGenerateForm'])
+                ->name('admin.generate-qr.form');
 
             // ✅ PERBAIKAN: Route POST untuk proses generate QR
             Route::post('/generate', [QrController::class, 'generateQrForAll'])->name('admin.generate-qr');

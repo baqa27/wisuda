@@ -23,38 +23,34 @@
         </div>
 
         {{-- Top Navigation Bar --}}
-        <div class="absolute top-[35px] z-20 w-full flex justify-center px-4">
-            <div class="flex flex-row justify-between md:justify-center items-center px-6 md:gap-[175px] w-full max-w-[1262px] h-[82px] bg-[#0061DF] rounded-[10px] shadow-lg overflow-hidden">
-
-                {{-- Daftar Yudisium Link --}}
-                <a href="{{ route('yudisium.index') }}" class="flex flex-row items-center gap-2.5 group hover:opacity-80 transition-opacity whitespace-nowrap">
-                    <div class="w-64h-6tive flex justify-center items-center">
-                        <i class="fas fa-medal text-white text-xl"></i>
-                    </div>
-                    <span class="font-['Inter'] font-light text-[16px] md:text-[24px] leading-[29px] text-white hidden sm:inline">Daftar Yudisium</span>
-                </a>
-
-                {{-- Home Link --}}
-                <a href="{{ route('dashboard') }}" class="flex flex-row items-center gap-2.5 group hover:opacity-80 transition-opacity">
-                    <div class="w-64h-6tive flex justify-center items-center">
-                        <i class="fas fa-home text-white text-xl"></i>
-                    </div>
-                    <span class="font-['Inter'] font-bold text-[16px] md:text-[24px] leading-[29px] text-white">Home</span>
-                </a>
-
-                {{-- Daftar Wisuda Link --}}
-                <a href="{{ route('wisuda.index') }}" class="flex flex-row items-center gap-2.5 group hover:opacity-80 transition-opacity whitespace-nowrap">
-                    <div class="w-6 h-6 relative flex justify-center items-center">
-                        <i class="fas fa-graduation-cap text-white text-xl"></i>
-                    </div>
-                    <span class="font-['Inter'] font-light text-[16px] md:text-[24px] leading-[29px] text-white hidden sm:inline">Daftar Wisuda</span>
-                </a>
-
+        <nav class="absolute top-[35px] z-20 w-full px-4">
+            <div class="max-w-[1262px] mx-auto bg-[#0061DF] rounded-[10px] shadow-lg px-4 md:px-8 py-4 flex flex-col sm:flex-row sm:items-center gap-4 md:gap-8">
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-white text-lg sm:text-xl font-semibold w-full">
+                    <a href="{{ route('yudisium.index') }}" class="flex items-center gap-2 hover:text-blue-100 transition">
+                        <i class="fas fa-medal"></i>
+                        <span>Daftar Yudisium</span>
+                    </a>
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2 hover:text-blue-100 transition">
+                        <i class="fas fa-home"></i>
+                        <span class="font-bold">Home</span>
+                    </a>
+                    <a href="{{ route('wisuda.index') }}" class="flex items-center gap-2 hover:text-blue-100 transition">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Daftar Wisuda</span>
+                    </a>
+                </div>
+                <form method="POST" action="{{ route('logout') }}" class="w-full sm:w-auto flex justify-center sm:justify-end">
+                    @csrf
+                    <button type="submit" class="flex items-center gap-2 px-5 py-2 rounded-[10px] border border-white/40 text-white text-sm md:text-base font-semibold hover:bg-white/10 transition">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </form>
             </div>
-        </div>
+        </nav>
 
         {{-- Main Content Container --}}
-        <div class="relative z-10 flex flex-col items-center w-full max-w-[1440px] pt-[120px] md:pt-[150px] px-4">
+        <div class="relative z-10 flex flex-col items-center w-full max-w-[1440px] pt-36 md:pt-40 px-4">
 
             {{-- Welcome Section --}}
             <div class="flex flex-col items-center gap-5 md:gap-[30px] w-full max-w-[1077px] mb-10 md:mb-[60px]">

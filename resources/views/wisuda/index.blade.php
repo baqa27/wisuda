@@ -1,269 +1,172 @@
-@extends('layouts.mahasiswa')
+@extends('layouts.mahasiswa_blank')
 
 @section('title', 'Wisuda')
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Proses Wisuda</h1>
-        <p class="text-gray-600">Lengkapi tahapan wisuda untuk mendapatkan QR Presensi</p>
-    </div>
+    @php
+        $persyaratanCount = $persyaratan->count();
+        $persyaratanTerverifikasi = $persyaratan->where('status', 'terverifikasi')->count();
+        $persyaratanMenunggu = $persyaratan->where('status', 'menunggu')->count();
+        $persyaratanRevisi = $persyaratan->firstWhere('status', 'revisi');
+        $persyaratanStatus = null;
+        if ($persyaratanRevisi) {
+            $persyaratanStatus = 'revisi';
+        } elseif ($persyaratanCount > 0 && $persyaratanTerverifikasi === $persyaratanCount) {
+            $persyaratanStatus = 'terverifikasi';
+        } elseif ($persyaratanMenunggu > 0) {
+            $persyaratanStatus = 'menunggu';
+        }
 
-    <!-- Progress Steps -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-lg font-semibold text-gray-800">Tahapan Wisuda</h2>
-            @if (!$pendaftaran && $yudisiumTerverifikasi)
-                <form method="POST" action="{{ route('wisuda.daftar') }}">
-                    @csrf
-                    <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
-                        <i class="fas fa-plus mr-2"></i>Daftar Wisuda
-                    </button>
-                </form>
+        $canDownloadQr = $dataFinal && $dataFinal->status === 'siap_wisuda' && $qrCode && $qrCode->file_qr;
+    @endphp
+
+    <div class="relative flex min-h-screen w-full flex-col items-center overflow-x-hidden bg-white">
+        {{-- Background Elements --}}
+        <div class="pointer-events-none absolute -left-[456px] top-[658px] hidden h-[886px] w-[886px] md:block z-0">
+            <div class="absolute left-[339.66px] top-0 h-[886px] w-[206.67px] bg-[#0061DF] blur-[72px]"></div>
+            <div class="absolute left-0 top-[289.34px] h-[886px] w-[305.52px] rotate-90 bg-[#0061DF] blur-[72px]"></div>
+        </div>
+        <div class="pointer-events-none absolute left-[1259px] top-[308px] hidden h-[493px] w-[493px] md:block z-0">
+            <div class="absolute left-[189px] top-0 h-[493px] w-[115px] bg-[#0061DF] blur-[72px]"></div>
+            <div class="absolute left-0 top-[161px] h-[493px] w-[170px] rotate-90 bg-[#0061DF] blur-[72px]"></div>
+        </div>
+
+        {{-- Top Navbar --}}
+        <div class="absolute top-[35px] z-50 flex w-full justify-center px-4">
+            <div class="flex h-[82px] w-full max-w-[1262px] flex-row items-center justify-between gap-4 rounded-[10px] bg-[#0061DF] px-6 text-white shadow-lg overflow-hidden md:gap-[175px]">
+                <a href="{{ route('yudisium.index') }}" class="flex flex-row items-center gap-2.5 font-['Inter'] text-[18px] font-bold leading-[29px] transition-opacity hover:opacity-80 md:text-[24px]">
+                    <i class="fas fa-medal text-xl"></i>
+                    <span class="hidden sm:inline">Daftar Yudisium</span>
+                </a>
+                <a href="{{ route('dashboard') }}" class="flex flex-row items-center gap-2.5 font-['Inter'] text-[16px] font-light leading-[29px] transition-opacity hover:opacity-80 md:text-[24px]">
+                    <i class="fas fa-home text-xl"></i>
+                    <span>Home</span>
+                </a>
+                <a href="{{ route('wisuda.index') }}" class="flex flex-row items-center gap-2.5 font-['Inter'] text-[18px] font-bold leading-[29px] transition-opacity hover:opacity-80 md:text-[24px]">
+                    <i class="fas fa-graduation-cap text-xl"></i>
+                    <span class="hidden sm:inline">Daftar Wisuda</span>
+                </a>
+            </div>
+        </div>
+
+        {{-- Main Content --}}
+        <div class="relative z-40 flex w-full max-w-[1262px] flex-col items-center px-4 pb-20 pt-[150px]">
+            @if (!$pendaftaran && !$yudisiumTerverifikasi)
+                <div class="flex w-full max-w-[800px] flex-col items-center rounded-[10px] border-[3px] border-red-200 bg-white p-10 text-center shadow-md">
+                    <h1 class="mb-4 font-['Inter'] text-[32px] font-bold text-red-600">Yudisium Belum Terverifikasi</h1>
+                    <p class="mb-8 font-['Inter'] text-[18px] text-gray-600">Silakan selesaikan dan verifikasi proses yudisium sebelum mendaftar wisuda.</p>
+                    <a href="{{ route('yudisium.index') }}" class="flex h-[60px] w-full max-w-[320px] items-center justify-center rounded-[10px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] text-[20px] font-bold text-white transition-all hover:shadow-lg hover:scale-105">
+                        Kembali ke Yudisium
+                    </a>
+                </div>
+            @elseif (!$pendaftaran)
+                <div class="flex w-full max-w-[800px] flex-col items-center rounded-[10px] border-[3px] border-black bg-white p-10 text-center shadow-md">
+                    <h1 class="mb-4 font-['Inter'] text-[32px] font-bold text-[#0061DF]">Pendaftaran Wisuda</h1>
+                    <p class="mb-8 font-['Inter'] text-[18px] text-gray-600">Silakan melakukan pendaftaran untuk mengikuti prosesi wisuda.</p>
+                    <form method="POST" action="{{ route('wisuda.daftar') }}">
+                        @csrf
+                        <button type="submit" class="rounded-[10px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] px-8 py-4 font-['Inter'] text-[20px] font-bold text-white transition-all hover:shadow-lg hover:scale-105">
+                            Daftar Sekarang
+                        </button>
+                    </form>
+                </div>
+            @elseif ($pendaftaran->status === 'menunggu_pembayaran')
+                <div class="flex w-full max-w-[800px] flex-col items-center rounded-[10px] border-[3px] border-black bg-white p-10 text-center shadow-md">
+                    <h1 class="mb-4 font-['Inter'] text-[32px] font-bold text-[#0061DF]">Menunggu Pembayaran</h1>
+                    <p class="mb-8 font-['Inter'] text-[18px] text-gray-600">Segera lakukan pembayaran biaya wisuda untuk melanjutkan.</p>
+                    <a href="{{ route('wisuda.upload-bukti', $pendaftaran->id) }}" class="rounded-[10px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] px-8 py-4 font-['Inter'] text-[20px] font-bold text-white transition-all hover:shadow-lg hover:scale-105">
+                        Lanjutkan Pembayaran
+                    </a>
+                </div>
+            @elseif ($pendaftaran->status === 'menunggu_verifikasi')
+                <div class="flex w-full max-w-[800px] flex-col items-center rounded-[10px] border-[3px] border-black bg-white p-10 text-center shadow-md">
+                    <h1 class="mb-8 font-['Inter'] text-[32px] font-bold text-[#0061DF]">HALAMAN NOTIFIKASI PEMBAYARAN WISUDA</h1>
+                    <div class="mb-6 flex h-[100px] w-[100px] items-center justify-center rounded-full bg-yellow-400">
+                        <i class="fas fa-clock text-[50px] text-white"></i>
+                    </div>
+                    <h2 class="mb-4 font-['Inter'] text-[32px] font-bold text-[#0061DF]">Menunggu Verifikasi</h2>
+                    <p class="mb-8 font-['Inter'] text-[18px] text-black">Bukti pembayaran Anda telah diterima dan sedang diperiksa admin. Harap tunggu sebelum melengkapi persyaratan wisuda.</p>
+                    <a href="{{ route('dashboard') }}" class="flex h-[60px] w-full max-w-[400px] items-center justify-center rounded-[10px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] text-[20px] font-bold text-white transition-all hover:shadow-lg hover:scale-105">
+                        Kembali ke Dashboard
+                    </a>
+                </div>
+            @elseif ($pendaftaran->status === 'batal')
+                <div class="flex w-full max-w-[800px] flex-col items-center rounded-[10px] border-[3px] border-red-400 bg-white p-10 text-center shadow-md">
+                    <h1 class="mb-4 font-['Inter'] text-[32px] font-bold text-red-600">Pembayaran Ditolak</h1>
+                    <p class="mb-6 font-['Inter'] text-[18px] text-gray-700">Admin menolak bukti pembayaran Anda. Unggah kembali bukti yang sesuai.</p>
+                    <div class="mb-6 flex h-[100px] w-[100px] items-center justify-center rounded-full bg-red-500">
+                        <i class="fas fa-times text-[50px] text-white"></i>
+                    </div>
+                    <a href="{{ route('wisuda.upload-bukti', $pendaftaran->id) }}" class="rounded-[10px] bg-red-600 px-8 py-4 font-['Inter'] text-[20px] font-bold text-white transition-all hover:shadow-lg hover:scale-105">
+                        Upload Bukti Baru
+                    </a>
+                </div>
+            @elseif ($pendaftaran->status === 'lunas' && $persyaratanCount === 0)
+                <div class="flex w-full max-w-[800px] flex-col items-center rounded-[10px] border-[3px] border-black bg-white p-10 text-center shadow-md">
+                    <h1 class="mb-4 font-['Inter'] text-[32px] font-bold text-[#0061DF]">Pembayaran Terverifikasi</h1>
+                    <p class="mb-8 font-['Inter'] text-[18px] text-gray-600">Silakan lengkapi seluruh persyaratan wisuda Anda.</p>
+                    <a href="{{ route('wisuda.persyaratan.form') }}" class="rounded-[10px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] px-8 py-4 font-['Inter'] text-[20px] font-bold text-white transition-all hover:shadow-lg hover:scale-105">
+                        Isi Persyaratan
+                    </a>
+                </div>
+            @elseif ($persyaratanCount > 0)
+                <div class="flex w-full max-w-[800px] flex-col items-center rounded-[10px] border-[3px] border-black bg-white p-10 text-center shadow-md">
+                    <h1 class="mb-8 font-['Inter'] text-[32px] font-bold text-[#0061DF]">HALAMAN NOTIFIKASI PENDAFTARAN WISUDA</h1>
+                    @if ($persyaratanStatus === 'terverifikasi')
+                        <div class="mb-6 flex h-[100px] w-[100px] items-center justify-center rounded-full bg-[#0061DF]">
+                            <i class="fas fa-check text-[50px] text-white"></i>
+                        </div>
+                        <h2 class="mb-4 font-['Inter'] text-[32px] font-bold text-[#0061DF]">Wisuda Siap!</h2>
+                        <p class="mb-8 font-['Inter'] text-[18px] text-black">Selamat! Seluruh persyaratan wisuda telah terverifikasi.</p>
+                        @if ($dataFinal)
+                            <p class="mb-4 font-['Inter'] text-[16px] text-gray-600">Data orang tua & tamu sudah tersimpan.</p>
+                        @else
+                            <a href="{{ route('wisuda.data-tambahan') }}" class="mb-4 flex h-[50px] w-full max-w-[320px] items-center justify-center rounded-[10px] bg-green-500 text-[18px] font-semibold text-white transition hover:bg-green-600 hover:scale-105">
+                                Isi Data Tambahan
+                            </a>
+                        @endif
+                        @if ($canDownloadQr)
+                            <a href="{{ Storage::url($qrCode->file_qr) }}" download class="mb-4 flex h-[50px] w-full max-w-[320px] items-center justify-center rounded-[10px] bg-[#0061DF] text-[18px] font-semibold text-white transition hover:opacity-90 hover:scale-105">
+                                <i class="fas fa-download mr-2"></i>Download QR Presensi
+                            </a>
+                        @elseif($dataFinal)
+                            <div class="mb-4 w-full max-w-[400px] rounded-[10px] border border-dashed border-[#0061DF] bg-blue-50 px-6 py-4 font-['Inter'] text-[16px] text-[#0061DF]">
+                                Admin sedang menyiapkan QR presensi Anda. QR akan muncul di halaman ini setelah admin selesai membuatnya.
+                            </div>
+                        @endif
+                    @elseif ($persyaratanStatus === 'revisi')
+                        <div class="mb-6 flex h-[100px] w-[100px] items-center justify-center rounded-full bg-red-500">
+                            <i class="fas fa-exclamation text-[50px] text-white"></i>
+                        </div>
+                        <h2 class="mb-4 font-['Inter'] text-[32px] font-bold text-red-600">Perlu Revisi</h2>
+                        @if ($persyaratanRevisi && $persyaratanRevisi->catatan_admin)
+                            <p class="mb-4 font-['Inter'] text-[18px] text-black">{{ $persyaratanRevisi->catatan_admin }}</p>
+                        @else
+                            <p class="mb-4 font-['Inter'] text-[18px] text-black">Silakan cek catatan admin pada berkas yang direvisi.</p>
+                        @endif
+                        <a href="{{ route('wisuda.persyaratan.form') }}" class="mb-6 rounded-[10px] bg-red-600 px-6 py-3 font-['Inter'] text-[18px] font-bold text-white transition hover:shadow-lg hover:scale-105">
+                            Perbaiki Persyaratan
+                        </a>
+                    @else
+                        <div class="mb-6 flex h-[100px] w-[100px] items-center justify-center rounded-full bg-yellow-400">
+                            <i class="fas fa-clock text-[50px] text-white"></i>
+                        </div>
+                        <h2 class="mb-4 font-['Inter'] text-[32px] font-bold text-[#0061DF]">Menunggu Verifikasi</h2>
+                        <p class="mb-8 font-['Inter'] text-[18px] text-black">Data persyaratan Anda telah diterima dan sedang dicek admin. Mohon menunggu konfirmasi.</p>
+                    @endif
+                    <a href="{{ route('dashboard') }}" class="flex h-[60px] w-full max-w-[400px] items-center justify-center rounded-[10px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] text-[20px] font-bold text-white transition-all hover:shadow-lg hover:scale-105">
+                        Kembali ke Dashboard
+                    </a>
+                </div>
+            @else
+                <div class="flex w-full max-w-[800px] flex-col items-center rounded-[10px] border-[3px] border-blue-200 bg-white p-10 text-center shadow-md">
+                    <h1 class="mb-4 font-['Inter'] text-[32px] font-bold text-[#0061DF]">Data Tambahan</h1>
+                    <p class="mb-8 font-['Inter'] text-[18px] text-gray-600">Lengkapi data orang tua dan tamu undangan untuk menerima QR presensi.</p>
+                    <a href="{{ route('wisuda.data-tambahan') }}" class="rounded-[10px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] px-8 py-4 font-['Inter'] text-[20px] font-bold text-white transition-all hover:shadow-lg hover:scale-105">
+                        Isi Data Tambahan
+                    </a>
+                </div>
             @endif
         </div>
-
-        <div class="space-y-6">
-            <!-- Step 1: Pendaftaran -->
-            <div class="flex items-start">
-                <div class="shrink-0">
-                    <div
-                        class="w-10 h-10 rounded-full {{ $pendaftaran ? 'bg-green-500' : 'bg-gray-300' }} flex items-center justify-center">
-                        <i class="fas {{ $pendaftaran ? 'fa-check' : 'fa-file-alt' }} text-white text-sm"></i>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="font-medium text-gray-900">1. Pendaftaran Wisuda</h3>
-                    <p class="text-sm text-gray-600 mt-1">
-                        @if ($pendaftaran)
-                            <span class="text-green-600">Selesai</span> - Kode: {{ $pendaftaran->kode_invoice }}
-                        @else
-                            @if ($yudisiumTerverifikasi)
-                                <span class="text-gray-500">Belum dimulai</span>
-                            @else
-                                <span class="text-red-500">Yudisium belum terverifikasi</span>
-                            @endif
-                        @endif
-                    </p>
-                </div>
-            </div>
-
-            <!-- Step 2: Pembayaran -->
-            <div class="flex items-start">
-                <div class="shrink-0">
-                    <div
-                        class="w-10 h-10 rounded-full
-            {{ $pendaftaran && $pendaftaran->status == 'lunas' ? 'bg-green-500' : '' }}
-            {{ $pendaftaran && $pendaftaran->status == 'menunggu_verifikasi' ? 'bg-yellow-500' : '' }}
-            {{ $pendaftaran && $pendaftaran->status == 'menunggu_pembayaran' ? 'bg-gray-400' : '' }}
-            {{ !$pendaftaran ? 'bg-gray-300' : '' }}
-            flex items-center justify-center">
-                        <i
-                            class="fas
-                {{ $pendaftaran && $pendaftaran->status == 'lunas' ? 'fa-check' : '' }}
-                {{ $pendaftaran && $pendaftaran->status == 'menunggu_verifikasi' ? 'fa-clock' : '' }}
-                {{ $pendaftaran && $pendaftaran->status == 'menunggu_pembayaran' ? 'fa-money-bill-wave' : '' }}
-                {{ !$pendaftaran ? 'fa-money-bill-wave' : '' }}
-                text-white text-sm"></i>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="font-medium text-gray-900">2. Pembayaran Wisuda</h3>
-                    <p class="text-sm text-gray-600 mt-1">
-                        @if ($pendaftaran)
-                            @if ($pendaftaran->status == 'lunas')
-                                <span class="text-green-600">Lunas</span> - Rp
-                                {{ number_format($pendaftaran->total_bayar, 0, ',', '.') }}
-                            @elseif($pendaftaran->status == 'menunggu_verifikasi')
-                                <span class="text-yellow-600">Menunggu Verifikasi Admin</span>
-                                @if ($pendaftaran->bukti_bayar)
-                                    <span class="ml-2 text-green-600">✓ Bukti bayar sudah diupload</span>
-                                @else
-                                    <span class="ml-2 text-red-600">✗ Belum upload bukti bayar</span>
-                                @endif
-                            @elseif($pendaftaran->status == 'menunggu_pembayaran')
-                                <span class="text-blue-600">Menunggu Pembayaran</span>
-                                <a href="{{ route('wisuda.upload-bukti', $pendaftaran->id) }}"
-                                    class="ml-2 text-blue-600 hover:text-blue-800">
-                                    Upload Bukti Bayar
-                                </a>
-                            @else
-                                <span class="text-red-600">Batal</span>
-                            @endif
-                        @else
-                            <span class="text-gray-500">Menunggu pendaftaran</span>
-                        @endif
-                    </p>
-                </div>
-            </div>
-            <!-- Step 3: Persyaratan Wisuda -->
-            <div class="flex items-start">
-                <div class="shrink-0">
-                    @php
-                        $persyaratanCount = $persyaratan->count();
-                        $persyaratanTerverifikasi = $persyaratan->where('status', 'terverifikasi')->count();
-                        $allVerified = $persyaratanCount > 0 && $persyaratanCount == $persyaratanTerverifikasi;
-                    @endphp
-                    <div
-                        class="w-10 h-10 rounded-full
-                    {{ $allVerified ? 'bg-green-500' : '' }}
-                    {{ $persyaratanCount > 0 && !$allVerified ? 'bg-yellow-500' : '' }}
-                    {{ $persyaratanCount == 0 ? 'bg-gray-300' : '' }}
-                    flex items-center justify-center">
-                        <i
-                            class="fas
-                        {{ $allVerified ? 'fa-check' : '' }}
-                        {{ $persyaratanCount > 0 && !$allVerified ? 'fa-clock' : '' }}
-                        {{ $persyaratanCount == 0 ? 'fa-tasks' : '' }}
-                        text-white text-sm"></i>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="font-medium text-gray-900">3. Persyaratan Wisuda</h3>
-                    <p class="text-sm text-gray-600 mt-1">
-                        @if ($persyaratanCount > 0)
-                            @if ($allVerified)
-                                <span class="text-green-600">Semua Terverifikasi</span>
-                                ({{ $persyaratanTerverifikasi }}/{{ $persyaratanCount }})
-                            @else
-                                <span class="text-yellow-600">Menunggu Verifikasi</span>
-                                ({{ $persyaratanTerverifikasi }}/{{ $persyaratanCount }})
-                            @endif
-                            <a href="{{ route('wisuda.persyaratan.form') }}"
-                                class="ml-2 text-blue-600 hover:text-blue-800">
-                                Kelola Persyaratan
-                            </a>
-                        @else
-                            @if ($pendaftaran && $pendaftaran->status == 'lunas')
-                                <a href="{{ route('wisuda.persyaratan.form') }}" class="text-blue-600 hover:text-blue-800">
-                                    Upload Persyaratan
-                                </a>
-                            @else
-                                <span class="text-gray-500">Menunggu pembayaran lunas</span>
-                            @endif
-                        @endif
-                    </p>
-                </div>
-            </div>
-
-            <!-- Step 4: Data Tambahan -->
-            <div class="flex items-start">
-                <div class="shrink-0">
-                    <div
-                        class="w-10 h-10 rounded-full
-                    {{ $dataFinal ? 'bg-green-500' : 'bg-gray-300' }}
-                    flex items-center justify-center">
-                        <i class="fas {{ $dataFinal ? 'fa-check' : 'fa-user-friends' }} text-white text-sm"></i>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="font-medium text-gray-900">4. Data Orang Tua & Tamu</h3>
-                    <p class="text-sm text-gray-600 mt-1">
-                        @if ($dataFinal)
-                            <span class="text-green-600">Selesai</span>
-                        @else
-                            @if ($allVerified)
-                                <a href="{{ route('wisuda.data-tambahan') }}" class="text-blue-600 hover:text-blue-800">
-                                    Isi Data Tambahan
-                                </a>
-                            @else
-                                <span class="text-gray-500">Menunggu persyaratan terverifikasi</span>
-                            @endif
-                        @endif
-                    </p>
-                </div>
-            </div>
-
-            <!-- Step 5: QR Presensi -->
-            <div class="flex items-start">
-                <div class="shrink-0">
-                    <div
-                        class="w-10 h-10 rounded-full
-                    {{ $qrCode ? 'bg-green-500' : 'bg-gray-300' }}
-                    flex items-center justify-center">
-                        <i class="fas {{ $qrCode ? 'fa-check' : 'fa-qrcode' }} text-white text-sm"></i>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="font-medium text-gray-900">5. QR Presensi</h3>
-                    <p class="text-sm text-gray-600 mt-1">
-                        @if ($qrCode)
-                            <span class="text-green-600">Siap</span>
-                            @if ($qrCode->file_qr)
-                                <a href="{{ Storage::url($qrCode->file_qr) }}" download
-                                    class="ml-2 text-blue-600 hover:text-blue-800">
-                                    <i class="fas fa-download mr-1"></i>Download QR
-                                </a>
-                            @endif
-                        @else
-                            <span class="text-gray-500">Menunggu kelengkapan data</span>
-                        @endif
-                    </p>
-                </div>
-            </div>
-        </div>
     </div>
-
-    <!-- Status Info -->
-    @if ($dataFinal && $dataFinal->status == 'siap_wisuda')
-        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-            <div class="flex items-center">
-                <i class="fas fa-check-circle text-green-600 text-xl mr-3"></i>
-                <div>
-                    <h3 class="font-semibold text-green-800">Siap Wisuda!</h3>
-                    <p class="text-green-700">Selamat! Anda telah menyelesaikan semua persyaratan wisuda.</p>
-                    @if ($qrCode && $qrCode->file_qr)
-                        <a href="{{ Storage::url($qrCode->file_qr) }}" download
-                            class="inline-block mt-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-                            <i class="fas fa-download mr-2"></i>Download QR Presensi
-                        </a>
-                    @endif
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <!-- Daftar Persyaratan -->
-    @if ($persyaratan->count() > 0)
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">Persyaratan Wisuda</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                @foreach ($persyaratan as $item)
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-medium text-gray-900">
-                                @php
-                                    $jenisLabels = [
-                                        'toefl' => 'Sertifikat TOEFL',
-                                        'sertifikasi' => 'Sertifikasi Kompetensi',
-                                        'tahfidz' => 'Sertifikat Tahfidz',
-                                        'bebas_perpus' => 'Bebas Perpustakaan',
-                                        'foto_wisuda' => 'Foto Wisuda',
-                                        'buku_kenangan' => 'Buku Kenangan',
-                                    ];
-                                @endphp
-                                {{ $jenisLabels[$item->jenis] ?? $item->jenis }}
-                            </h3>
-                            <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                    {{ $item->status == 'terverifikasi' ? 'bg-green-100 text-green-800' : '' }}
-                    {{ $item->status == 'menunggu' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                    {{ $item->status == 'revisi' ? 'bg-red-100 text-red-800' : '' }}">
-                                {{ $item->status == 'terverifikasi' ? 'Terverifikasi' : '' }}
-                                {{ $item->status == 'menunggu' ? 'Menunggu' : '' }}
-                                {{ $item->status == 'revisi' ? 'Revisi' : '' }}
-                            </span>
-                        </div>
-                        @if ($item->catatan_admin)
-                            <p class="text-sm text-red-600 mt-1">{{ $item->catatan_admin }}</p>
-                        @endif
-                        <a href="{{ route('wisuda.download', basename($item->file_path)) }}"
-                            class="mt-2 inline-flex items-center text-blue-600 hover:text-blue-800 text-sm">
-                            <i class="fas fa-download mr-1"></i> Download File
-                        </a>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    @endif
 @endsection

@@ -12,6 +12,33 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class QrController extends Controller
 {
+    public function showGenerateForm()
+    {
+        $qrList = QrPresensi::with('mahasiswa')->latest()->get();
+
+        $readyMahasiswa = DataMahasiswaFinal::with('mahasiswa')
+            ->where('status', 'siap_wisuda')
+            ->get();
+
+        $readyIds = $readyMahasiswa->pluck('mahasiswa_id');
+        $qrIds = $qrList->pluck('mahasiswa_id');
+        $missingIds = $readyIds->diff($qrIds);
+
+        $readyWithoutQr = $readyMahasiswa->filter(function ($data) use ($missingIds) {
+            return $missingIds->contains($data->mahasiswa_id);
+        })->values();
+
+        $lastGeneratedAt = QrPresensi::latest()->first()?->created_at;
+
+        return view('admin.generate_qr', [
+            'qrList' => $qrList,
+            'readyCount' => $readyMahasiswa->count(),
+            'missingCount' => $readyWithoutQr->count(),
+            'readyWithoutQr' => $readyWithoutQr,
+            'lastGeneratedAt' => $lastGeneratedAt,
+        ]);
+    }
+
     public function generateQrForAll(Request $request)
     {
         // Cek jika ada parameter mahasiswa_id untuk generate single
@@ -23,6 +50,12 @@ class QrController extends Controller
         $mahasiswa = DataMahasiswaFinal::with('mahasiswa')
             ->where('status', 'siap_wisuda')
             ->get();
+
+        if ($mahasiswa->isEmpty()) {
+            return redirect()
+                ->route('admin.generate-qr.form')
+                ->with('info', 'Belum ada data tambahan mahasiswa yang siap wisuda.');
+        }
 
         $generatedCount = 0;
         $qrList = [];
@@ -41,7 +74,18 @@ class QrController extends Controller
             }
         }
 
-        return view('admin.generate_qr', compact('qrList', 'generatedCount'));
+        if ($generatedCount === 0) {
+            return redirect()
+                ->route('admin.generate-qr.form')
+                ->with('info', 'Semua mahasiswa yang siap wisuda sudah memiliki QR.');
+        }
+
+        return redirect()
+            ->route('admin.generate-qr.form')
+            ->with([
+                'success' => $generatedCount . ' QR baru berhasil dibuat.',
+                'generated_count' => $generatedCount,
+            ]);
     }
 
     private function generateSingleQr($mahasiswaId)
@@ -49,11 +93,25 @@ class QrController extends Controller
         $mahasiswa = User::findOrFail($mahasiswaId);
 
         if (QrPresensi::where('mahasiswa_id', $mahasiswaId)->exists()) {
-            return back()->with('info', 'QR Code sudah ada untuk mahasiswa ini.');
+            return redirect()
+                ->route('admin.generate-qr.form')
+                ->with('info', 'QR Code sudah ada untuk mahasiswa ini.');
         }
 
-        $this->createQrPresensi($mahasiswaId, $mahasiswa);
-        return back()->with('success', 'QR Code berhasil dibuat.');
+        $newQr = $this->createQrPresensi($mahasiswaId, $mahasiswa);
+
+        if (!$newQr) {
+            return redirect()
+                ->route('admin.generate-qr.form')
+                ->with('error', 'Gagal membuat QR Code baru, coba ulangi beberapa saat lagi.');
+        }
+
+        return redirect()
+            ->route('admin.generate-qr.form')
+            ->with([
+                'success' => 'QR Code berhasil dibuat untuk ' . $mahasiswa->name . '.',
+                'generated_count' => 1,
+            ]);
     }
 
     private function createQrPresensi($mahasiswaId, $mahasiswa)

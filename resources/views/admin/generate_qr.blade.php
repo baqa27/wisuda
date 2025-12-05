@@ -38,6 +38,45 @@
 </div>
 @endif
 
+<!-- Readiness Stats -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="auth-card border-l-4 border-l-blue-500 p-4">
+        <div class="flex items-center gap-3">
+            <div class="icon-container bg-blue-100">
+                <i class="fas fa-users text-blue-600"></i>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-gray-600">Mahasiswa Siap Wisuda</p>
+                <p class="text-2xl font-bold text-gray-900">{{ $readyCount ?? 0 }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="auth-card border-l-4 border-l-yellow-500 p-4">
+        <div class="flex items-center gap-3">
+            <div class="icon-container bg-yellow-100">
+                <i class="fas fa-exclamation-circle text-yellow-600"></i>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-gray-600">Belum Memiliki QR</p>
+                <p class="text-2xl font-bold text-gray-900">{{ $missingCount ?? 0 }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="auth-card border-l-4 border-l-purple-500 p-4">
+        <div class="flex items-center gap-3">
+            <div class="icon-container bg-purple-100">
+                <i class="fas fa-clock text-purple-600"></i>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-gray-600">Terakhir Generate</p>
+                <p class="text-sm font-bold text-gray-900">
+                    {{ isset($lastGeneratedAt) && $lastGeneratedAt ? $lastGeneratedAt->format('d/m/Y H:i') : '-' }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Info API untuk Kelompok Lain -->
 <div class="auth-card border-l-4 border-l-blue-500 mb-6 p-6">
     <h2 class="text-lg font-bold text-[#0A0061] mb-4 flex items-center gap-2">
@@ -76,6 +115,47 @@
     </div>
 </div>
 
+@if(isset($readyWithoutQr) && $readyWithoutQr->count() > 0)
+<div class="auth-card mb-6">
+    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+        <div>
+            <h3 class="text-lg font-bold text-gray-800">Mahasiswa yang Belum Memiliki QR</h3>
+            <p class="text-sm text-gray-600">Generate secara manual jika diperlukan</p>
+        </div>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">NIM</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Nama</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Prodi</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                @foreach($readyWithoutQr as $data)
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 font-semibold text-gray-900">{{ $data->mahasiswa->nim }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-700">{{ $data->mahasiswa->name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ $data->mahasiswa->prodi ?? '-' }}</td>
+                    <td class="px-6 py-4">
+                        <form action="{{ route('admin.generate-qr') }}" method="POST" class="inline-flex">
+                            @csrf
+                            <input type="hidden" name="mahasiswa_id" value="{{ $data->mahasiswa_id }}">
+                            <button type="submit" class="btn-primary px-4 py-2 text-xs inline-flex items-center gap-2">
+                                <i class="fas fa-bolt"></i> Generate QR
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endif
+
 @if(isset($qrList) && count($qrList) > 0)
 <!-- Statistics -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -97,7 +177,7 @@
             </div>
             <div>
                 <p class="text-xs font-semibold text-gray-600">QR Baru Digenerate</p>
-                <p class="text-2xl font-bold text-gray-900">{{ $generatedCount ?? 0 }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ session('generated_count', 0) }}</p>
             </div>
         </div>
     </div>
@@ -108,7 +188,9 @@
             </div>
             <div>
                 <p class="text-xs font-semibold text-gray-600">Terakhir Update</p>
-                <p class="text-sm font-bold text-gray-900">{{ now()->format('d/m/Y H:i') }}</p>
+                <p class="text-sm font-bold text-gray-900">
+                    {{ isset($lastGeneratedAt) && $lastGeneratedAt ? $lastGeneratedAt->format('d/m/Y H:i') : '-' }}
+                </p>
             </div>
         </div>
     </div>
@@ -119,9 +201,9 @@
     <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
         <h3 class="text-lg font-bold text-gray-800">
             Daftar QR Code ({{ count($qrList) }} mahasiswa)
-            @if(isset($generatedCount) && $generatedCount > 0)
+            @if(session('generated_count', 0) > 0)
             <span class="text-sm font-semibold text-green-600 ml-2">
-                ({{ $generatedCount }} baru)
+                ({{ session('generated_count') }} baru)
             </span>
             @endif
         </h3>
