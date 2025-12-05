@@ -20,7 +20,7 @@
         $canDownloadQr = $dataFinal && $dataFinal->status === 'siap_wisuda' && $qrCode && $qrCode->file_qr;
     @endphp
 
-    <div class="relative flex min-h-screen w-full flex-col items-center overflow-x-hidden bg-white">
+    <div class="relative flex min-h-screen w-full flex-col items-center overflow-hidden bg-white">
         {{-- Background Elements --}}
         <div class="pointer-events-none absolute -left-[456px] top-[658px] hidden h-[886px] w-[886px] md:block z-0">
             <div class="absolute left-[339.66px] top-0 h-[886px] w-[206.67px] bg-[#0061DF] blur-[72px]"></div>
@@ -32,22 +32,7 @@
         </div>
 
         {{-- Top Navbar --}}
-        <div class="absolute top-[35px] z-50 flex w-full justify-center px-4">
-            <div class="flex h-[82px] w-full max-w-[1262px] flex-row items-center justify-between gap-4 rounded-[10px] bg-[#0061DF] px-6 text-white shadow-lg overflow-hidden md:gap-[175px]">
-                <a href="{{ route('yudisium.index') }}" class="flex flex-row items-center gap-2.5 font-['Inter'] text-[18px] font-bold leading-[29px] transition-opacity hover:opacity-80 md:text-[24px]">
-                    <i class="fas fa-medal text-xl"></i>
-                    <span class="hidden sm:inline">Daftar Yudisium</span>
-                </a>
-                <a href="{{ route('dashboard') }}" class="flex flex-row items-center gap-2.5 font-['Inter'] text-[16px] font-light leading-[29px] transition-opacity hover:opacity-80 md:text-[24px]">
-                    <i class="fas fa-home text-xl"></i>
-                    <span>Home</span>
-                </a>
-                <a href="{{ route('wisuda.index') }}" class="flex flex-row items-center gap-2.5 font-['Inter'] text-[18px] font-bold leading-[29px] transition-opacity hover:opacity-80 md:text-[24px]">
-                    <i class="fas fa-graduation-cap text-xl"></i>
-                    <span class="hidden sm:inline">Daftar Wisuda</span>
-                </a>
-            </div>
-        </div>
+        <x-mahasiswa-navbar />
 
         {{-- Main Content --}}
         <div class="relative z-40 flex w-full max-w-[1262px] flex-col items-center px-4 pb-20 pt-[150px]">

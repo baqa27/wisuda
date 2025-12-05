@@ -3,7 +3,7 @@
 @section('title', 'Edit Persyaratan Yudisium')
 
 @section('content')
-    <div class="relative w-full min-h-screen bg-white overflow-x-hidden flex flex-col items-center">
+    <div class="relative w-full min-h-screen bg-white overflow-hidden flex flex-col items-center">
 
         {{-- Background Elements --}}
         <div class="absolute w-[886px] h-[886px] -left-[456px] top-[658px] pointer-events-none z-0 hidden md:block">
@@ -16,28 +16,7 @@
         </div>
 
         {{-- Top Navigation Bar --}}
-        <div class="absolute top-[35px] z-20 w-full flex justify-center px-4">
-            <div class="flex flex-row justify-between md:justify-center items-center px-6 md:gap-[175px] w-full max-w-[1262px] h-[82px] bg-[#0061DF] rounded-[10px] shadow-lg overflow-hidden">
-                <a href="{{ route('yudisium.index') }}" class="flex flex-row items-center gap-2.5 group hover:opacity-80 transition-opacity whitespace-nowrap">
-                    <div class="w-6 h-6 relative flex justify-center items-center">
-                        <i class="fas fa-medal text-white text-xl"></i>
-                    </div>
-                    <span class="font-['Inter'] font-bold text-[16px] md:text-[24px] leading-[29px] text-white hidden sm:inline">Daftar Yudisium</span>
-                </a>
-                <a href="{{ route('dashboard') }}" class="flex flex-row items-center gap-2.5 group hover:opacity-80 transition-opacity">
-                    <div class="w-6 h-6 relative flex justify-center items-center">
-                        <i class="fas fa-home text-white text-xl"></i>
-                    </div>
-                    <span class="font-['Inter'] font-light text-[16px] md:text-[24px] leading-[29px] text-white">Home</span>
-                </a>
-                <a href="{{ route('wisuda.index') }}" class="flex flex-row items-center gap-2.5 group hover:opacity-80 transition-opacity whitespace-nowrap">
-                    <div class="w-6 h-6 relative flex justify-center items-center">
-                        <i class="fas fa-graduation-cap text-white text-xl"></i>
-                    </div>
-                    <span class="font-['Inter'] font-light text-[16px] md:text-[24px] leading-[29px] text-white hidden sm:inline">Daftar Wisuda</span>
-                </a>
-            </div>
-        </div>
+        <x-mahasiswa-navbar />
 
         {{-- Main Content --}}
         <div class="relative z-10 flex flex-col items-center w-full max-w-[1262px] pt-[150px] px-4 pb-20">

@@ -3,7 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    <div class="relative w-full min-h-screen bg-white overflow-x-hidden flex flex-col items-center">
+    <div class="relative w-full min-h-screen bg-white overflow-hidden flex flex-col items-center">
 
         {{-- Background Elements --}}
         {{-- Group 2 (Left) --}}
@@ -23,31 +23,7 @@
         </div>
 
         {{-- Top Navigation Bar --}}
-        <nav class="absolute top-[35px] z-20 w-full px-4">
-            <div class="max-w-[1262px] mx-auto bg-[#0061DF] rounded-[10px] shadow-lg px-4 md:px-8 py-4 flex flex-col sm:flex-row sm:items-center gap-4 md:gap-8">
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-white text-lg sm:text-xl font-semibold w-full">
-                    <a href="{{ route('yudisium.index') }}" class="flex items-center gap-2 hover:text-blue-100 transition">
-                        <i class="fas fa-medal"></i>
-                        <span>Daftar Yudisium</span>
-                    </a>
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2 hover:text-blue-100 transition">
-                        <i class="fas fa-home"></i>
-                        <span class="font-bold">Home</span>
-                    </a>
-                    <a href="{{ route('wisuda.index') }}" class="flex items-center gap-2 hover:text-blue-100 transition">
-                        <i class="fas fa-graduation-cap"></i>
-                        <span>Daftar Wisuda</span>
-                    </a>
-                </div>
-                <form method="POST" action="{{ route('logout') }}" class="w-full sm:w-auto flex justify-center sm:justify-end">
-                    @csrf
-                    <button type="submit" class="flex items-center gap-2 px-5 py-2 rounded-[10px] border border-white/40 text-white text-sm md:text-base font-semibold hover:bg-white/10 transition">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </button>
-                </form>
-            </div>
-        </nav>
+        <x-mahasiswa-navbar />
 
         {{-- Main Content Container --}}
         <div class="relative z-10 flex flex-col items-center w-full max-w-[1440px] pt-36 md:pt-40 px-4">
