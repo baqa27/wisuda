@@ -49,7 +49,8 @@ class WisudaController extends Controller
             'persyaratan',
             'dataFinal',
             'qrCode',
-            'yudisiumTerverifikasi'
+            'yudisiumTerverifikasi',
+            'hasAllRequiredPersyaratan'
         ));
     }
 
@@ -82,7 +83,7 @@ class WisudaController extends Controller
     public function prosesPembayaran(Request $request, $id)
     {
         $request->validate([
-            'bukti_bayar' => 'required|file|mimes:pdf|max:2048'
+            'bukti_bayar' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048'
         ]);
 
         $pendaftaran = PendaftaranWisuda::where('mahasiswa_id', Auth::id())->findOrFail($id);
@@ -96,13 +97,89 @@ class WisudaController extends Controller
             ]);
         }
 
-        return redirect()->route('wisuda.index')->with('success', 'Bukti pembayaran diupload.');
+        return redirect()->route('wisuda.index')->with('success', 'Bukti pembayaran diupload. Menunggu verifikasi admin.');
     }
 
     public function showPembayaran($id)
     {
         $pendaftaran = PendaftaranWisuda::where('mahasiswa_id', Auth::id())->findOrFail($id);
-        return view('wisuda.upload_bukti', compact('pendaftaran'));
+
+        // Jika sudah lunas, redirect ke persyaratan
+        if ($pendaftaran->status == 'lunas') {
+            return redirect()->route('wisuda.persyaratan.form')
+                ->with('info', 'Pembayaran Anda sudah lunas. Silakan lengkapi persyaratan.');
+        }
+
+        // Jika menunggu verifikasi, redirect ke index
+        if ($pendaftaran->status == 'menunggu_verifikasi') {
+            return redirect()->route('wisuda.index')
+                ->with('info', 'Pembayaran Anda sedang diverifikasi oleh admin.');
+        }
+
+        $snapToken = null;
+
+        // Generate Midtrans token jika status menunggu pembayaran
+        if ($pendaftaran->status == 'menunggu_pembayaran') {
+            \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+            \Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
+            \Midtrans\Config::$isSanitized = true;
+            \Midtrans\Config::$is3ds = true;
+
+            $orderId = $pendaftaran->kode_invoice . '-' . time();
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $orderId,
+                    'gross_amount' => (int) $pendaftaran->total_bayar,
+                ],
+                'customer_details' => [
+                    'first_name' => Auth::user()->name,
+                    'email' => Auth::user()->email,
+                    'phone' => Auth::user()->no_hp ?? '',
+                ],
+                'item_details' => [
+                    [
+                        'id' => 'WISUDA-' . $pendaftaran->id,
+                        'price' => (int) $pendaftaran->total_bayar,
+                        'quantity' => 1,
+                        'name' => 'Biaya Wisuda',
+                    ]
+                ],
+                'callbacks' => [
+                    'finish' => route('wisuda.success', $pendaftaran->id),
+                ]
+            ];
+
+            try {
+                $snapToken = \Midtrans\Snap::getSnapToken($params);
+                \Log::info('Midtrans Snap Token generated for wisuda order: ' . $orderId);
+            } catch (\Exception $e) {
+                \Log::error('Midtrans Error (Wisuda): ' . $e->getMessage());
+                $snapToken = null;
+            }
+        }
+
+        return view('wisuda.upload_bukti', compact('pendaftaran', 'snapToken'));
+    }
+
+    /**
+     * Handle payment success from Midtrans
+     */
+    public function paymentSuccess($id)
+    {
+        $pendaftaran = PendaftaranWisuda::where('mahasiswa_id', Auth::id())
+            ->findOrFail($id);
+
+        // Jika status masih menunggu_pembayaran, update ke lunas
+        if ($pendaftaran->status == 'menunggu_pembayaran') {
+            $pendaftaran->update([
+                'status' => 'lunas',
+                'payment_method' => 'midtrans',
+                'paid_at' => now()
+            ]);
+        }
+
+        return view('wisuda.payment_success', compact('pendaftaran'));
     }
 
     public function showFormPersyaratan()
@@ -114,8 +191,10 @@ class WisudaController extends Controller
         $persyaratan = PersyaratanWisuda::where('mahasiswa_id', Auth::id())->get();
         $yudisium = PersyaratanYudisium::where('mahasiswa_id', Auth::id())->first();
 
-        if ($this->hasCompletedRequiredPersyaratan(Auth::id(), $persyaratan, $yudisium)
-            && !DataMahasiswaFinal::where('mahasiswa_id', Auth::id())->exists()) {
+        if (
+            $this->hasCompletedRequiredPersyaratan(Auth::id(), $persyaratan, $yudisium)
+            && !DataMahasiswaFinal::where('mahasiswa_id', Auth::id())->exists()
+        ) {
             return redirect()
                 ->route('wisuda.data-tambahan')
                 ->with('info', 'Persyaratan sudah lengkap. Silakan lanjutkan ke data tambahan.');
@@ -169,7 +248,7 @@ class WisudaController extends Controller
     {
         $yudisium = PersyaratanYudisium::where('mahasiswa_id', Auth::id())->first();
 
-        if (! $this->hasCompletedRequiredPersyaratan(Auth::id(), null, $yudisium)) {
+        if (!$this->hasCompletedRequiredPersyaratan(Auth::id(), null, $yudisium)) {
             return redirect()->route('wisuda.index')->with('error', 'Persyaratan belum lengkap.');
         }
 
@@ -278,7 +357,7 @@ class WisudaController extends Controller
         foreach (self::REQUIRED_PERSYARATAN as $jenis) {
             $hasWisudaFile = $persyaratanData
                 ->where('jenis', $jenis)
-                ->where('status', 'terverifikasi')
+                ->whereIn('status', ['terverifikasi', 'menunggu'])
                 ->isNotEmpty();
 
             if ($hasWisudaFile || $this->fulfilledFromYudisium($jenis, $yudisiumData)) {

@@ -25,7 +25,9 @@ class User extends Authenticatable
         'prodi',
         'ipk',
         'pas_foto',
-        'no_hp'
+        'no_hp',
+        'verification_token',
+        'email_verified_at'
     ];
 
     protected $hidden = [

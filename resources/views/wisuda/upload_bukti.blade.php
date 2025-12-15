@@ -15,28 +15,14 @@
         </div>
 
         {{-- Navigation bar --}}
-        <div class="absolute top-[35px] z-20 flex w-full justify-center px-4">
-            <div class="flex h-[82px] w-full max-w-[1262px] flex-row items-center justify-between rounded-[10px] bg-[#0061DF] px-6 text-white shadow-lg overflow-hidden md:justify-center md:gap-[175px]">
-                <a href="{{ route('yudisium.index') }}" class="flex flex-row items-center gap-2.5 font-['Inter'] text-[16px] font-light leading-[29px] transition-opacity hover:opacity-80 md:text-[24px]">
-                    <i class="fas fa-medal text-xl"></i>
-                    <span class="hidden sm:inline">Daftar Yudisium</span>
-                </a>
-                <a href="{{ route('dashboard') }}" class="flex flex-row items-center gap-2.5 font-['Inter'] text-[16px] font-light leading-[29px] transition-opacity hover:opacity-80 md:text-[24px]">
-                    <i class="fas fa-home text-xl"></i>
-                    <span>Home</span>
-                </a>
-                <a href="{{ route('wisuda.index') }}" class="flex flex-row items-center gap-2.5 font-['Inter'] text-[16px] font-bold leading-[29px] transition-opacity hover:opacity-80 md:text-[24px]">
-                    <i class="fas fa-graduation-cap text-xl"></i>
-                    <span class="hidden sm:inline">Daftar Wisuda</span>
-                </a>
-            </div>
-        </div>
+        <x-mahasiswa-navbar />
 
         {{-- Main content --}}
         <div class="relative z-10 flex w-full max-w-[1262px] flex-col items-center px-4 pb-20 pt-[150px]">
             @if (session('success'))
                 <div class="mb-6 w-full max-w-[1110px]">
-                    <div class="flex w-full items-start gap-3 rounded-[10px] border border-green-200 bg-green-50 px-5 py-4 text-green-700 shadow-sm">
+                    <div
+                        class="flex w-full items-start gap-3 rounded-[10px] border border-green-200 bg-green-50 px-5 py-4 text-green-700 shadow-sm">
                         <i class="fas fa-check-circle text-xl text-green-500"></i>
                         <p>{{ session('success') }}</p>
                     </div>
@@ -45,7 +31,8 @@
 
             @if (session('error'))
                 <div class="mb-6 w-full max-w-[1110px]">
-                    <div class="flex w-full items-start gap-3 rounded-[10px] border border-red-200 bg-red-50 px-5 py-4 text-red-700 shadow-sm">
+                    <div
+                        class="flex w-full items-start gap-3 rounded-[10px] border border-red-200 bg-red-50 px-5 py-4 text-red-700 shadow-sm">
                         <i class="fas fa-exclamation-circle text-xl text-red-500"></i>
                         <p>{{ session('error') }}</p>
                     </div>
@@ -55,103 +42,136 @@
             {{-- Detail pembayaran --}}
             <div class="mb-8 w-full max-w-[1110px] rounded-[10px] border-[3px] border-black bg-white p-5">
                 <div class="mb-5 flex items-center gap-2.5 border-b border-black pb-2">
-                    <h2 class="font-['Inter'] text-[32px] font-semibold text-[#0061DF]">Detail Pembayaran</h2>
+                    <h2 class="font-['Inter'] text-[32px] font-semibold text-[#0061DF]">Detail Pembayaran Wisuda</h2>
                 </div>
                 <div class="flex flex-col gap-2.5">
-                    <div class="flex h-[69px] w-full items-center justify-center rounded-[10px] border border-black bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)]">
-                        <span class="font-['Inter'] text-[24px] font-semibold text-white">Kode: {{ $pendaftaran->kode_invoice }}</span>
+                    <div
+                        class="flex h-[69px] w-full items-center justify-center rounded-[10px] border border-black bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)]">
+                        <span class="font-['Inter'] text-[24px] font-semibold text-white">Kode:
+                            {{ $pendaftaran->kode_invoice }}</span>
                     </div>
-                    <div class="flex h-[69px] w-full items-center justify-center rounded-[10px] border border-black bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)]">
-                        <span class="font-['Inter'] text-[24px] font-semibold text-white">Rp {{ number_format($pendaftaran->total_bayar, 0, ',', '.') }}</span>
+                    <div
+                        class="flex h-[69px] w-full items-center justify-center rounded-[10px] border border-black bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)]">
+                        <span class="font-['Inter'] text-[24px] font-semibold text-white">Rp
+                            {{ number_format($pendaftaran->total_bayar, 0, ',', '.') }}</span>
                     </div>
-                    <div class="flex h-[69px] w-full items-center justify-center rounded-[10px] border border-black bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)]">
+                    <div
+                        class="flex h-[69px] w-full items-center justify-center rounded-[10px] border border-black bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)]">
                         <span class="font-['Inter'] text-[24px] font-semibold text-white">{{ Auth::user()->name }}</span>
                     </div>
                 </div>
             </div>
 
-            {{-- Pilih pembayaran & upload --}}
-            <div class="w-full max-w-[1110px] rounded-[10px] border-[3px] border-black bg-white p-5">
-                <div class="mb-5 flex items-center gap-2.5 border-b border-black pb-2">
-                    <h2 class="font-['Inter'] text-[32px] font-semibold text-[#0061DF]">Pilih Pembayaran & Upload Bukti</h2>
-                </div>
+            {{-- Pilih Pembayaran & Upload --}}
+            <div class="w-full max-w-[1110px] bg-white border-[3px] border-black rounded-[10px] p-8">
+                @if($snapToken)
+                    {{-- Payment Method Selection --}}
+                    <div class="mb-8">
+                        <h2 class="font-['Inter'] font-semibold text-[28px] text-[#0061DF] text-center mb-6">Pilih Pembayaran
+                        </h2>
 
-                <div class="mb-10 flex flex-wrap items-center justify-center gap-6">
-                    <div class="flex h-[108px] w-[108px] items-center justify-center rounded-[15px] border-2 border-black/10 text-center font-bold text-[#008CEB] transition hover:border-[#008CEB]">DANA</div>
-                    <div class="flex h-[108px] w-[108px] items-center justify-center rounded-[15px] border-2 border-black/10 text-center font-bold text-black transition hover:border-black">QRIS</div>
-                    <div class="flex h-[108px] w-[108px] items-center justify-center rounded-[15px] border-2 border-black/10 text-center font-bold text-[#29458F] transition hover:border-[#29458F]">BRIZZI</div>
-                </div>
-
-                @if (in_array($pendaftaran->status, ['menunggu_pembayaran', 'menunggu_verifikasi']))
-                    <form action="{{ route('wisuda.proses-pembayaran', $pendaftaran->id) }}" method="POST" enctype="multipart/form-data" class="flex flex-col items-center gap-5">
-                        @csrf
-                        <div class="w-full max-w-[500px] text-center">
-                            <label class="mb-3 block font-['Inter'] text-[20px] font-semibold text-[#0061DF]">Upload Bukti Transfer</label>
-                            <div id="upload-area" class="relative flex h-[220px] w-full cursor-pointer flex-col items-center justify-center rounded-[10px] border border-dashed border-black bg-[#D6D4FF] transition">
-                                <input type="file" id="bukti_bayar_input" name="bukti_bayar" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" accept="image/*,.pdf" required>
-                                <div id="upload-placeholder" class="flex flex-col items-center gap-2 text-[#0061DF]">
-                                    <i class="fas fa-cloud-upload-alt text-[50px]"></i>
-                                    <span class="text-[14px]">Klik atau seret bukti bayar di sini</span>
-                                    <span class="text-[12px] text-[#4c4f8f]">Format JPG/PNG/PDF • Maksimal 2MB</span>
+                        {{-- Payment Method Cards --}}
+                        <div class="flex justify-center gap-6 mb-8">
+                            <div class="payment-method-card w-[140px] h-[140px] bg-white border-[3px] border-gray-300 rounded-[15px] flex flex-col items-center justify-center cursor-pointer hover:border-[#0061DF] hover:shadow-lg transition-all"
+                                data-method="ewallet">
+                                <div class="text-[#008CEB] text-[48px] mb-2">
+                                    <i class="fas fa-wallet"></i>
                                 </div>
-                                <div id="upload-preview" class="hidden w-full text-center">
-                                    <div class="flex flex-col items-center gap-3">
-                                        <img id="preview-image" src="" alt="Preview" class="max-h-32 rounded-[10px] border border-white bg-white object-contain shadow-md">
-                                        <div id="preview-file" class="hidden rounded-xl bg-white px-4 py-2 text-sm font-semibold text-[#0061DF]"></div>
-                                        <button type="button" id="remove-preview" class="text-sm text-red-600 hover:underline">Ganti file</button>
-                                    </div>
-                                </div>
+                                <span class="font-['Inter'] font-bold text-[18px] text-gray-700">DANA</span>
                             </div>
-                            @error('bukti_bayar')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+
+                            <div class="payment-method-card w-[140px] h-[140px] bg-white border-[3px] border-gray-300 rounded-[15px] flex flex-col items-center justify-center cursor-pointer hover:border-[#0061DF] hover:shadow-lg transition-all"
+                                data-method="qris">
+                                <div class="text-gray-700 text-[48px] mb-2">
+                                    <i class="fas fa-qrcode"></i>
+                                </div>
+                                <span class="font-['Inter'] font-bold text-[18px] text-gray-700">QRIS</span>
+                            </div>
+
+                            <div class="payment-method-card w-[140px] h-[140px] bg-white border-[3px] border-gray-300 rounded-[15px] flex flex-col items-center justify-center cursor-pointer hover:border-[#0061DF] hover:shadow-lg transition-all"
+                                data-method="bank_transfer">
+                                <div class="text-[#29458F] text-[48px] mb-2">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                                <span class="font-['Inter'] font-bold text-[18px] text-gray-700">BANK</span>
+                            </div>
                         </div>
 
-                        @if ($pendaftaran->bukti_bayar)
-                            <div class="w-full max-w-[500px] rounded-[10px] border border-blue-200 bg-blue-50 p-4 text-left">
-                                <h4 class="font-semibold text-blue-800">Bukti Bayar Saat Ini</h4>
-                                <p class="mt-1 text-sm text-blue-700">Upload ulang untuk mengganti bukti sebelumnya.</p>
-                                <a href="{{ route('admin.view.bukti-wisuda', basename($pendaftaran->bukti_bayar)) }}" target="_blank" class="mt-3 inline-flex items-center gap-2 text-blue-600 hover:underline">
-                                    <i class="fas fa-eye"></i> Lihat Bukti Bayar
-                                </a>
-                            </div>
-                        @endif
-
-                        <button type="submit" class="mt-4 flex h-[69px] w-full max-w-[1110px] items-center justify-center rounded-[10px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] text-[24px] font-bold text-white hover:shadow-lg">
-                            Konfirmasi Pembayaran
+                        {{-- Konfirmasi Button --}}
+                        <button id="pay-button"
+                            class="w-full max-w-[600px] mx-auto block h-[60px] bg-gradient-to-r from-[#0A0061] to-[#0061DF] rounded-[10px] flex items-center justify-center hover:shadow-lg transition-all opacity-50 cursor-not-allowed"
+                            disabled>
+                            <span class="font-['Inter'] font-bold text-[20px] text-white">Konfirmasi</span>
                         </button>
-                    </form>
+                        <p class="text-center mt-3 text-sm text-gray-500">
+                            <i class="fas fa-info-circle mr-1"></i>Pilih metode pembayaran terlebih dahulu
+                        </p>
+                    </div>
+
+                    <div class="text-center my-6">
+                        <span class="text-gray-500">── ATAU ──</span>
+                    </div>
                 @else
-                    <div class="flex h-[69px] w-full max-w-[1110px] items-center justify-center rounded-[10px] bg-green-100 text-center font-['Inter'] text-[20px] font-semibold text-green-700">
-                        Pembayaran sudah diverifikasi.
+                    <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p class="text-yellow-800">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            Pembayaran online sementara tidak tersedia. Silakan upload bukti transfer manual.
+                        </p>
                     </div>
                 @endif
+
+                {{-- Upload Bukti Transfer Manual --}}
+                <form action="{{ route('wisuda.proses-pembayaran', $pendaftaran->id) }}" method="POST"
+                    enctype="multipart/form-data" class="flex flex-col items-center gap-5">
+                    @csrf
+
+                    <div class="w-full max-w-[500px]">
+                        <label class="block font-['Inter'] font-semibold text-[20px] text-[#0061DF] mb-2 text-center">Upload
+                            Bukti Transfer Manual</label>
+                        <div id="upload-area"
+                            class="relative w-full h-[220px] bg-[#D6D4FF] border border-dashed border-black rounded-[10px] flex flex-col justify-center items-center cursor-pointer transition-colors">
+                            <input type="file" id="bukti_bayar_input" name="bukti_bayar"
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf">
+                            <div id="upload-placeholder" class="flex flex-col items-center gap-2 text-[#0061DF]">
+                                <i class="fas fa-cloud-upload-alt text-[50px]"></i>
+                                <span class="text-[14px]">Klik atau seret file di sini</span>
+                                <span class="text-[12px] text-[#4c4f8f]">Format JPG/PNG/PDF • Maksimal 2MB</span>
+                            </div>
+                            <div id="upload-preview" class="hidden flex flex-col items-center gap-3">
+                                <img id="preview-image" src="" alt="Preview"
+                                    class="max-h-32 rounded-[10px] border border-white bg-white object-contain shadow-md">
+                                <span id="preview-name" class="text-sm text-[#0061DF] font-semibold"></span>
+                                <button type="button" id="remove-preview"
+                                    class="text-xs text-red-600 hover:underline flex items-center gap-1">
+                                    <i class="fas fa-times"></i> Ganti file
+                                </button>
+                            </div>
+                        </div>
+                        @error('bukti_bayar')
+                            <p class="mt-2 text-sm text-red-600 text-center">{{ $message }}</p>
+                        @enderror
+
+                    </div>
+
+                    <button type="submit"
+                        class="w-full max-w-[1110px] h-[69px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] rounded-[10px] flex items-center justify-center hover:shadow-lg transition-all mt-4">
+                        <span class="font-['Inter'] font-bold text-[24px] text-white">📤 Upload Bukti Pembayaran</span>
+                    </button>
+                </form>
             </div>
 
-            @if ($pendaftaran->status === 'lunas')
-                <div class="mt-8 w-full max-w-[1110px] rounded-[10px] border border-green-200 bg-green-50 p-6">
-                    <div class="flex items-start gap-4">
-                        <i class="fas fa-check-circle text-3xl text-green-600"></i>
-                        <div>
-                            <h3 class="text-xl font-semibold text-green-800">Pembayaran Wisuda Terverifikasi</h3>
-                            <p class="text-green-700">Silakan lanjutkan mengisi persyaratan wisuda untuk tahap berikutnya.</p>
-                            @if ($pendaftaran->bukti_bayar)
-                                <a href="{{ route('admin.view.bukti-wisuda', basename($pendaftaran->bukti_bayar)) }}" target="_blank" class="mt-3 inline-flex items-center gap-2 rounded-[10px] bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700">
-                                    <i class="fas fa-eye"></i> Lihat Bukti Bayar
-                                </a>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            @endif
-
+            {{-- Informasi Penting --}}
             <div class="mt-6 w-full max-w-[1110px] rounded-[10px] border border-yellow-200 bg-yellow-50 p-6">
                 <h3 class="mb-3 text-lg font-semibold text-yellow-800">Informasi Penting</h3>
                 <ul class="space-y-2 text-sm text-yellow-700">
-                    <li class="flex items-start gap-2"><i class="fas fa-info-circle mt-1"></i>Pastikan nominal transfer sesuai tagihan dan cantumkan kode invoice pada keterangan.</li>
-                    <li class="flex items-start gap-2"><i class="fas fa-info-circle mt-1"></i>Proses verifikasi membutuhkan waktu 1-2 hari kerja.</li>
-                    <li class="flex items-start gap-2"><i class="fas fa-info-circle mt-1"></i>Anda dapat mengunggah ulang bukti bayar selama status belum diverifikasi.</li>
-                    <li class="flex items-start gap-2"><i class="fas fa-info-circle mt-1"></i>Setelah pembayaran diterima, lanjutkan ke menu persyaratan wisuda.</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-info-circle mt-1"></i>Pastikan nominal transfer
+                        sesuai tagihan dan cantumkan kode invoice pada keterangan.</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-info-circle mt-1"></i>Proses verifikasi membutuhkan
+                        waktu 1-2 hari kerja.</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-info-circle mt-1"></i>Anda dapat mengunggah ulang
+                        bukti bayar selama status belum diverifikasi.</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-info-circle mt-1"></i>Setelah pembayaran diterima,
+                        lanjutkan ke menu persyaratan wisuda.</li>
                 </ul>
             </div>
         </div>
@@ -159,6 +179,101 @@
 @endsection
 
 @push('scripts')
+    @if($snapToken)
+        {{-- Snap.js --}}
+        <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                let selectedMethod = null;
+                const payButton = document.getElementById('pay-button');
+                const methodCards = document.querySelectorAll('.payment-method-card');
+
+                console.log('Midtrans Payment Script Loaded (Wisuda)');
+                console.log('Found payment method cards:', methodCards.length);
+
+                // Handle payment method selection
+                methodCards.forEach(card => {
+                    card.addEventListener('click', function () {
+                        console.log('Card clicked:', this.dataset.method);
+
+                        // Remove selected class from all cards
+                        methodCards.forEach(c => {
+                            c.classList.remove('border-[#0061DF]', 'bg-blue-50', 'shadow-lg');
+                            c.classList.add('border-gray-300');
+                        });
+
+                        // Add selected class to clicked card
+                        this.classList.remove('border-gray-300');
+                        this.classList.add('border-[#0061DF]', 'bg-blue-50', 'shadow-lg');
+
+                        // Store selected method
+                        selectedMethod = this.dataset.method;
+                        console.log('Selected method:', selectedMethod);
+
+                        // Enable pay button
+                        if (payButton) {
+                            payButton.disabled = false;
+                            payButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                            payButton.classList.add('cursor-pointer');
+
+                            // Update button text
+                            const methodNames = {
+                                'ewallet': 'E-Wallet (DANA, OVO, GoPay)',
+                                'qris': 'QRIS',
+                                'bank_transfer': 'Transfer Bank'
+                            };
+
+                            const spanElement = payButton.querySelector('span');
+                            if (spanElement) {
+                                spanElement.textContent = 'Bayar Sekarang';
+                            }
+
+                            // Update info text
+                            const infoText = payButton.nextElementSibling;
+                            if (infoText) {
+                                infoText.innerHTML = '<i class="fas fa-check-circle mr-1 text-green-500"></i>Metode dipilih: ' + methodNames[selectedMethod];
+                                infoText.classList.remove('text-gray-500');
+                                infoText.classList.add('text-green-600');
+                            }
+                        }
+                    });
+                });
+
+                // Handle payment button click
+                if (payButton) {
+                    payButton.addEventListener('click', function () {
+                        console.log('Pay button clicked, method:', selectedMethod);
+
+                        if (!selectedMethod) {
+                            alert('Silakan pilih metode pembayaran terlebih dahulu');
+                            return;
+                        }
+
+                        // Open Midtrans popup
+                        snap.pay('{{ $snapToken }}', {
+                            onSuccess: function (result) {
+                                console.log('Payment success:', result);
+                                window.location.href = "{{ route('wisuda.success', $pendaftaran->id) }}";
+                            },
+                            onPending: function (result) {
+                                console.log('Payment pending:', result);
+                                alert("Pembayaran dalam proses. Silakan selesaikan pembayaran Anda.");
+                                window.location.reload();
+                            },
+                            onError: function (result) {
+                                console.log('Payment error:', result);
+                                alert("Terjadi kesalahan saat pembayaran. Silakan coba lagi.");
+                            },
+                            onClose: function () {
+                                console.log('Customer closed the popup without finishing the payment');
+                            }
+                        });
+                    });
+                }
+            });
+        </script>
+    @endif
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const uploadArea = document.getElementById('upload-area');
@@ -166,18 +281,16 @@
             const placeholder = document.getElementById('upload-placeholder');
             const previewWrapper = document.getElementById('upload-preview');
             const previewImage = document.getElementById('preview-image');
-            const previewFile = document.getElementById('preview-file');
+            const previewName = document.getElementById('preview-name');
             const removeButton = document.getElementById('remove-preview');
 
-            if (!uploadArea || !fileInput) {
+            if (!uploadArea || !fileInput || !placeholder || !previewWrapper) {
                 return;
             }
 
             const resetPreview = () => {
                 previewImage.src = '';
-                previewImage.classList.remove('hidden');
-                previewFile.textContent = '';
-                previewFile.classList.add('hidden');
+                previewName.textContent = '';
                 previewWrapper.classList.add('hidden');
                 placeholder.classList.remove('hidden');
                 uploadArea.classList.remove('bg-[#c4c1ff]', 'border-[#004bb0]');
@@ -193,27 +306,26 @@
 
                 const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
                 if (!allowedTypes.includes(file.type)) {
-                    alert('Format harus JPG/PNG/PDF');
+                    alert('Format harus JPG, PNG, atau PDF');
                     resetPreview();
                     return;
                 }
 
-                placeholder.classList.add('hidden');
-                previewWrapper.classList.remove('hidden');
-
                 if (file.type === 'application/pdf') {
                     previewImage.classList.add('hidden');
-                    previewFile.textContent = file.name;
-                    previewFile.classList.remove('hidden');
+                    previewName.textContent = '📄 ' + file.name;
                 } else {
                     const reader = new FileReader();
                     reader.onload = (event) => {
                         previewImage.src = event.target.result;
+                        previewImage.classList.remove('hidden');
                     };
                     reader.readAsDataURL(file);
-                    previewImage.classList.remove('hidden');
-                    previewFile.classList.add('hidden');
+                    previewName.textContent = file.name;
                 }
+
+                placeholder.classList.add('hidden');
+                previewWrapper.classList.remove('hidden');
             };
 
             fileInput.addEventListener('change', (event) => {

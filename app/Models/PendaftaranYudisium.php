@@ -17,11 +17,14 @@ class PendaftaranYudisium extends Model
         'total_bayar',
         'status',
         'tanggal_bayar',
-        'bukti_bayar'
+        'bukti_bayar',
+        'payment_method',
+        'paid_at'
     ];
 
     protected $casts = [
         'tanggal_bayar' => 'datetime',
+        'paid_at' => 'datetime',
         'total_bayar' => 'decimal:2'
     ];
 
@@ -36,7 +39,7 @@ class PendaftaranYudisium extends Model
     // Tambahan opsional: label status untuk tampilan
     public function getStatusLabelAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'menunggu_pembayaran' => 'Menunggu Pembayaran',
             'menunggu_verifikasi' => 'Menunggu Verifikasi Admin',
             'lunas' => 'Lunas',

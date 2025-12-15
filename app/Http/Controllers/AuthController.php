@@ -33,38 +33,67 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
-            'nim'      => 'nullable|unique:users,nim',
-            'prodi'    => 'nullable|string|max:100',
-            'no_hp'    => 'nullable|string|max:15',
-            'ipk'      => 'required|numeric|min:0|max:4',
+            'nim' => 'nullable|unique:users,nim',
+            'prodi' => 'nullable|string|max:100',
+            'no_hp' => 'nullable|string|max:15',
+            'ipk' => 'required|numeric|min:0|max:4',
             'fakultas' => 'nullable|string|max:100',
         ]);
 
+        // Generate verification token
+        $verificationToken = \Str::random(64);
+
         $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
+            'name' => $validated['name'],
+            'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'nim'      => $validated['nim'] ?? null,
-            'prodi'    => $validated['prodi'] ?? null,
-            'no_hp'    => $validated['no_hp'] ?? null,
-            'ipk'      => $validated['ipk'],
-            'role'     => 'mahasiswa',
+            'nim' => $validated['nim'] ?? null,
+            'prodi' => $validated['prodi'] ?? null,
+            'no_hp' => $validated['no_hp'] ?? null,
+            'ipk' => $validated['ipk'],
+            'role' => 'mahasiswa',
+            'verification_token' => $verificationToken,
         ]);
+
+        // Send verification email
+        $this->sendVerificationEmail($user, $verificationToken);
 
         Auth::login($user);
 
         return redirect()->route('dashboard')
-            ->with('success', 'Registrasi berhasil. Selamat datang.');
+            ->with('success', 'Registrasi berhasil. Silakan cek email Anda untuk verifikasi.');
+    }
+
+    /**
+     * Send verification email
+     */
+    private function sendVerificationEmail($user, $token)
+    {
+        try {
+            $verificationUrl = url('/verify-email/' . $token);
+
+            \Mail::send('emails.verify_email', [
+                'user' => $user,
+                'verificationUrl' => $verificationUrl
+            ], function ($message) use ($user) {
+                $message->to($user->email)
+                    ->subject('Verifikasi Email Anda - Sistem Wisuda');
+            });
+
+            \Log::info('Verification email sent to: ' . $user->email);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send verification email: ' . $e->getMessage());
+        }
     }
 
     /** Proses Login */
     public function login(Request $request)
     {
         $request->validate([
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
@@ -89,6 +118,7 @@ class AuthController extends Controller
             ->with('success', 'Berhasil logout.');
     }
 
+
     /** Redirect Sesuai Role */
     private function redirectByRole(User $user)
     {
@@ -102,5 +132,52 @@ class AuthController extends Controller
 
         return redirect('/')
             ->with('info', 'Role tidak dikenali.');
+    }
+
+    /**
+     * Verify email with token
+     */
+    public function verifyEmail($token)
+    {
+        $user = User::where('verification_token', $token)->first();
+
+        if (!$user) {
+            return redirect()->route('login')
+                ->with('error', 'Token verifikasi tidak valid.');
+        }
+
+        if ($user->email_verified_at) {
+            return redirect()->route('login')
+                ->with('info', 'Email sudah terverifikasi sebelumnya.');
+        }
+
+        $user->update([
+            'email_verified_at' => now(),
+            'verification_token' => null,
+        ]);
+
+        return redirect()->route('login')
+            ->with('success', 'Email berhasil diverifikasi! Silakan login.');
+    }
+
+    /**
+     * Resend verification email
+     */
+    public function resendVerification(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->email_verified_at) {
+            return back()->with('info', 'Email Anda sudah terverifikasi.');
+        }
+
+        // Generate new token
+        $verificationToken = \Str::random(64);
+        $user->update(['verification_token' => $verificationToken]);
+
+        // Send email
+        $this->sendVerificationEmail($user, $verificationToken);
+
+        return back()->with('success', 'Email verifikasi telah dikirim ulang. Silakan cek inbox Anda.');
     }
 }

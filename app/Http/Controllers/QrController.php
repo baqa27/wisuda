@@ -121,8 +121,7 @@ class QrController extends Controller
             $token = $this->generateUniqueToken();
             $kodeUnik = $this->generateKodeUnik($mahasiswa->nim);
 
-            // Buat payload yang lebih sederhana untuk QR
-            // Tambahkan juga URL API checkin agar pihak lain bisa langsung memanggil endpoint
+            // Buat payload
             $payloadData = [
                 'token' => $token,
                 'kode_unik' => $kodeUnik,
@@ -130,20 +129,86 @@ class QrController extends Controller
                 'timestamp' => now()->timestamp,
             ];
 
-            // Jika aplikasi memiliki URL app url di .env, gunakan itu; fallback ke route relative
             $appUrl = config('app.url') ?? env('APP_URL');
             $checkinUrl = rtrim($appUrl, '/') . '/api/qr/checkin';
-
             $payload = json_encode(array_merge($payloadData, ['checkin_url' => $checkinUrl]));
 
-            // Generate QR Code sebagai SVG (kompatibel tanpa imagick)
-            $qrImage = QrCode::format('svg')
+            // 1. Generate Raw QR SVG (Clean)
+            $rawQrSvg = QrCode::format('svg')
                 ->size(300)
                 ->margin(1)
                 ->errorCorrection('H')
                 ->generate($payload);
 
-            // Simpan file QR (SVG tidak memerlukan imagick)
+            // Bersihkan deklarasi XML jika ada
+            $rawQrSvg = preg_replace('/^<\?xml[^>]*\?>/i', '', $rawQrSvg);
+
+            // 2. Siapkan data mahasiswa untuk Card
+            $nama = strtoupper($mahasiswa->name);
+            $nim = $mahasiswa->nim;
+            // Truncate nama jika terlalu panjang agar muat di kartu
+            if (strlen($nama) > 20) {
+                $nama = substr($nama, 0, 18) . '...';
+            }
+
+            // 3. Buat Wrapper SVG (Kartu Presensi) - Ukuran 500x700
+            $cardSvg = <<<SVG
+<svg width="500" height="700" viewBox="0 0 500 700" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <linearGradient id="gradTheme" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#0A0061;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#0061DF;stop-opacity:1" />
+        </linearGradient>
+        <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+            <feOffset dx="2" dy="2" result="offsetblur"/>
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.3"/>
+            </feComponentTransfer>
+            <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+
+    <!-- Background Card -->
+    <rect x="5" y="5" width="490" height="690" rx="30" ry="30" fill="white" stroke="#e5e7eb" stroke-width="2" />
+    
+    <!-- Header Decor -->
+    <path d="M 5,35 Q 250,100 495,35 L 495,5 A 30,30 0 0 0 465,5 L 35,5 A 30,30 0 0 0 5,5 Z" fill="url(#gradTheme)" />
+
+    <!-- Border Gradient Frame -->
+    <rect x="25" y="25" width="450" height="650" rx="20" ry="20" fill="none" stroke="url(#gradTheme)" stroke-width="4" stroke-opacity="0.3" />
+
+    <!-- Header Text -->
+    <text x="50%" y="100" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" fill="#0A0061" letter-spacing="2" filter="url(#shadow)">PRESENSI WISUDA</text>
+    <text x="50%" y="130" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#666" letter-spacing="4">TICKET ACCESS</text>
+
+    <!-- Separator Line -->
+    <line x1="100" y1="150" x2="400" y2="150" stroke="#0061DF" stroke-width="2" stroke-linecap="round" />
+
+    <!-- QR Container Area -->
+    <!-- Center X: 250. QR size 300. Start X: 100. Start Y: 180 -->
+    <rect x="90" y="170" width="320" height="320" rx="15" ry="15" fill="white" stroke="#0061DF" stroke-width="2" filter="url(#shadow)" />
+    
+    <!-- Embed Clean QR Code SVG -->
+    <svg x="100" y="180" width="300" height="300">
+        {$rawQrSvg}
+    </svg>
+
+    <!-- Student Info -->
+    <text x="50%" y="540" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="bold" fill="#222">{$nama}</text>
+    <rect x="150" y="555" width="200" height="40" rx="20" ry="20" fill="#e0f2fe" />
+    <text x="50%" y="583" text-anchor="middle" font-family="Courier New, monospace" font-size="22" font-weight="bold" fill="#0061DF">{$nim}</text>
+
+    <!-- Footer Note -->
+    <text x="50%" y="640" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#777">Simpan & Tunjukkan QR ini kepada panitia</text>
+    <text x="50%" y="660" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#999">Generated on {$this->getCurrentDate()}</text>
+</svg>
+SVG;
+
+            // Simpan file QR (SVG)
             $fileName = 'qr_' . $mahasiswa->nim . '_' . time() . '.svg';
             $filePath = 'qr_codes/' . $fileName;
 
@@ -153,7 +218,7 @@ class QrController extends Controller
             }
 
             // Simpan file
-            Storage::disk('public')->put($filePath, $qrImage);
+            Storage::disk('public')->put($filePath, $cardSvg);
 
             // Buat record di database
             return QrPresensi::create([
@@ -169,6 +234,11 @@ class QrController extends Controller
             Log::error('Error creating QR: ' . $e->getMessage());
             return null;
         }
+    }
+
+    private function getCurrentDate()
+    {
+        return now()->format('d M Y H:i');
     }
 
     private function generateUniqueToken()

@@ -25,6 +25,9 @@ Route::middleware('guest')->group(function () {
     // Register
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
+
+    // Email Verification
+    Route::get('/verify-email/{token}', [AuthController::class, 'verifyEmail'])->name('verify.email');
 });
 
 // ==========================
@@ -33,6 +36,9 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Resend Email Verification
+    Route::post('/resend-verification', [AuthController::class, 'resendVerification'])->name('resend.verification');
 
     // ======================
     // 🎓 MAHASISWA ROUTES
@@ -53,6 +59,9 @@ Route::middleware('auth')->group(function () {
             Route::put('/upload-bukti/{id}', [YudisiumController::class, 'prosesUploadBukti'])->name('yudisium.proses-upload-bukti');
             Route::get('/download-bukti/{filename}', [YudisiumController::class, 'downloadBuktiBayar'])->name('yudisium.download-bukti');
 
+            // Midtrans Payment
+            Route::get('/payment/success/{id}', [YudisiumController::class, 'paymentSuccess'])->name('yudisium.success');
+
             // Persyaratan
             Route::get('/persyaratan', [YudisiumController::class, 'showFormPersyaratan'])->name('yudisium.persyaratan.form');
             Route::post('/persyaratan', [YudisiumController::class, 'simpanPersyaratan'])->name('yudisium.persyaratan.simpan');
@@ -72,6 +81,7 @@ Route::middleware('auth')->group(function () {
             // Pembayaran
             Route::get('/upload-bukti/{id}', [WisudaController::class, 'showPembayaran'])->name('wisuda.upload-bukti');
             Route::post('/upload-bukti/{id}', [WisudaController::class, 'prosesPembayaran'])->name('wisuda.proses-pembayaran');
+            Route::get('/payment/success/{id}', [WisudaController::class, 'paymentSuccess'])->name('wisuda.success');
 
             // Persyaratan
             Route::get('/persyaratan', [WisudaController::class, 'showFormPersyaratan'])->name('wisuda.persyaratan.form');
@@ -84,6 +94,7 @@ Route::middleware('auth')->group(function () {
 
             // Download
             Route::get('/download/{filename}', [WisudaController::class, 'downloadFileWisuda'])->name('wisuda.download');
+            Route::get('/download-qr/{id}', [QrController::class, 'downloadQr'])->name('wisuda.download-qr');
         });
     });
 
@@ -146,6 +157,11 @@ Route::middleware('auth')->group(function () {
 });
 
 // ==========================
+// 💳 MIDTRANS WEBHOOK CALLBACK
+// ==========================
+Route::post('/midtrans/notification', [YudisiumController::class, 'handleMidtransNotification'])->name('midtrans.notification');
+
+// ==========================
 // 📱 PUBLIC API - QR CODE SCANNING (Untuk aplikasi/sistem lain)
 // ==========================
 // ✅ Endpoint untuk check-in presensi (POST dengan token + kode_unik)
@@ -159,3 +175,4 @@ Route::get('/api/qr/list-presensi', [QrController::class, 'listPresensi'])->name
 
 // ✅ Endpoint untuk download file QR (GET) - bisa diakses public
 Route::get('/api/qr/file/{id}', [QrController::class, 'viewQr'])->name('api.qr.file');
+

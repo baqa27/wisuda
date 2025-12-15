@@ -22,6 +22,10 @@ class AdminController extends Controller
             'persyaratan_yudisium_menunggu' => PersyaratanYudisium::where('status', 'menunggu')->count(),
             'persyaratan_wisuda_menunggu' => PersyaratanWisuda::where('status', 'menunggu')->count(),
             'siap_wisuda' => DataMahasiswaFinal::where('status', 'siap_wisuda')->count(),
+            // Payment Statistics
+            'pembayaran_lunas' => PendaftaranYudisium::where('status', 'lunas')->count(),
+            'pembayaran_midtrans' => PendaftaranYudisium::where('payment_method', 'midtrans')->count(),
+            'total_pendapatan' => PendaftaranYudisium::where('status', 'lunas')->sum('total_bayar'),
         ];
 
         $recentMahasiswa = User::where('role', 'mahasiswa')
@@ -29,29 +33,53 @@ class AdminController extends Controller
             ->take(5)
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'recentMahasiswa'));
+        // Recent payments
+        $recentPayments = PendaftaranYudisium::with('mahasiswa')
+            ->whereIn('status', ['lunas', 'menunggu_verifikasi'])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('admin.dashboard', compact('stats', 'recentMahasiswa', 'recentPayments'));
     }
 
     /* Pembayaran Yudisium */
     public function verifikasiPembayaranYudisium()
     {
+        // Ambil semua pembayaran yang perlu diperhatikan admin
         $pembayaran = PendaftaranYudisium::with('mahasiswa')
-            ->where('status', 'menunggu_verifikasi')
+            ->whereIn('status', ['menunggu_verifikasi', 'menunggu_pembayaran', 'lunas'])
             ->latest()
             ->get();
 
-        return view('admin.verifikasi.pembayaran_yudisium', compact('pembayaran'));
+        // Hitung statistik pembayaran
+        $stats = [
+            'total' => PendaftaranYudisium::count(),
+            'lunas' => PendaftaranYudisium::where('status', 'lunas')->count(),
+            'menunggu_verifikasi' => PendaftaranYudisium::where('status', 'menunggu_verifikasi')->count(),
+            'menunggu_pembayaran' => PendaftaranYudisium::where('status', 'menunggu_pembayaran')->count(),
+            'total_pendapatan' => PendaftaranYudisium::where('status', 'lunas')->sum('total_bayar'),
+        ];
+
+        return view('admin.verifikasi.pembayaran_yudisium', compact('pembayaran', 'stats'));
     }
 
     public function updatePembayaranYudisium(Request $request, $id)
     {
-        $request->validate(['status' => 'required|in:lunas,batal']);
+        $request->validate(['status' => 'required|in:lunas,batal,menunggu_verifikasi']);
 
-        PendaftaranYudisium::where('id', $id)
-            ->update([
-                'status' => $request->status,
-                'tanggal_bayar' => $request->status == 'lunas' ? now() : null
-            ]);
+        $updateData = [
+            'status' => $request->status,
+        ];
+
+        // Jika disetujui (lunas), set tanggal bayar
+        if ($request->status == 'lunas') {
+            $updateData['tanggal_bayar'] = now();
+            $updateData['paid_at'] = now();
+            $updateData['payment_method'] = 'manual'; // Verified manually by admin
+        }
+
+        PendaftaranYudisium::where('id', $id)->update($updateData);
 
         return back()->with('success', 'Status pembayaran yudisium berhasil diperbarui.');
     }
@@ -86,23 +114,40 @@ class AdminController extends Controller
     /* Pembayaran Wisuda */
     public function verifikasiPembayaranWisuda()
     {
+        // Ambil semua pembayaran yang perlu diperhatikan admin
         $pembayaran = PendaftaranWisuda::with('mahasiswa')
-            ->where('status', 'menunggu_verifikasi')
+            ->whereIn('status', ['menunggu_verifikasi', 'menunggu_pembayaran', 'lunas'])
             ->latest()
             ->get();
 
-        return view('admin.verifikasi.pembayaran_wisuda', compact('pembayaran'));
+        // Hitung statistik pembayaran
+        $stats = [
+            'total' => PendaftaranWisuda::count(),
+            'lunas' => PendaftaranWisuda::where('status', 'lunas')->count(),
+            'menunggu_verifikasi' => PendaftaranWisuda::where('status', 'menunggu_verifikasi')->count(),
+            'menunggu_pembayaran' => PendaftaranWisuda::where('status', 'menunggu_pembayaran')->count(),
+            'total_pendapatan' => PendaftaranWisuda::where('status', 'lunas')->sum('total_bayar'),
+        ];
+
+        return view('admin.verifikasi.pembayaran_wisuda', compact('pembayaran', 'stats'));
     }
 
     public function updatePembayaranWisuda(Request $request, $id)
     {
-        $request->validate(['status' => 'required|in:lunas,batal']);
+        $request->validate(['status' => 'required|in:lunas,batal,menunggu_verifikasi']);
 
-        PendaftaranWisuda::where('id', $id)
-            ->update([
-                'status' => $request->status,
-                'tanggal_bayar' => $request->status == 'lunas' ? now() : null
-            ]);
+        $updateData = [
+            'status' => $request->status,
+        ];
+
+        // Jika disetujui (lunas), set tanggal bayar
+        if ($request->status == 'lunas') {
+            $updateData['tanggal_bayar'] = now();
+            $updateData['paid_at'] = now();
+            $updateData['payment_method'] = 'manual'; // Verified manually by admin
+        }
+
+        PendaftaranWisuda::where('id', $id)->update($updateData);
 
         return back()->with('success', 'Status pembayaran wisuda berhasil diperbarui.');
     }
@@ -117,9 +162,11 @@ class AdminController extends Controller
 
         // Ambil data mahasiswa beserta persyaratannya
         $mahasiswa = User::whereIn('id', $mahasiswaIds)
-            ->with(['persyaratanWisuda' => function ($query) {
-                $query->orderBy('jenis');
-            }])
+            ->with([
+                'persyaratanWisuda' => function ($query) {
+                    $query->orderBy('jenis');
+                }
+            ])
             ->get();
 
         return view('admin.verifikasi.persyaratan_wisuda', compact('mahasiswa'));
@@ -165,7 +212,7 @@ class AdminController extends Controller
     /* Download File */
     public function downloadFile($folder, $filename)
     {
-        $filePath = $folder.'/'.$filename;
+        $filePath = $folder . '/' . $filename;
 
         if (!Storage::disk('public')->exists($filePath)) {
             abort(404);

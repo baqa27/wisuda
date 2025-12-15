@@ -18,10 +18,13 @@ class PendaftaranWisuda extends Model
         'status',
         'tanggal_bayar',
         'bukti_bayar',
+        'payment_method',
+        'paid_at'
     ];
 
     protected $casts = [
         'tanggal_bayar' => 'datetime',
+        'paid_at' => 'datetime',
         'total_bayar' => 'decimal:2',
     ];
 
