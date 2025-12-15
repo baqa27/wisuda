@@ -10,6 +10,7 @@ use App\Models\PersyaratanWisuda;
 use App\Models\DataMahasiswaFinal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -188,6 +189,36 @@ class AdminController extends Controller
         return back()->with('success', 'Persyaratan wisuda berhasil diperbarui.');
     }
 
+    public function bulkApprovePersyaratanWisuda(Request $request, $mahasiswaId)
+    {
+        // Approve all pending requirements for this student
+        $updated = PersyaratanWisuda::where('mahasiswa_id', $mahasiswaId)
+            ->where('status', 'menunggu')
+            ->update([
+                'status' => 'terverifikasi',
+                'catatan_admin' => null
+            ]);
+
+        return back()->with('success', $updated . ' persyaratan wisuda berhasil disetujui.');
+    }
+
+    public function bulkRevisePersyaratanWisuda(Request $request, $mahasiswaId)
+    {
+        $request->validate([
+            'catatan' => 'required|string|max:500'
+        ]);
+
+        // Revise ALL pending documents for this student (like Yudisium)
+        $updated = PersyaratanWisuda::where('mahasiswa_id', $mahasiswaId)
+            ->where('status', 'menunggu')
+            ->update([
+                'status' => 'revisi',
+                'catatan_admin' => $request->catatan
+            ]);
+
+        return back()->with('success', $updated . ' dokumen ditandai perlu revisi.');
+    }
+
     /* Data Final */
     public function dataFinal()
     {
@@ -207,6 +238,64 @@ class AdminController extends Controller
             ->paginate(10);
 
         return view('admin.manajemen_mahasiswa', compact('mahasiswa'));
+    }
+
+    public function storeMahasiswa(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'nim' => 'required|string|unique:users,nim',
+            'prodi' => 'required|string',
+            'password' => 'required|min:6',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'nim' => $request->nim,
+            'prodi' => $request->prodi,
+            'password' => Hash::make($request->password),
+            'role' => 'mahasiswa',
+        ]);
+
+        return back()->with('success', 'Mahasiswa berhasil ditambahkan.');
+    }
+
+    public function updateMahasiswa(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'nim' => 'required|string|unique:users,nim,' . $id,
+            'prodi' => 'required|string',
+            'password' => 'nullable|min:6',
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'nim' => $request->nim,
+            'prodi' => $request->prodi,
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $user->update($data);
+
+        return back()->with('success', 'Data mahasiswa berhasil diperbarui.');
+    }
+
+    public function destroyMahasiswa($id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return back()->with('success', 'Mahasiswa berhasil dihapus.');
     }
 
     /* Download File */

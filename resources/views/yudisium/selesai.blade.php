@@ -1,4 +1,4 @@
-@extends('layouts.mahasiswa')
+@extends('layouts.mahasiswa_blank')
 
 @section('title', 'Yudisium Selesai')
 

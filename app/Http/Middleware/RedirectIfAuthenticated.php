@@ -22,10 +22,9 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                $user = Auth::user();
+                $user = Auth::guard($guard)->user();
 
                 // Redirect berdasarkan role
-                // Prefer role property check to avoid calling undefined methods.
                 if (($user->role ?? null) === 'admin') {
                     return redirect()->route('admin.dashboard');
                 }
