@@ -97,25 +97,72 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt($request->only('email', 'password'))) {
+        // Attempt login only for 'mahasiswa' role
+        $credentials = $request->only('email', 'password');
+        $credentials['role'] = 'mahasiswa';
+
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return $this->redirectByRole(Auth::user());
+            return redirect()->route('dashboard');
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
+            'email' => 'Email atau password salah, atau akun bukan mahasiswa.',
         ])->onlyInput('email');
     }
 
-    /** Logout */
+    /** Logout User */
     public function logout(Request $request)
     {
-        Auth::logout();
+        Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/')
             ->with('success', 'Berhasil logout.');
+    }
+
+    /** Logout Admin */
+    public function adminLogout(Request $request)
+    {
+        Auth::guard('admin')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('admin.login.form')
+            ->with('success', 'Admin berhasil logout.');
+    }
+
+    /** Halaman Login Admin */
+    public function showAdminLogin()
+    {
+        if (Auth::guard('admin')->check()) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return view('auth.admin-login');
+    }
+
+    /** Proses Login Admin */
+    public function adminLogin(Request $request)
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        // Attempt login only for 'admin' role
+        $credentials = $request->only('email', 'password');
+        $credentials['role'] = 'admin';
+
+        if (Auth::guard('admin')->attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->route('admin.dashboard');
+        }
+
+        return back()->withErrors([
+            'email' => 'Email atau password salah, atau akun bukan admin.',
+        ])->onlyInput('email');
     }
 
 
