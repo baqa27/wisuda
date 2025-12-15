@@ -43,7 +43,7 @@
         </div>
 
         {{-- Logout Button --}}
-        <div class="hidden lg:block absolute right-8">
+        <div class="absolute right-4 md:right-8">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-[8px] transition-colors shadow-md" title="Logout">

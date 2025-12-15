@@ -151,7 +151,7 @@
                                     <input type="number" id="semester" name="semester" value="{{ old('semester') }}" required
                                            class="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl
                                            focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
-                                           placeholder="8" min="1" max="14">
+                                           placeholder="8" min="7" max="14">
                                 </div>
                             </div>
 

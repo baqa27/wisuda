@@ -3,125 +3,125 @@
 @section('title', 'Dashboard Admin')
 
 @section('content')
-<div class="mb-8">
-    <h1 class="text-4xl font-bold bg-linear-to-r from-[#0A0061] to-[#0061DF] bg-clip-text text-transparent">
+<!-- Header Section -->
+<div class="mb-10">
+    <h1 class="text-5xl font-bold text-[#02AC10]">
         Dashboard Admin
     </h1>
-    <p class="text-gray-600 text-lg mt-2">Selamat datang di Sistem Wisuda - Kelola Pendaftaran & Verifikasi</p>
+    <p class="text-gray-500 text-xl mt-2">Selamat datang di Sistem Wisuda - Kelola Pendaftaran & Verifikasi</p>
 </div>
 
-<!-- Statistik Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+<!-- Statistik Cards Row -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
     <!-- Total Mahasiswa -->
-    <div class="auth-card p-6 border-l-4 border-l-[#0061DF] hover:shadow-lg transition-all">
-        <div class="flex items-start justify-between">
+    <div class="bg-white p-6 rounded-xl border border-[#E0EBE2] shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm font-medium mb-2">Total Mahasiswa</p>
-                <p class="text-4xl font-bold text-[#0A0061]">{{ $stats['total_mahasiswa'] }}</p>
-                <p class="text-xs text-gray-500 mt-2">Terdaftar dalam sistem</p>
+                <p class="text-[#738C77] text-sm font-normal mb-1">Total Mahasiswa</p>
+                <p class="text-3xl font-bold text-[#1F1F1F]">{{ $stats['total_mahasiswa'] }}</p>
             </div>
-            <div class="icon-container bg-blue-100">
-                <i class="fas fa-users text-[#0061DF] text-2xl"></i>
+            <div class="w-14 h-14 bg-[#DCFFE6] rounded-xl flex items-center justify-center">
+                <i class="fas fa-users text-[#007D0B] text-xl"></i>
             </div>
         </div>
     </div>
 
     <!-- Menunggu Verifikasi -->
-    <div class="auth-card p-6 border-l-4 border-l-[#0061DF] hover:shadow-lg transition-all">
-        <div class="flex items-start justify-between">
+    <div class="bg-white p-6 rounded-xl border border-[#E0EBE2] shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm font-medium mb-2">Menunggu Verifikasi</p>
-                <p class="text-4xl font-bold text-[#0A0061]">
+                <p class="text-[#8A8C73] text-sm font-normal mb-1">Menunggu Verifikasi</p>
+                <p class="text-3xl font-bold text-[#1F1F1F]">
                     {{ $stats['yudisium_menunggu'] + $stats['wisuda_menunggu'] }}
                 </p>
-                <p class="text-xs text-gray-500 mt-2">Pembayaran & dokumen</p>
             </div>
-            <div class="icon-container bg-yellow-100">
-                <i class="fas fa-hourglass-half text-yellow-600 text-2xl"></i>
+            <div class="w-14 h-14 bg-[#FCFFDC] rounded-xl flex items-center justify-center">
+                <i class="fas fa-clock text-[#7D7900] text-xl"></i>
             </div>
         </div>
     </div>
 
     <!-- Siap Wisuda -->
-    <div class="auth-card p-6 border-l-4 border-l-[#0061DF] hover:shadow-lg transition-all">
-        <div class="flex items-start justify-between">
+    <div class="bg-white p-6 rounded-xl border border-[#E0E8EB] shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm font-medium mb-2">Siap Wisuda</p>
-                <p class="text-4xl font-bold text-[#0A0061]">{{ $stats['siap_wisuda'] }}</p>
-                <p class="text-xs text-gray-500 mt-2">Lengkap semua dokumen</p>
+                <p class="text-[#73838C] text-sm font-normal mb-1">Siap Wisuda</p>
+                <p class="text-3xl font-bold text-[#1F1F1F]">{{ $stats['siap_wisuda'] }}</p>
             </div>
-            <div class="icon-container bg-green-100">
-                <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+            <div class="w-14 h-14 bg-[#DCF8FF] rounded-xl flex items-center justify-center">
+                <i class="fas fa-check-circle text-[#006C7D] text-xl"></i>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Aksi Cepat -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+<!-- Two Column Panels -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-    <!-- Verifikasi Panel -->
-    <div class="auth-card overflow-hidden">
-        <div class="bg-linear-to-r from-[#0A0061] to-[#0061DF] p-6">
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                <i class="fas fa-check-double"></i>
-                Verifikasi
-            </h2>
+    <!-- Left Panel - Verifikasi -->
+    <div class="bg-white rounded-xl border border-[#E0EBE2] shadow-sm overflow-hidden">
+        <div class="bg-linear-to-r from-[#056100] to-[#00DF1A] px-5 py-4 flex items-center gap-3">
+            <i class="fas fa-check-circle text-white text-xl opacity-80"></i>
+            <h2 class="text-xl font-bold text-white">Verifikasi</h2>
         </div>
-        <div class="p-6 space-y-3">
+        <div class="p-6 space-y-4">
 
+            <!-- Pembayaran Yudisium -->
             <a href="{{ route('admin.verifikasi.pembayaran-yudisium') }}"
-               class="flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 rounded-[10px] transition border border-blue-200">
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-credit-card text-[#0061DF] text-lg"></i>
+               class="flex items-center justify-between p-4 bg-[#DDFFE3] hover:bg-green-100 rounded-xl transition">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-money-bill-wave text-[#007D0B] text-xl"></i>
                     <div>
-                        <p class="font-semibold text-gray-800">Pembayaran Yudisium</p>
-                        <p class="text-xs text-gray-600">Verifikasi bukti pembayaran</p>
+                        <p class="font-bold text-gray-700">Pembayaran Yudisium</p>
+                        <p class="text-xs text-gray-500">Verifikasi bukti pembayaran</p>
                     </div>
                 </div>
-                <span class="bg-[#0061DF] text-white px-3 py-1 rounded-full text-sm font-bold">
+                <span class="w-8 h-8 bg-[#007D0B] text-white rounded-full flex items-center justify-center text-sm font-bold">
                     {{ $stats['yudisium_menunggu'] }}
                 </span>
             </a>
 
+            <!-- Persyaratan Yudisium -->
             <a href="{{ route('admin.verifikasi.persyaratan-yudisium') }}"
-               class="flex items-center justify-between p-4 bg-green-50 hover:bg-green-100 rounded-[10px] transition border border-green-200">
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-file-pdf text-green-600 text-lg"></i>
+               class="flex items-center justify-between p-4 bg-[#DDFAFF] hover:bg-cyan-100 rounded-xl transition">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-file-alt text-[#00737D] text-xl"></i>
                     <div>
-                        <p class="font-semibold text-gray-800">Persyaratan Yudisium</p>
-                        <p class="text-xs text-gray-600">Verifikasi dokumen persyaratan</p>
+                        <p class="font-bold text-gray-700">Persyaratan Yudisium</p>
+                        <p class="text-xs text-gray-500">Verifikasi dokumen persyaratan</p>
                     </div>
                 </div>
-                <span class="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                <span class="w-8 h-8 bg-[#00737D] text-white rounded-full flex items-center justify-center text-sm font-bold">
                     {{ $stats['persyaratan_yudisium_menunggu'] }}
                 </span>
             </a>
 
+            <!-- Pembayaran Wisuda -->
             <a href="{{ route('admin.verifikasi.pembayaran-wisuda') }}"
-               class="flex items-center justify-between p-4 bg-purple-50 hover:bg-purple-100 rounded-[10px] transition border border-purple-200">
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-credit-card text-purple-600 text-lg"></i>
+               class="flex items-center justify-between p-4 bg-[#FEFFDD] hover:bg-yellow-100 rounded-xl transition">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-money-bill-wave text-[#7B7D00] text-xl"></i>
                     <div>
-                        <p class="font-semibold text-gray-800">Pembayaran Wisuda</p>
-                        <p class="text-xs text-gray-600">Verifikasi bukti pembayaran</p>
+                        <p class="font-bold text-gray-700">Pembayaran Wisuda</p>
+                        <p class="text-xs text-gray-500">Verifikasi bukti pembayaran</p>
                     </div>
                 </div>
-                <span class="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                <span class="w-8 h-8 bg-[#7B7D00] text-white rounded-full flex items-center justify-center text-sm font-bold">
                     {{ $stats['wisuda_menunggu'] }}
                 </span>
             </a>
 
+            <!-- Persyaratan Wisuda -->
             <a href="{{ route('admin.verifikasi.persyaratan-wisuda') }}"
-               class="flex items-center justify-between p-4 bg-orange-50 hover:bg-orange-100 rounded-[10px] transition border border-orange-200">
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-file-pdf text-orange-600 text-lg"></i>
+               class="flex items-center justify-between p-4 bg-[#FFE0DD] hover:bg-red-100 rounded-xl transition">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-file-alt text-[#7D1500] text-xl"></i>
                     <div>
-                        <p class="font-semibold text-gray-800">Persyaratan Wisuda</p>
-                        <p class="text-xs text-gray-600">Verifikasi dokumen persyaratan</p>
+                        <p class="font-bold text-gray-700">Persyaratan Wisuda</p>
+                        <p class="text-xs text-gray-500">Verifikasi dokumen persyaratan</p>
                     </div>
                 </div>
-                <span class="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                <span class="w-8 h-8 bg-[#7D1500] text-white rounded-full flex items-center justify-center text-sm font-bold">
                     {{ $stats['persyaratan_wisuda_menunggu'] }}
                 </span>
             </a>
@@ -129,92 +129,76 @@
         </div>
     </div>
 
-    <!-- Data & Laporan Panel -->
-    <div class="auth-card overflow-hidden">
-        <div class="bg-linear-to-r from-[#0A0061] to-[#0061DF] p-6">
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                <i class="fas fa-database"></i>
-                Data & Laporan
-            </h2>
+    <!-- Right Panel - Data & Laporan -->
+    <div class="bg-white rounded-xl border border-[#E0EBE2] shadow-sm overflow-hidden">
+        <div class="bg-linear-to-r from-[#056100] to-[#00DF1A] px-5 py-4 flex items-center gap-3">
+            <i class="fas fa-database text-white text-xl opacity-80"></i>
+            <h2 class="text-xl font-bold text-white">Data & Laporan</h2>
         </div>
-        <div class="p-6 space-y-3">
+        <div class="p-6 space-y-4">
 
+            <!-- Manajemen Mahasiswa -->
             <a href="{{ route('admin.manajemen-mahasiswa') }}"
-               class="flex items-center gap-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-[10px] transition border border-gray-200">
-                <i class="fas fa-list text-gray-700 text-lg"></i>
-                <div>
-                    <p class="font-semibold text-gray-800">Manajemen Mahasiswa</p>
-                    <p class="text-xs text-gray-600">Kelola data mahasiswa terdaftar</p>
+               class="flex items-center justify-between p-4 bg-[#DDFFE3] hover:bg-green-100 rounded-xl transition">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-users text-[#007D0B] text-xl"></i>
+                    <div>
+                        <p class="font-bold text-gray-700">Manajemen Mahasiswa</p>
+                        <p class="text-xs text-gray-500">Kelola data Mahasiswa terdaftar</p>
+                    </div>
                 </div>
-                <i class="fas fa-chevron-right text-gray-400 ml-auto"></i>
+                <span class="w-8 h-8 bg-[#007D0B] text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    {{ $stats['total_mahasiswa'] }}
+                </span>
             </a>
 
+            <!-- Data Final -->
             <a href="{{ route('admin.data-final') }}"
-               class="flex items-center gap-3 p-4 bg-indigo-50 hover:bg-indigo-100 rounded-[10px] transition border border-indigo-200">
-                <i class="fas fa-graduation-cap text-indigo-600 text-lg"></i>
-                <div>
-                    <p class="font-semibold text-gray-800">Data Final Wisuda</p>
-                    <p class="text-xs text-gray-600">Data mahasiswa siap wisuda</p>
+               class="flex items-center justify-between p-4 bg-[#DDFAFF] hover:bg-cyan-100 rounded-xl transition">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-layer-group text-[#00737D] text-xl"></i>
+                    <div>
+                        <p class="font-bold text-gray-700">Data Final</p>
+                        <p class="text-xs text-gray-500">Data Mahasiswa siap Wisuda</p>
+                    </div>
                 </div>
-                <i class="fas fa-chevron-right text-gray-400 ml-auto"></i>
+                <span class="w-8 h-8 bg-[#00737D] text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    {{ $stats['siap_wisuda'] }}
+                </span>
             </a>
 
-            <a href="{{ route('admin.generate-qr') }}"
-               class="flex items-center gap-3 p-4 bg-teal-50 hover:bg-teal-100 rounded-[10px] transition border border-teal-200">
-                <i class="fas fa-qrcode text-teal-600 text-lg"></i>
-                <div>
-                    <p class="font-semibold text-gray-800">Generate QR Code</p>
-                    <p class="text-xs text-gray-600">Buat QR code kehadiran wisuda</p>
+            <!-- Generate QR -->
+            <a href="{{ route('admin.generate-qr.form') }}"
+               class="flex items-center justify-between p-4 bg-[#FEFFDD] hover:bg-yellow-100 rounded-xl transition">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-qrcode text-[#7B7D00] text-xl"></i>
+                    <div>
+                        <p class="font-bold text-gray-700">Generate QR</p>
+                        <p class="text-xs text-gray-500">Buat QR code kehadiran Mahasiswa</p>
+                    </div>
                 </div>
-                <i class="fas fa-chevron-right text-gray-400 ml-auto"></i>
+                <span class="w-8 h-8 bg-[#7B7D00] text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    0
+                </span>
             </a>
 
+            <!-- Export Data -->
             <a href="{{ route('admin.export-data-final') }}"
-               class="flex items-center gap-3 p-4 bg-pink-50 hover:bg-pink-100 rounded-[10px] transition border border-pink-200">
-                <i class="fas fa-download text-pink-600 text-lg"></i>
-                <div>
-                    <p class="font-semibold text-gray-800">Export Data</p>
-                    <p class="text-xs text-gray-600">Download data final ke CSV</p>
+               class="flex items-center justify-between p-4 bg-[#FFE0DD] hover:bg-red-100 rounded-xl transition">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-download text-[#7D1500] text-xl"></i>
+                    <div>
+                        <p class="font-bold text-gray-700">Export Data</p>
+                        <p class="text-xs text-gray-500">Download data final ke CSV</p>
+                    </div>
                 </div>
-                <i class="fas fa-chevron-right text-gray-400 ml-auto"></i>
+                <span class="w-8 h-8 bg-[#7D1500] text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    0
+                </span>
             </a>
 
         </div>
     </div>
 
-</div>
-
-<!-- Daftar Mahasiswa Terbaru -->
-<div class="auth-card overflow-hidden">
-    <div class="bg-linear-to-r from-[#0A0061] to-[#0061DF] p-6">
-        <h2 class="text-xl font-bold text-white flex items-center gap-2">
-            <i class="fas fa-user-clock"></i>
-            Mahasiswa Terbaru
-        </h2>
-    </div>
-    <div class="overflow-x-auto">
-        <table class="min-w-full">
-            <thead>
-                <tr class="bg-gray-50 border-t">
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Nama</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">NIM</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Program Studi</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Tanggal Daftar</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($recentMahasiswa as $mahasiswa)
-                <tr class="border-t hover:bg-gray-50 transition">
-                    <td class="px-6 py-4 text-gray-900 font-medium">{{ $mahasiswa->name }}</td>
-                    <td class="px-6 py-4 text-gray-600">{{ $mahasiswa->nim ?? '-' }}</td>
-                    <td class="px-6 py-4 text-gray-600">{{ $mahasiswa->prodi ?? '-' }}</td>
-                    <td class="px-6 py-4 text-gray-600">
-                        <span class="text-sm">{{ $mahasiswa->created_at->format('d/m/Y') }}</span>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
 </div>
 @endsection

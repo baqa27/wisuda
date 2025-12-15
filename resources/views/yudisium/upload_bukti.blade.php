@@ -82,12 +82,12 @@
                     <div class="w-full max-w-[500px]">
                         <label class="block font-['Inter'] font-semibold text-[20px] text-[#0061DF] mb-2 text-center">Upload Bukti Transfer</label>
                         <div id="upload-area" class="relative w-full h-[220px] bg-[#D6D4FF] border border-dashed border-black rounded-[10px] flex flex-col justify-center items-center cursor-pointer transition-colors">
-                            <input type="file" id="bukti_bayar_input" name="bukti_bayar" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required accept="image/*">
+                            <input type="file" id="bukti_bayar_input" name="bukti_bayar" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required accept="image/*,.pdf">
 
                             <div id="upload-placeholder" class="flex flex-col items-center text-center gap-2">
                                 <i class="fas fa-cloud-upload-alt text-[50px] text-[#0061DF]"></i>
                                 <span class="font-['Inter'] text-[14px] text-[#0061DF]">Klik atau seret foto bukti bayar di sini</span>
-                                <span class="text-[12px] text-[#4c4f8f]">Format JPG/PNG • Maksimal 2MB</span>
+                                <span class="text-[12px] text-[#4c4f8f]">Format JPG/PNG/PDF • Maksimal 2MB</span>
                             </div>
 
                             <div id="upload-preview" class="hidden w-full text-center">
@@ -145,9 +145,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
         if (!allowedTypes.includes(file.type)) {
-            alert('Format harus JPG atau PNG');
+            alert('Format harus JPG, PNG, atau PDF');
             resetPreview();
             return;
         }
@@ -156,7 +156,11 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.onload = (event) => {
             previewImage.src = event.target.result;
         };
-        reader.readAsDataURL(file);
+        if (file.type === 'application/pdf') {
+            previewImage.src = 'https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg'; // Placeholder icon for PDF
+        } else {
+            reader.readAsDataURL(file);
+        }
 
         previewName.textContent = file.name;
         placeholder.classList.add('hidden');

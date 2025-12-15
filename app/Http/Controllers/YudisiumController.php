@@ -62,7 +62,7 @@ class YudisiumController extends Controller
     public function prosesUploadBukti(Request $request, $id)
     {
         $request->validate([
-            'bukti_bayar' => 'required|image|mimes:jpeg,png,jpg|max:2048'
+            'bukti_bayar' => 'required|file|mimes:jpeg,png,jpg,pdf|max:2048'
         ]);
 
         $pendaftaran = PendaftaranYudisium::where('mahasiswa_id', Auth::id())
@@ -137,11 +137,11 @@ class YudisiumController extends Controller
             'judul_ta' => 'required|string|max:255',
             'dosen_pembimbing' => 'required|string|max:100',
             'no_whatsapp' => 'required|string|max:20',
-            'file_ktp' => 'required|file|mimes:pdf,jpeg,png|max:2048',
-            'file_ijazah' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
-            'sertifikasi_tahfidz' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
-            'sertifikasi_toefl' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
-            'surat_bebas_perpustakaan' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
+            'file_ktp' => 'required|file|mimes:pdf|max:2048',
+            'file_ijazah' => 'nullable|file|mimes:pdf|max:2048',
+            'sertifikasi_tahfidz' => 'nullable|file|mimes:pdf|max:2048',
+            'sertifikasi_toefl' => 'nullable|file|mimes:pdf|max:2048',
+            'surat_bebas_perpustakaan' => 'nullable|file|mimes:pdf|max:2048',
         ]);
 
         $mahasiswa = Auth::user();
@@ -174,7 +174,7 @@ class YudisiumController extends Controller
             'status' => 'menunggu',
         ]);
 
-        return redirect()->route('yudisium.selesai')->with('success', 'Persyaratan yudisium berhasil disimpan.');
+        return redirect()->route('yudisium.index')->with('success', 'Persyaratan yudisium berhasil disimpan.');
 
     }
 
@@ -227,11 +227,11 @@ class YudisiumController extends Controller
             'judul_ta' => 'required|string|max:255',
             'dosen_pembimbing' => 'required|string|max:100',
             'no_whatsapp' => 'required|string|max:20',
-            'file_ktp' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
-            'file_ijazah' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
-            'sertifikasi_tahfidz' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
-            'sertifikasi_toefl' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
-            'surat_bebas_perpustakaan' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
+            'file_ktp' => 'nullable|file|mimes:pdf|max:2048',
+            'file_ijazah' => 'nullable|file|mimes:pdf|max:2048',
+            'sertifikasi_tahfidz' => 'nullable|file|mimes:pdf|max:2048',
+            'sertifikasi_toefl' => 'nullable|file|mimes:pdf|max:2048',
+            'surat_bebas_perpustakaan' => 'nullable|file|mimes:pdf|max:2048',
         ]);
 
         $persyaratan = PersyaratanYudisium::where('mahasiswa_id', Auth::id())

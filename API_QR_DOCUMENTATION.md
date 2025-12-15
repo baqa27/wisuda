@@ -1,314 +1,268 @@
-# 📱 API QR Code Presensi Wisuda - Dokumentasi Integrasi
+# QR Scan API Documentation
 
-## 🎯 Tujuan
-Sistem QR code presensi ini dirancang untuk dapat digunakan oleh aplikasi/sistem lain. Setiap QR code yang di-generate berisi JSON payload yang memiliki:
-- `token`: Identifier unik untuk QR
-- `kode_unik`: Kode tambahan untuk validasi
-- `nim`: NIM mahasiswa
-- `timestamp`: Waktu pembuatan
-- `checkin_url`: URL API endpoint untuk check-in
+API untuk sistem eksternal yang ingin mengintegrasikan fitur scan QR presensi wisuda.
+
+## Base URL
+```
+http://your-domain.com/api/qr
+```
 
 ---
 
-## 🔌 API Endpoints
+## Endpoints
 
-### 1. Check-In Presensi
-**Endpoint:** `POST /api/qr/checkin`
+### 1. Scan QR (Preview)
+Scan QR dan dapatkan data lengkap **tanpa** mengubah status.
 
-Mengirim token dan kode_unik yang ada di QR code untuk melakukan check-in.
+```
+POST /api/qr/scan
+```
 
-**Request Body (JSON):**
+**Request Body:**
 ```json
 {
-  "token": "a1b2c3d4e5f6...",
-  "kode_unik": "123456_1731705600"
+  "token": "abc123...",
+  "kode_unik": "150108_1234567890"
 }
 ```
 
-**Response (Sukses - 200):**
+**Response:**
 ```json
 {
   "success": true,
-  "message": "Presensi berhasil dicatat",
+  "message": "QR Code valid",
   "data": {
-    "nama": "John Doe",
-    "nim": "2023150001",
-    "prodi": "Teknik Informatika",
-    "waktu_checkin": "15/11/2025 10:30:45",
-    "status": "digunakan"
+    "qr": {
+      "token": "abc123...",
+      "kode_unik": "150108_1234567890",
+      "status": "aktif",
+      "is_used": false,
+      "is_active": true,
+      "waktu_checkin": null,
+      "generated_at": "2025-12-08 22:00:00"
+    },
+    "mahasiswa": {
+      "nim": "2023150108",
+      "nama": "Muhammad Sultan Baqa",
+      "email": "2023150108@student.wisuda.ac.id",
+      "no_hp": "081234567890",
+      "prodi": "Teknik Informatika",
+      "ipk": 3.75,
+      "semester": 4
+    },
+    "keluarga": {
+      "ortu_1": "Nama Orang Tua 1",
+      "ortu_2": "Nama Orang Tua 2",
+      "tamu_1": "Nama Tamu 1",
+      "tamu_2": "Nama Tamu 2"
+    },
+    "wisuda": {
+      "status": "siap_wisuda"
+    }
   }
 }
 ```
 
-**Response (Error - 400):**
+---
+
+### 2. Verify QR
+Cek apakah QR valid, expired, atau sudah digunakan.
+
+```
+POST /api/qr/verify
+```
+
+**Request Body:**
+```json
+{
+  "token": "abc123...",
+  "kode_unik": "150108_1234567890"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "valid": true,
+  "message": "QR valid dan aktif",
+  "data": {
+    "nim": "2023150108",
+    "nama": "Muhammad Sultan Baqa",
+    "status_qr": "aktif",
+    "is_used": false,
+    "is_expired": false,
+    "is_active": true
+  }
+}
+```
+
+---
+
+### 3. Checkin (Mark as Used)
+Tandai QR sebagai **digunakan** untuk presensi.
+
+```
+POST /api/qr/checkin
+```
+
+**Request Body:**
+```json
+{
+  "token": "abc123...",
+  "kode_unik": "150108_1234567890"
+}
+```
+
+**Success Response:**
+```json
+{
+  "success": true,
+  "message": "Presensi berhasil dicatat!",
+  "data": { ... }
+}
+```
+
+**Error - Already Used:**
 ```json
 {
   "success": false,
-  "message": "QR tidak valid, sudah digunakan, atau expired"
+  "message": "QR sudah digunakan sebelumnya",
+  "error_code": "QR_ALREADY_USED"
 }
 ```
 
 ---
 
-### 2. Cek Status QR
-**Endpoint:** `GET /api/qr/status/{token}`
+### 4. Get Detail
+Dapatkan data lengkap dari token QR.
 
-Melihat status QR tanpa melakukan check-in.
-
-**Example URL:**
 ```
-GET http://localhost:8000/api/qr/status/a1b2c3d4e5f6...
+GET /api/qr/detail/{token}
 ```
 
-**Response (Sukses - 200):**
+---
+
+### 5. Get Status
+Cek status presensi dari token QR.
+
+```
+GET /api/qr/status/{token}
+```
+
+---
+
+### 6. Get Statistics
+Statistik keseluruhan presensi wisuda.
+
+```
+GET /api/qr/stats
+```
+
+**Response:**
 ```json
 {
   "success": true,
   "data": {
-    "nama": "John Doe",
-    "nim": "2023150001",
-    "status": "aktif",
-    "waktu_checkin": null,
-    "expired_at": "22/11/2025 10:30:00",
-    "is_expired": false,
-    "is_used": false
-  }
-}
-```
-
----
-
-### 3. Lihat Semua Presensi
-**Endpoint:** `GET /api/qr/list-presensi`
-
-Melihat daftar lengkap semua presensi yang sudah terjadi (untuk laporan/dashboard).
-
-**Response (200):**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "nim": "2023150001",
-      "nama": "John Doe",
-      "prodi": "Teknik Informatika",
-      "status": "digunakan",
-      "waktu_checkin": "15/11/2025 10:30:45",
-      "waktu_generate": "15/11/2025 08:00:00",
-      "qr_url": "http://localhost:8000/storage/qr_codes/qr_2023150001_1731705600.png"
+    "statistik": {
+      "total_qr": 100,
+      "qr_aktif": 45,
+      "qr_digunakan": 55,
+      "persentase_hadir": 55.0
     },
-    {
-      "nim": "2023150002",
-      "nama": "Jane Smith",
-      "prodi": "Sistem Informasi",
-      "status": "aktif",
-      "waktu_checkin": null,
-      "waktu_generate": "15/11/2025 08:00:00",
-      "qr_url": "http://localhost:8000/storage/qr_codes/qr_2023150002_1731705601.png"
-    }
-  ]
+    "recent_checkins": [...]
+  }
 }
 ```
 
 ---
 
-### 4. Download File QR
-**Endpoint:** `GET /api/qr/file/{id}`
+### 7. List All Presensi
+Daftar semua presensi yang terdaftar.
 
-Download file PNG QR code berdasarkan ID record di database.
-
-**Example URL:**
 ```
-GET http://localhost:8000/api/qr/file/1
-```
-
-**Response:** File PNG (bisa langsung ditampilkan atau disimpan)
-
----
-
-## 💻 Contoh Implementasi di Aplikasi Lain
-
-### JavaScript / Frontend
-```javascript
-// Kirim check-in request
-async function submitQRCheckin(token, kodeUnik) {
-  try {
-    const response = await fetch('http://localhost:8000/api/qr/checkin', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        token: token,
-        kode_unik: kodeUnik
-      })
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      console.log(`Presensi berhasil: ${result.data.nama}`);
-      // Update UI / tampilkan pesan sukses
-    } else {
-      console.error(result.message);
-      // Tampilkan error ke user
-    }
-  } catch (error) {
-    console.error('Request error:', error);
-  }
-}
-
-// Cek status QR
-async function checkQRStatus(token) {
-  try {
-    const response = await fetch(`http://localhost:8000/api/qr/status/${token}`);
-    const result = await response.json();
-    console.log(result.data);
-  } catch (error) {
-    console.error('Request error:', error);
-  }
-}
-
-// Ambil semua presensi
-async function getPresensiList() {
-  try {
-    const response = await fetch('http://localhost:8000/api/qr/list-presensi');
-    const result = await response.json();
-    console.log(result.data);
-  } catch (error) {
-    console.error('Request error:', error);
-  }
-}
-```
-
-### Python
-```python
-import requests
-import json
-
-API_URL = "http://localhost:8000"
-
-# Check-in dengan token dan kode_unik
-def submit_qr_checkin(token, kode_unik):
-    url = f"{API_URL}/api/qr/checkin"
-    data = {
-        "token": token,
-        "kode_unik": kode_unik
-    }
-    response = requests.post(url, json=data)
-    result = response.json()
-    print(result)
-    return result
-
-# Cek status QR
-def check_qr_status(token):
-    url = f"{API_URL}/api/qr/status/{token}"
-    response = requests.get(url)
-    result = response.json()
-    print(result)
-    return result
-
-# Lihat semua presensi
-def get_presensi_list():
-    url = f"{API_URL}/api/qr/list-presensi"
-    response = requests.get(url)
-    result = response.json()
-    print(json.dumps(result, indent=2))
-    return result
-
-# Download file QR
-def download_qr_file(qr_id):
-    url = f"{API_URL}/api/qr/file/{qr_id}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        with open(f"qr_{qr_id}.png", "wb") as f:
-            f.write(response.content)
-        print(f"QR file saved as qr_{qr_id}.png")
-```
-
-### cURL (Command Line)
-```bash
-# Check-in
-curl -X POST http://localhost:8000/api/qr/checkin \
-  -H "Content-Type: application/json" \
-  -d '{"token":"a1b2c3d4e5f6...","kode_unik":"123456_1731705600"}'
-
-# Cek status
-curl http://localhost:8000/api/qr/status/a1b2c3d4e5f6...
-
-# Lihat presensi
-curl http://localhost:8000/api/qr/list-presensi
-
-# Download QR file
-curl -o qr_1.png http://localhost:8000/api/qr/file/1
+GET /api/qr/list-presensi
 ```
 
 ---
 
-## 📊 QR Code Payload Structure
+### 8. View QR File
+Lihat/download file QR image.
 
-Ketika QR code di-scan, payload JSON-nya terlihat seperti ini:
+```
+GET /api/qr/file/{id}
+```
+
+---
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| `QR_NOT_FOUND` | QR tidak ditemukan atau invalid |
+| `QR_ALREADY_USED` | QR sudah digunakan sebelumnya |
+| `QR_EXPIRED` | QR sudah melewati tanggal expired |
+
+---
+
+## QR Code Content Structure
+
+Isi QR Code dalam format JSON:
 
 ```json
 {
-  "token": "f1e2d3c4b5a6789d0e1f2a3b4c5d6e7f",
-  "kode_unik": "150001_1731705600",
-  "nim": "2023150001",
-  "timestamp": 1731705600,
-  "checkin_url": "http://localhost:8000/api/qr/checkin"
+  "token": "32-char-unique-token",
+  "kode_unik": "nim_timestamp",
+  "mahasiswa": {
+    "nim": "2023150108",
+    "nama": "Muhammad Sultan Baqa",
+    "email": "...",
+    "prodi": "Teknik Informatika",
+    "ipk": 3.75,
+    "semester": 4
+  },
+  "keluarga": {
+    "ortu_1": "...",
+    "ortu_2": "...",
+    "tamu_1": "...",
+    "tamu_2": "..."
+  },
+  "wisuda": {
+    "status": "siap_wisuda",
+    "generated_at": "2025-12-08 22:00:00"
+  },
+  "api": {
+    "base_url": "http://localhost:8000",
+    "checkin_url": "http://localhost:8000/api/qr/checkin",
+    "verify_url": "http://localhost:8000/api/qr/verify",
+    "detail_url": "http://localhost:8000/api/qr/detail/{token}",
+    "scan_url": "http://localhost:8000/api/qr/scan"
+  }
 }
 ```
 
-**Penjelasan:**
-- `token`: String acak 32 karakter untuk identifikasi unik QR
-- `kode_unik`: Gabungan 6 digit terakhir NIM + timestamp pembuatan
-- `nim`: NIM mahasiswa pemilik QR
-- `timestamp`: Unix timestamp saat QR dibuat
-- `checkin_url`: URL untuk mengirim check-in (dapat dipanggil langsung dari mobile app/scanner)
-
 ---
 
-## 🔐 Keamanan
+## Contoh Penggunaan (JavaScript)
 
-### Fitur Keamanan
-1. **Token Unik**: Setiap QR memiliki token 128-bit (32 hex chars) yang unik
-2. **Validasi Ganda**: Memerlukan token + kode_unik untuk check-in
-3. **Expiry Time**: QR otomatis kadaluarsa setelah 7 hari
-4. **Status Tracking**: QR berubah status menjadi "digunakan" setelah 1x check-in
-5. **Timestamp Recording**: Setiap check-in merekam waktu secara akurat
+```javascript
+// Scan QR
+async function scanQR(token, kodeUnik) {
+  const response = await fetch('http://your-domain.com/api/qr/scan', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, kode_unik: kodeUnik })
+  });
+  return await response.json();
+}
 
-### Best Practice
-- ✅ Jangan share token/kode_unik publik
-- ✅ Validate hasil API response di aplikasi client
-- ✅ Implement retry logic dengan exponential backoff
-- ✅ Cache hasil presensi untuk offline mode jika diperlukan
-- ✅ Encrypt token jika disimpan di client-side
-
----
-
-## 🚀 Testing
-
-### Test Check-In
-1. Admin generate QR code dari halaman admin
-2. Scan QR code dan extract token + kode_unik
-3. Kirim POST request ke `/api/qr/checkin`
-4. Verifikasi status berubah menjadi "digunakan"
-
-### Test Status
-1. Kirim GET request ke `/api/qr/status/{token}`
-2. Verifikasi status "aktif" atau "digunakan"
-3. Verifikasi expiry time tidak terlampaui
-
----
-
-## 📝 Notes
-
-- Semua response berisi `success` boolean untuk memudahkan error handling
-- Error message dalam Bahasa Indonesia untuk kemudahan pengguna
-- Timestamp menggunakan format `d/m/Y H:i:s` (Indonesian format)
-- QR file disimpan di `storage/app/public/qr_codes/`
-
----
-
-**Dokumentasi Last Updated:** 15 November 2025  
-**API Version:** 1.0.0
+// Checkin
+async function checkinQR(token, kodeUnik) {
+  const response = await fetch('http://your-domain.com/api/qr/checkin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, kode_unik: kodeUnik })
+  });
+  return await response.json();
+}
+```

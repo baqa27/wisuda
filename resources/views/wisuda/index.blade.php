@@ -111,12 +111,50 @@
                             </a>
                         @endif
                         @if ($canDownloadQr)
-                            <a href="{{ Storage::url($qrCode->file_qr) }}" download class="mb-4 flex h-[50px] w-full max-w-[320px] items-center justify-center rounded-[10px] bg-[#0061DF] text-[18px] font-semibold text-white transition hover:opacity-90 hover:scale-105">
-                                <i class="fas fa-download mr-2"></i>Download QR Presensi
-                            </a>
+                            <div class="mb-8 w-full max-w-[400px] perspective-1000">
+                                <div class="relative w-full overflow-hidden rounded-[20px] bg-white shadow-xl transition-all hover:scale-[1.02] hover:shadow-2xl">
+                                    {{-- Ticket Header --}}
+                                    <div class="bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] px-6 py-4 text-center">
+                                        <h3 class="font-['Inter'] text-[14px] font-bold uppercase tracking-widest text-white opacity-80">Digital Ticket</h3>
+                                        <h2 class="font-['Inter'] text-[24px] font-bold text-white">WISUDA <span class="text-yellow-400">2025</span></h2>
+                                    </div>
+                                    
+                                    {{-- Ticket Body --}}
+                                    <div class="relative flex flex-col items-center p-6 bg-white">
+                                        {{-- Decorative Circles for "Ticket" look --}}
+                                        <div class="absolute -left-3 top-0 h-6 w-6 -translate-y-1/2 rounded-full bg-gray-100"></div>
+                                        <div class="absolute -right-3 top-0 h-6 w-6 -translate-y-1/2 rounded-full bg-gray-100"></div>
+                                        
+                                        {{-- QR Code Area --}}
+                                        <div class="mb-4 rounded-[10px] border-2 border-dashed border-[#0061DF] p-3">
+                                            <img src="{{ Storage::url($qrCode->file_qr) }}" 
+                                                 alt="QR Code Presensi" 
+                                                 class="h-[180px] w-[180px] object-contain">
+                                        </div>
+                                        
+                                        {{-- Student Info --}}
+                                        <div class="text-center">
+                                            <h4 class="mb-1 font-['Inter'] text-[18px] font-bold text-[#0A0061]">{{ Auth::user()->name }}</h4>
+                                            <p class="mb-1 font-['Inter'] text-[14px] font-medium text-gray-500">{{ Auth::user()->nim }}</p>
+                                            <span class="inline-block rounded-full bg-blue-50 px-3 py-1 font-['Inter'] text-[12px] font-bold text-[#0061DF]">
+                                                {{ Auth::user()->prodi ?? 'Mahasiswa' }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {{-- Ticket Footer (Action) --}}
+                                    <div class="border-t border-dashed border-gray-200 bg-gray-50 p-4">
+                                        <a href="{{ Storage::url($qrCode->file_qr) }}" download class="flex w-full items-center justify-center gap-2 rounded-[10px] bg-[#0061DF] py-3 text-[14px] font-bold text-white transition hover:bg-[#0A0061]">
+                                            <i class="fas fa-download"></i> Simpan Tiket
+                                        </a>
+                                        <p class="mt-2 text-center text-[10px] text-gray-400">Tunjukkan QR ini saat memasuki lokasi wisuda</p>
+                                    </div>
+                                </div>
+                            </div>
                         @elseif($dataFinal)
-                            <div class="mb-4 w-full max-w-[400px] rounded-[10px] border border-dashed border-[#0061DF] bg-blue-50 px-6 py-4 font-['Inter'] text-[16px] text-[#0061DF]">
-                                Admin sedang menyiapkan QR presensi Anda. QR akan muncul di halaman ini setelah admin selesai membuatnya.
+                            <div class="mb-4 w-full max-w-[400px] rounded-[10px] border border-dashed border-[#0061DF] bg-blue-50 px-6 py-4 font-['Inter'] text-[16px] text-[#0061DF] flex items-center justify-center gap-3">
+                                <div class="animate-spin text-2xl"><i class="fas fa-circle-notch"></i></div>
+                                <span>Sedang memproses QR Code Anda...</span>
                             </div>
                         @endif
                     @elseif ($persyaratanStatus === 'revisi')

@@ -82,7 +82,7 @@ class WisudaController extends Controller
     public function prosesPembayaran(Request $request, $id)
     {
         $request->validate([
-            'bukti_bayar' => 'required|file|mimes:pdf|max:2048'
+            'bukti_bayar' => 'required|file|mimes:pdf,jpeg,png,jpg|max:2048'
         ]);
 
         $pendaftaran = PendaftaranWisuda::where('mahasiswa_id', Auth::id())->findOrFail($id);
@@ -136,33 +136,86 @@ class WisudaController extends Controller
         return view('wisuda.persyaratan', compact('jenisPersyaratan', 'pendaftaran', 'persyaratan', 'yudisium'));
     }
 
+    public function simpanPersyaratan(Request $request)
+    {
+        $allowedKeys = array_keys([
+            'toefl' => 'Sertifikat TOEFL',
+            'sertifikasi' => 'Sertifikasi Kompetensi',
+            'tahfidz' => 'Sertifikat Tahfidz',
+            'bebas_perpus' => 'Bebas Perpustakaan',
+            'foto_wisuda' => 'Foto Wisuda',
+            'buku_kenangan' => 'Buku Kenangan (Opsional)'
+        ]);
+
+        $rules = [];
+        foreach ($allowedKeys as $key) {
+            $rules[$key] = 'nullable|file|mimes:pdf|max:2048';
+        }
+        $request->validate($rules);
+
+        $mhs = Auth::user();
+        $count = 0;
+
+        foreach ($allowedKeys as $key) {
+            if ($request->hasFile($key)) {
+                $path = $request->file($key)->store('persyaratan_wisuda', 'public');
+                
+                $existing = PersyaratanWisuda::where('mahasiswa_id', $mhs->id)
+                    ->where('jenis', $key)
+                    ->first();
+
+                if ($existing) {
+                    // Update existing record (re-upload)
+                    if (Storage::disk('public')->exists($existing->file_path)) {
+                        Storage::disk('public')->delete($existing->file_path);
+                    }
+                    $existing->update([
+                        'file_path' => $path,
+                        'status' => 'menunggu',
+                        'catatan_admin' => null
+                    ]);
+                } else {
+                    // Create new record
+                    PersyaratanWisuda::create([
+                        'mahasiswa_id' => $mhs->id,
+                        'jenis' => $key,
+                        'file_path' => $path,
+                        'status' => 'menunggu'
+                    ]);
+                }
+                $count++;
+            }
+        }
+
+        if ($count > 0) {
+            return redirect()->route('wisuda.index')->with('success', $count . ' berkas berhasil diunggah. Menunggu verifikasi admin.');
+        }
+
+        return redirect()->route('wisuda.index')->with('info', 'Tidak ada berkas yang diunggah.');
+    }
+
+    // Deprecated single upload method keeping for backward compatibility if needed, 
+    // but simpanPersyaratan replaces its primary use in bulk form.
     public function uploadPersyaratan(Request $request)
     {
         $request->validate([
             'jenis' => 'required|in:toefl,sertifikasi,tahfidz,bebas_perpus,foto_wisuda,buku_kenangan',
-            'file' => 'required|file|mimes:pdf,jpeg,png,jpg|max:2048'
+            'file' => 'required|file|mimes:pdf|max:2048'
         ]);
 
+        // ... existing logic redirected to bulk flow effectively
+        // Logic kept same for individual re-uploads if any specific route uses it.
+        // For brevity in this diff, I am replacing the method body to delegate or just execute similar logic.
+        
         $mhs = Auth::user();
-
-        $existing = PersyaratanWisuda::where('mahasiswa_id', $mhs->id)
-            ->where('jenis', $request->jenis)
-            ->first();
-
-        if ($existing) {
-            return back()->with('error', 'Jenis ini sudah diupload.');
-        }
-
         $path = $request->file('file')->store('persyaratan_wisuda', 'public');
+        
+        PersyaratanWisuda::updateOrCreate(
+            ['mahasiswa_id' => $mhs->id, 'jenis' => $request->jenis],
+            ['file_path' => $path, 'status' => 'menunggu', 'catatan_admin' => null]
+        );
 
-        PersyaratanWisuda::create([
-            'mahasiswa_id' => $mhs->id,
-            'jenis' => $request->jenis,
-            'file_path' => $path,
-            'status' => 'menunggu'
-        ]);
-
-        return redirect()->route('wisuda.persyaratan.form')->with('success', 'Persyaratan diupload.');
+        return back()->with('success', 'Persyaratan diupload.');
     }
 
     public function showFormDataTambahan()

@@ -27,6 +27,34 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 });
 
+// Admin Guest (Login)
+// Admin Guest (Login)
+// Route::middleware('guest:admin')->group(function () {
+    Route::get('/admin', [AuthController::class, 'showAdminLogin'])->name('admin.login.form');
+    Route::post('/admin', [AuthController::class, 'adminLogin'])->name('admin.login');
+// });
+
+// ==========================
+// 📧 EMAIL VERIFICATION
+// ==========================
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', function () {
+        return view('auth.verify');
+    })->name('verification.notice');
+
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect('/dashboard')->with('success', 'Email berhasil diverifikasi!');
+    })->middleware(['signed'])->name('verification.verify');
+
+    Route::post('/email/verification-notification', function (Illuminate\Http\Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('resent', 'verification-link-sent');
+    })->middleware(['throttle:6,1'])->name('verification.send');
+});
+
 // ==========================
 // 🔒 AUTH (Sudah Login)
 // ==========================
@@ -75,6 +103,7 @@ Route::middleware('auth')->group(function () {
 
             // Persyaratan
             Route::get('/persyaratan', [WisudaController::class, 'showFormPersyaratan'])->name('wisuda.persyaratan.form');
+            Route::post('/persyaratan/simpan', [WisudaController::class, 'simpanPersyaratan'])->name('wisuda.persyaratan.simpan');
             Route::post('/persyaratan/upload', [WisudaController::class, 'uploadPersyaratan'])->name('wisuda.persyaratan.upload');
             Route::delete('/persyaratan/hapus/{id}', [WisudaController::class, 'hapusPersyaratan'])->name('wisuda.persyaratan.hapus');
 
@@ -90,7 +119,12 @@ Route::middleware('auth')->group(function () {
     // ======================
     // 👨‍💼 ADMIN ROUTES
     // ======================
-    Route::middleware('role:admin')->prefix('admin')->group(function () {
+    // Menggunakan auth:admin agar terpisah sessionnya
+    Route::middleware('auth:admin')->prefix('admin')->group(function () {
+        
+        // Admin Logout
+        Route::post('/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');
+
         // Dashboard
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
@@ -109,6 +143,8 @@ Route::middleware('auth')->group(function () {
 
             Route::get('/persyaratan-wisuda', [AdminController::class, 'verifikasiPersyaratanWisuda'])->name('admin.verifikasi.persyaratan-wisuda');
             Route::put('/persyaratan-wisuda/{id}', [AdminController::class, 'updatePersyaratanWisuda'])->name('admin.verifikasi.persyaratan-wisuda.update');
+            Route::post('/persyaratan-wisuda/bulk-approve/{mahasiswaId}', [AdminController::class, 'bulkApprovePersyaratanWisuda'])->name('admin.verifikasi.persyaratan-wisuda.bulk-approve');
+            Route::post('/persyaratan-wisuda/bulk-revise/{mahasiswaId}', [AdminController::class, 'bulkRevisePersyaratanWisuda'])->name('admin.verifikasi.persyaratan-wisuda.bulk-revise');
         });
 
         // ---- Download Files ----
@@ -129,6 +165,10 @@ Route::middleware('auth')->group(function () {
         // ---- Data Management ----
         Route::get('/data-final', [AdminController::class, 'dataFinal'])->name('admin.data-final');
         Route::get('/manajemen-mahasiswa', [AdminController::class, 'manajemenMahasiswa'])->name('admin.manajemen-mahasiswa');
+        Route::post('/manajemen-mahasiswa', [AdminController::class, 'storeMahasiswa'])->name('admin.manajemen-mahasiswa.store');
+        Route::put('/manajemen-mahasiswa/{id}', [AdminController::class, 'updateMahasiswa'])->name('admin.manajemen-mahasiswa.update');
+        Route::delete('/manajemen-mahasiswa/{id}', [AdminController::class, 'destroyMahasiswa'])->name('admin.manajemen-mahasiswa.destroy');
+        
         Route::get('/export-data-final', [AdminController::class, 'exportDataFinal'])->name('admin.export-data-final');
 
         // ---- QR Code ----
@@ -148,14 +188,28 @@ Route::middleware('auth')->group(function () {
 // ==========================
 // 📱 PUBLIC API - QR CODE SCANNING (Untuk aplikasi/sistem lain)
 // ==========================
-// ✅ Endpoint untuk check-in presensi (POST dengan token + kode_unik)
+
+// Scan QR - Preview data tanpa ubah status
+Route::post('/api/qr/scan', [QrController::class, 'scanQr'])->name('api.qr.scan');
+
+// Verify QR - Cek validitas QR
+Route::post('/api/qr/verify', [QrController::class, 'verifyQr'])->name('api.qr.verify');
+
+// Detail QR - Dapatkan info lengkap mahasiswa dari token
+Route::get('/api/qr/detail/{token}', [QrController::class, 'getQrDetail'])->name('api.qr.detail');
+
+// Checkin - Tandai QR sebagai digunakan
 Route::post('/api/qr/checkin', [QrController::class, 'checkinPresensi'])->name('api.qr.checkin');
 
-// ✅ Endpoint untuk cek status QR (GET dengan token) - tanpa auth, untuk public scanner
+// Status - Cek status presensi
 Route::get('/api/qr/status/{token}', [QrController::class, 'checkStatusPresensi'])->name('api.qr.status');
 
-// ✅ Endpoint untuk list semua presensi yang sudah digunakan (GET) - untuk reporting
+// Stats - Statistik presensi keseluruhan
+Route::get('/api/qr/stats', [QrController::class, 'getStats'])->name('api.qr.stats');
+
+// List Presensi - Daftar semua presensi
 Route::get('/api/qr/list-presensi', [QrController::class, 'listPresensi'])->name('api.qr.list-presensi');
 
-// ✅ Endpoint untuk download file QR (GET) - bisa diakses public
+// View QR File - Lihat file QR
 Route::get('/api/qr/file/{id}', [QrController::class, 'viewQr'])->name('api.qr.file');
+

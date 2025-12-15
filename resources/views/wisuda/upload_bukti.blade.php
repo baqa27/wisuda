@@ -15,22 +15,7 @@
         </div>
 
         {{-- Navigation bar --}}
-        <div class="absolute top-[35px] z-20 flex w-full justify-center px-4">
-            <div class="flex h-[82px] w-full max-w-[1262px] flex-row items-center justify-between rounded-[10px] bg-[#0061DF] px-6 text-white shadow-lg overflow-hidden md:justify-center md:gap-[175px]">
-                <a href="{{ route('yudisium.index') }}" class="flex flex-row items-center gap-2.5 font-['Inter'] text-[16px] font-light leading-[29px] transition-opacity hover:opacity-80 md:text-[24px]">
-                    <i class="fas fa-medal text-xl"></i>
-                    <span class="hidden sm:inline">Daftar Yudisium</span>
-                </a>
-                <a href="{{ route('dashboard') }}" class="flex flex-row items-center gap-2.5 font-['Inter'] text-[16px] font-light leading-[29px] transition-opacity hover:opacity-80 md:text-[24px]">
-                    <i class="fas fa-home text-xl"></i>
-                    <span>Home</span>
-                </a>
-                <a href="{{ route('wisuda.index') }}" class="flex flex-row items-center gap-2.5 font-['Inter'] text-[16px] font-bold leading-[29px] transition-opacity hover:opacity-80 md:text-[24px]">
-                    <i class="fas fa-graduation-cap text-xl"></i>
-                    <span class="hidden sm:inline">Daftar Wisuda</span>
-                </a>
-            </div>
-        </div>
+        <x-mahasiswa-navbar />
 
         {{-- Main content --}}
         <div class="relative z-10 flex w-full max-w-[1262px] flex-col items-center px-4 pb-20 pt-[150px]">
@@ -82,7 +67,16 @@
                     <div class="flex h-[108px] w-[108px] items-center justify-center rounded-[15px] border-2 border-black/10 text-center font-bold text-[#29458F] transition hover:border-[#29458F]">BRIZZI</div>
                 </div>
 
-                @if (in_array($pendaftaran->status, ['menunggu_pembayaran', 'menunggu_verifikasi']))
+                @if (in_array($pendaftaran->status, ['menunggu_pembayaran', 'menunggu_verifikasi', 'batal']))
+                    @if($pendaftaran->status == 'batal')
+                        <div class="w-full max-w-[1110px] mb-6 rounded-[10px] border border-red-200 bg-red-50 px-5 py-4 text-red-700 shadow-sm flex items-start gap-3">
+                            <i class="fas fa-exclamation-circle text-xl text-red-500"></i>
+                            <div>
+                                <h4 class="font-bold">Pembayaran Ditolak</h4>
+                                <p>Bukti pembayaran Anda ditolak atau tidak valid. Silakan upload bukti pembayaran yang baru.</p>
+                            </div>
+                        </div>
+                    @endif
                     <form action="{{ route('wisuda.proses-pembayaran', $pendaftaran->id) }}" method="POST" enctype="multipart/form-data" class="flex flex-col items-center gap-5">
                         @csrf
                         <div class="w-full max-w-[500px] text-center">

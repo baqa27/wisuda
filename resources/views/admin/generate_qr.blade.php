@@ -3,325 +3,253 @@
 @section('title', 'Generate QR Code Presensi')
 
 @section('content')
-<div class="mb-8">
-    <h1 class="text-4xl font-bold bg-linear-to-r from-[#0A0061] to-[#0061DF] bg-clip-text text-transparent">
-        Generate QR Code Presensi
+<div class="mb-10">
+    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">
+        Generate QR Code
     </h1>
-    <p class="text-gray-600 text-lg mt-2">Generate QR Code untuk mahasiswa yang sudah memenuhi syarat wisuda</p>
+    <p class="text-gray-500 text-base mt-2">Kelola dan generate QR code presensi untuk mahasiswa wisuda.</p>
 </div>
 
 <!-- Notifikasi -->
 @if(session('success'))
-<div class="auth-card border-l-4 border-l-green-500 mb-6 p-4">
+<div class="mb-8 rounded-xl border border-green-200 bg-green-50 p-4">
     <div class="flex items-center gap-3">
-        <i class="fas fa-check-circle text-green-600 text-lg"></i>
-        <span class="text-green-700 font-semibold">{{ session('success') }}</span>
+        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-200 text-green-700">
+            <i class="fas fa-check text-sm"></i>
+        </div>
+        <p class="font-medium text-green-800">{{ session('success') }}</p>
     </div>
 </div>
 @endif
 
-@if(session('info'))
-<div class="auth-card border-l-4 border-l-blue-500 mb-6 p-4">
-    <div class="flex items-center gap-3">
-        <i class="fas fa-info-circle text-blue-600 text-lg"></i>
-        <span class="text-blue-700 font-semibold">{{ session('info') }}</span>
-    </div>
-</div>
-@endif
-
-@if(session('error'))
-<div class="auth-card border-l-4 border-l-red-500 mb-6 p-4">
-    <div class="flex items-center gap-3">
-        <i class="fas fa-exclamation-circle text-red-600 text-lg"></i>
-        <span class="text-red-700 font-semibold">{{ session('error') }}</span>
-    </div>
-</div>
-@endif
-
-<!-- Readiness Stats -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-    <div class="auth-card border-l-4 border-l-blue-500 p-4">
-        <div class="flex items-center gap-3">
-            <div class="icon-container bg-blue-100">
-                <i class="fas fa-users text-blue-600"></i>
-            </div>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- Card 1 -->
+    <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm border border-gray-100 transition-all hover:shadow-md hover:border-blue-100">
+        <div class="relative flex items-center justify-between">
             <div>
-                <p class="text-xs font-semibold text-gray-600">Mahasiswa Siap Wisuda</p>
-                <p class="text-2xl font-bold text-gray-900">{{ $readyCount ?? 0 }}</p>
+                <p class="text-sm font-medium text-gray-500 mb-1">Siap Wisuda</p>
+                <h3 class="text-3xl font-bold text-gray-900">{{ $readyCount ?? 0 }}</h3>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                <i class="fas fa-user-graduate text-xl"></i>
             </div>
         </div>
     </div>
-    <div class="auth-card border-l-4 border-l-yellow-500 p-4">
-        <div class="flex items-center gap-3">
-            <div class="icon-container bg-yellow-100">
-                <i class="fas fa-exclamation-circle text-yellow-600"></i>
-            </div>
+
+    <!-- Card 2 -->
+    <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm border border-gray-100 transition-all hover:shadow-md hover:border-yellow-100">
+        <div class="relative flex items-center justify-between">
             <div>
-                <p class="text-xs font-semibold text-gray-600">Belum Memiliki QR</p>
-                <p class="text-2xl font-bold text-gray-900">{{ $missingCount ?? 0 }}</p>
+                <p class="text-sm font-medium text-gray-500 mb-1">Belum Ada QR</p>
+                <h3 class="text-3xl font-bold text-gray-900">{{ $missingCount ?? 0 }}</h3>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-50 text-yellow-600 transition-colors group-hover:bg-yellow-500 group-hover:text-white">
+                <i class="fas fa-qrcode text-xl"></i>
             </div>
         </div>
     </div>
-    <div class="auth-card border-l-4 border-l-purple-500 p-4">
-        <div class="flex items-center gap-3">
-            <div class="icon-container bg-purple-100">
-                <i class="fas fa-clock text-purple-600"></i>
-            </div>
+
+    <!-- Card 3 -->
+    <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm border border-gray-100 transition-all hover:shadow-md hover:border-purple-100">
+        <div class="relative flex items-center justify-between">
             <div>
-                <p class="text-xs font-semibold text-gray-600">Terakhir Generate</p>
-                <p class="text-sm font-bold text-gray-900">
-                    {{ isset($lastGeneratedAt) && $lastGeneratedAt ? $lastGeneratedAt->format('d/m/Y H:i') : '-' }}
-                </p>
+                <p class="text-sm font-medium text-gray-500 mb-1">Terakhir Generate</p>
+                <h3 class="text-lg font-bold text-gray-900 mt-1">
+                    {{ isset($lastGeneratedAt) && $lastGeneratedAt ? $lastGeneratedAt->format('d M Y, H:i') : '-' }}
+                </h3>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 text-purple-600 transition-colors group-hover:bg-purple-600 group-hover:text-white">
+                <i class="fas fa-history text-xl"></i>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Info API untuk Kelompok Lain -->
-<div class="auth-card border-l-4 border-l-blue-500 mb-6 p-6">
-    <h2 class="text-lg font-bold text-[#0A0061] mb-4 flex items-center gap-2">
-        <i class="fas fa-mobile-alt"></i> API Integration Information
-    </h2>
-    <div class="space-y-3 text-sm text-gray-700 bg-gray-50 p-4 rounded-[10px] font-mono">
-        <div>
-            <span class="font-semibold text-[#0061DF]">Checkin:</span>
-            <code class="block mt-1 text-xs bg-white p-2 rounded border border-gray-200">POST {{ url('/api/presensi/checkin') }}</code>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+    <!-- QR Action Card -->
+    <div class="lg:col-span-2 rounded-2xl bg-white p-8 shadow-sm border border-gray-100 flex flex-col justify-center">
+        <div class="flex items-start justify-between mb-6">
+            <div>
+                <h2 class="text-xl font-bold text-gray-900">Generate QR Code Massal</h2>
+                <p class="text-gray-500 mt-2 text-sm leading-relaxed">Secara otomatis membuat QR Code untuk semua mahasiswa yang telah memenuhi persyaratan wisuda namun belum memiliki QR Code.</p>
+            </div>
         </div>
+        
         <div>
-            <span class="font-semibold text-[#0061DF]">Body:</span>
-            <code class="block mt-1 text-xs bg-white p-2 rounded border border-gray-200">{ "token": "xxx", "kode_unik": "xxx" }</code>
-        </div>
-        <div>
-            <span class="font-semibold text-[#0061DF]">Status:</span>
-            <code class="block mt-1 text-xs bg-white p-2 rounded border border-gray-200">GET {{ url('/api/presensi/status/{token}') }}</code>
+            <form action="{{ route('admin.generate-qr') }}" method="POST">
+                @csrf
+                <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-8 py-4 font-semibold text-white transition-all hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 focus:ring-4 focus:ring-blue-100">
+                    <i class="fas fa-magic mr-1"></i>
+                    GENERATE SEKARANG
+                </button>
+            </form>
         </div>
     </div>
-</div>
 
-<!-- Generate QR Section -->
-<div class="auth-card mb-6">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6">
-        <div>
-            <h2 class="text-lg font-bold text-[#0A0061]">Generate QR Massal</h2>
-            <p class="text-gray-600 text-sm mt-1">Generate QR untuk semua mahasiswa yang sudah lengkap persyaratannya</p>
+    <!-- Integration Info -->
+    <div class="rounded-2xl bg-gray-900 p-6 shadow-lg text-white relative overflow-hidden flex flex-col justify-between min-h-[200px]">
+        
+        <!-- Decorative bg -->
+        <div class="absolute top-0 right-0 p-3 opacity-10">
+             <i class="fas fa-code text-9xl text-white"></i>
         </div>
-        <form action="{{ route('admin.generate-qr') }}" method="POST">
-            @csrf
-            <button type="submit" class="btn-primary px-6 py-3 inline-flex items-center gap-2 text-sm whitespace-nowrap">
-                <i class="fas fa-qrcode"></i>
-                Generate All QR
-            </button>
-        </form>
+
+        <div class="relative z-10">
+            <h3 class="font-bold text-lg mb-1 text-white">API Integration</h3>
+            <p class="text-gray-400 text-sm">Endpoint check-in presensi.</p>
+        </div>
+        
+        <div class="mt-6 relative z-10">
+            <div class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-2">Endpoint URL</div>
+            <div class="bg-gray-800 rounded-lg p-3 ring-1 ring-white/10 flex items-center gap-3">
+                <span class="text-xs font-bold text-green-400">POST</span>
+                <code class="text-xs font-mono text-gray-300 truncate flex-1">{{ url('/api/presensi/checkin') }}</code>
+                <button class="text-gray-500 hover:text-white transition" title="Copy" onclick="navigator.clipboard.writeText('{{ url('/api/presensi/checkin') }}')">
+                    <i class="far fa-copy"></i>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
 @if(isset($readyWithoutQr) && $readyWithoutQr->count() > 0)
-<div class="auth-card mb-6">
-    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-        <div>
-            <h3 class="text-lg font-bold text-gray-800">Mahasiswa yang Belum Memiliki QR</h3>
-            <p class="text-sm text-gray-600">Generate secara manual jika diperlukan</p>
-        </div>
+<div class="mb-10">
+    <div class="flex items-center justify-between mb-4 px-1">
+        <h3 class="text-lg font-bold text-gray-900">Perlu Action Manual <span class="text-gray-400 text-sm font-normal ml-2">({{ $readyWithoutQr->count() }} mahasiswa)</span></h3>
     </div>
-    <div class="overflow-x-auto">
-        <table class="min-w-full">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">NIM</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Nama</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Prodi</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                @foreach($readyWithoutQr as $data)
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 font-semibold text-gray-900">{{ $data->mahasiswa->nim }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-700">{{ $data->mahasiswa->name }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">{{ $data->mahasiswa->prodi ?? '-' }}</td>
-                    <td class="px-6 py-4">
-                        <form action="{{ route('admin.generate-qr') }}" method="POST" class="inline-flex">
-                            @csrf
-                            <input type="hidden" name="mahasiswa_id" value="{{ $data->mahasiswa_id }}">
-                            <button type="submit" class="btn-primary px-4 py-2 text-xs inline-flex items-center gap-2">
-                                <i class="fas fa-bolt"></i> Generate QR
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+    <div class="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-100">
+                        <th class="text-left font-semibold text-gray-600 text-xs uppercase tracking-wider py-4 px-6">Mahasiswa</th>
+                        <th class="text-left font-semibold text-gray-600 text-xs uppercase tracking-wider py-4 px-6">Prodi</th>
+                        <th class="text-right font-semibold text-gray-600 text-xs uppercase tracking-wider py-4 px-6">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    @foreach($readyWithoutQr as $data)
+                    <tr class="group hover:bg-gray-50/50 transition">
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-3">
+                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-xs font-bold ring-2 ring-white">
+                                    {{ substr($data->mahasiswa->name, 0, 1) }}
+                                </span>
+                                <div>
+                                    <p class="font-semibold text-gray-900 text-sm">{{ $data->mahasiswa->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ $data->mahasiswa->nim }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 text-sm text-gray-600">{{ $data->mahasiswa->prodi ?? '-' }}</td>
+                        <td class="py-4 px-6 text-right">
+                            <form action="{{ route('admin.generate-qr') }}" method="POST" class="inline-block">
+                                @csrf
+                                <input type="hidden" name="mahasiswa_id" value="{{ $data->mahasiswa_id }}">
+                                <button type="submit" class="text-sm font-medium text-blue-600 hover:text-blue-800 transition">
+                                    Generate
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 @endif
 
 @if(isset($qrList) && count($qrList) > 0)
-<!-- Statistics -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-    <div class="auth-card border-l-4 border-l-blue-500 p-4">
-        <div class="flex items-center gap-3">
-            <div class="icon-container bg-blue-100">
-                <i class="fas fa-users text-blue-600"></i>
-            </div>
-            <div>
-                <p class="text-xs font-semibold text-gray-600">Total Mahasiswa</p>
-                <p class="text-2xl font-bold text-gray-900">{{ count($qrList) }}</p>
-            </div>
+<div class="mb-10">
+    <div class="flex items-center justify-between mb-4 px-1">
+        <h3 class="text-lg font-bold text-gray-900">Data QR Code <span class="text-gray-400 text-sm font-normal ml-2">({{ count($qrList) }} total)</span></h3>
+        <div class="flex gap-2">
+            <!-- Filter buttons normally go here -->
         </div>
-    </div>
-    <div class="auth-card border-l-4 border-l-green-500 p-4">
-        <div class="flex items-center gap-3">
-            <div class="icon-container bg-green-100">
-                <i class="fas fa-qrcode text-green-600"></i>
-            </div>
-            <div>
-                <p class="text-xs font-semibold text-gray-600">QR Baru Digenerate</p>
-                <p class="text-2xl font-bold text-gray-900">{{ session('generated_count', 0) }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="auth-card border-l-4 border-l-purple-500 p-4">
-        <div class="flex items-center gap-3">
-            <div class="icon-container bg-purple-100">
-                <i class="fas fa-clock text-purple-600"></i>
-            </div>
-            <div>
-                <p class="text-xs font-semibold text-gray-600">Terakhir Update</p>
-                <p class="text-sm font-bold text-gray-900">
-                    {{ isset($lastGeneratedAt) && $lastGeneratedAt ? $lastGeneratedAt->format('d/m/Y H:i') : '-' }}
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- QR List Table -->
-<div class="auth-card overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-        <h3 class="text-lg font-bold text-gray-800">
-            Daftar QR Code ({{ count($qrList) }} mahasiswa)
-            @if(session('generated_count', 0) > 0)
-            <span class="text-sm font-semibold text-green-600 ml-2">
-                ({{ session('generated_count') }} baru)
-            </span>
-            @endif
-        </h3>
     </div>
 
-    <div class="overflow-x-auto">
-        <table class="min-w-full">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">No</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">NIM</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Nama</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">QR Code</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Check-in</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                @foreach($qrList as $index => $qr)
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-[#0061DF]">
-                        {{ $index + 1 }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-semibold text-gray-900">{{ $qr->mahasiswa->nim }}</div>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-700">
-                        {{ $qr->mahasiswa->name }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="w-20 h-20 border-2 border-gray-200 rounded-[10px] bg-white p-2 flex items-center justify-center">
-                            @if($qr->file_qr && Storage::disk('public')->exists($qr->file_qr))
-                                <img src="{{ Storage::url($qr->file_qr) }}"
-                                     alt="QR Code {{ $qr->mahasiswa->nim }}"
-                                     class="w-full h-full object-contain"
-                                     title="QR Code {{ $qr->mahasiswa->name }}">
+    <div class="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-50/50 border-b border-gray-100">
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Mahasiswa</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500">QR Code</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500">Status</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Check-in</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 bg-white">
+                    @foreach($qrList as $qr)
+                    <tr class="hover:bg-gray-50/60 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-4">
+                                <div class="h-10 w-10 shrink-0 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-sm">
+                                    {{ substr($qr->mahasiswa->name, 0, 1) }}
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900 text-sm">{{ $qr->mahasiswa->name }}</div>
+                                    <div class="text-xs text-gray-500">{{ $qr->mahasiswa->nim }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-center align-middle">
+                            <div class="inline-flex justify-center">
+                                <div class="h-12 w-12 rounded-lg bg-white p-1 border border-gray-100 shadow-sm transition-transform hover:scale-110">
+                                    @if($qr->file_qr && Storage::disk('public')->exists($qr->file_qr))
+                                        <img src="{{ Storage::url($qr->file_qr) }}" class="h-full w-full object-contain rounded-md" alt="QR">
+                                    @else
+                                        <div class="flex h-full w-full items-center justify-center text-gray-300">
+                                            <i class="fas fa-image-slash text-xs"></i>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            @php
+                                $statusStyles = [
+                                    'aktif' => 'bg-green-50 text-green-700 ring-green-600/20',
+                                    'digunakan' => 'bg-blue-50 text-blue-700 ring-blue-600/20',
+                                    'expired' => 'bg-red-50 text-red-700 ring-red-600/20'
+                                ];
+                                $style = $statusStyles[$qr->status] ?? 'bg-gray-50 text-gray-600 ring-gray-500/10';
+                            @endphp
+                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset {{ $style }}">
+                                {{ ucfirst($qr->status) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                            @if($qr->waktu_checkin)
+                                <div class="flex flex-col">
+                                    <span class="font-medium text-gray-900">{{ $qr->waktu_checkin->format('H:i') }}</span>
+                                    <span class="text-xs text-gray-400">{{ $qr->waktu_checkin->format('d M Y') }}</span>
+                                </div>
                             @else
-                                <div class="text-red-500 text-xs text-center">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    <div class="text-xs">Not Found</div>
+                                <span class="text-gray-400 text-xs">-</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            @if($qr->file_qr && Storage::disk('public')->exists($qr->file_qr))
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="{{ Storage::url($qr->file_qr) }}" target="_blank" class="p-2 text-gray-400 hover:text-gray-600 transition rounded-lg hover:bg-gray-100" title="Lihat">
+                                        <i class="far fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('admin.download-qr', $qr->id) }}" class="p-2 text-gray-400 hover:text-blue-600 transition rounded-lg hover:bg-blue-50" title="Download">
+                                        <i class="fas fa-download"></i>
+                                    </a>
                                 </div>
                             @endif
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        @php
-                            $statusConfig = [
-                                'aktif' => ['color' => 'green', 'icon' => 'check-circle', 'label' => 'Aktif'],
-                                'digunakan' => ['color' => 'blue', 'icon' => 'user-check', 'label' => 'Digunakan'],
-                                'expired' => ['color' => 'red', 'icon' => 'exclamation-triangle', 'label' => 'Expired']
-                            ];
-                            $config = $statusConfig[$qr->status] ?? ['color' => 'gray', 'icon' => 'question-circle', 'label' => 'Unknown'];
-                        @endphp
-                        <span class="inline-flex items-center gap-1 px-3 py-2 rounded-[10px] text-xs font-semibold bg-{{ $config['color'] }}-100 text-{{ $config['color'] }}-700">
-                            <i class="fas fa-{{ $config['icon'] }}"></i>
-                            {{ $config['label'] }}
-                        </span>
-                        @if($qr->expired_at && $qr->expired_at < now() && $qr->status == 'aktif')
-                        <div class="text-xs text-red-600 font-semibold mt-1">
-                            <i class="fas fa-times-circle"></i> Expired
-                        </div>
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        @if($qr->waktu_checkin)
-                            <div class="flex items-center gap-1 text-gray-600">
-                                <i class="fas fa-clock"></i>
-                                {{ $qr->waktu_checkin->format('d/m/Y H:i') }}
-                            </div>
-                        @else
-                            <span class="text-gray-400 text-sm">-</span>
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div class="flex gap-2">
-                            @if($qr->file_qr && Storage::disk('public')->exists($qr->file_qr))
-                                <a href="{{ route('admin.download-qr', $qr->id) }}"
-                                   class="inline-flex items-center gap-1 text-[#0061DF] hover:text-[#0A0061] font-semibold transition"
-                                   title="Download QR Code">
-                                    <i class="fas fa-download"></i> Download
-                                </a>
-                                <a href="{{ Storage::url($qr->file_qr) }}"
-                                   target="_blank"
-                                   class="inline-flex items-center gap-1 text-green-600 hover:text-green-800 font-semibold transition"
-                                   title="Lihat QR Code">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
-                            @else
-                                <span class="inline-flex items-center gap-1 text-red-600 text-xs font-semibold">
-                                    <i class="fas fa-exclamation-circle"></i> Error
-                                </span>
-                            @endif
-                        </div>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
-
-@else
-<!-- Empty State -->
-<div class="auth-card text-center py-12">
-    <div class="max-w-md mx-auto">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-[10px] bg-gray-100 mb-4">
-            <i class="fas fa-qrcode text-gray-400 text-2xl"></i>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-        <h3 class="text-lg font-bold text-gray-800 mb-2">Belum ada QR Code</h3>
-        <p class="text-gray-600 text-sm mb-6">Generate QR Code untuk mahasiswa yang sudah memenuhi syarat wisuda.</p>
-        <form action="{{ route('admin.generate-qr') }}" method="POST">
-            @csrf
-            <button type="submit" class="btn-primary px-6 py-3 inline-flex items-center gap-2 mx-auto">
-                <i class="fas fa-qrcode"></i>
-                Generate QR Code Sekarang
-            </button>
-        </form>
+        <!-- Pagination would go here -->
     </div>
 </div>
 @endif
@@ -330,16 +258,19 @@
 
 @section('scripts')
 <script>
-// Auto hide notifications after 5 seconds
 document.addEventListener('DOMContentLoaded', function() {
-    const notifications = document.querySelectorAll('[class*="border-l-"]');
-    notifications.forEach(notification => {
+    // Smooth auto-hide for notifications
+    const notifications = document.querySelectorAll('[class*="border-green-200"]');
+    if (notifications) {
         setTimeout(() => {
-            notification.style.transition = 'opacity 0.5s ease';
-            notification.style.opacity = '0';
-            setTimeout(() => notification.remove(), 500);
-        }, 5000);
-    });
+            notifications.forEach(n => {
+                n.style.transition = 'all 0.5s ease';
+                n.style.opacity = '0';
+                n.style.transform = 'translateY(-10px)';
+                setTimeout(() => n.remove(), 500);
+            });
+        }, 4000);
+    }
 });
 </script>
 @endsection

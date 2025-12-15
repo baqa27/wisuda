@@ -23,7 +23,7 @@
             
             {{-- Form Container --}}
             <div class="w-full bg-white rounded-[10px] shadow-lg p-8 md:p-12 border border-gray-200">
-                <h1 class="font-['Inter'] font-bold text-[24px] md:text-[32px] text-[#0061DF] mb-8 text-center">HALAMAN PERSYARATAN WISUDA</h1>
+                <h1 class="font-['Inter'] font-bold text-[24px] md:text-[32px] text-[#0061DF] mb-8 text-center">PERSYARATAN WISUDA</h1>
 
                 @if(session('error'))
                     <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -37,6 +37,19 @@
                     </div>
                 @endif
 
+                @if ($errors->any())
+                    <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>- {{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form action="{{ route('wisuda.persyaratan.simpan') }}" method="POST" enctype="multipart/form-data" class="w-full">
+                    @csrf
+                
                 <div class="flex flex-col lg:flex-row gap-10">
                     {{-- Left Column: Data Mahasiswa --}}
                     <div class="flex-1 flex flex-col gap-6">
@@ -81,6 +94,22 @@
                             </div>
                         </div>
 
+                        {{-- Data dari Yudisium (Read Only) --}}
+                        @if($yudisium)
+                            <div class="flex flex-col gap-2">
+                                <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">Judul Tugas Akhir</label>
+                                <div class="w-full p-4 border border-[#0061DF] rounded-[10px] bg-gray-50">
+                                    <span class="font-['Inter'] text-[16px] text-[#0061DF]">{{ $yudisium->judul_ta }}</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">Dosen Pembimbing</label>
+                                <div class="w-full p-4 border border-[#0061DF] rounded-[10px] bg-gray-50">
+                                    <span class="font-['Inter'] text-[16px] text-[#0061DF]">{{ $yudisium->dosen_pembimbing }}</span>
+                                </div>
+                            </div>
+                        @endif
+
                     </div>
 
                     {{-- Right Column: Uploads --}}
@@ -100,7 +129,9 @@
                                 $existing = $persyaratan->where('jenis', $key)->first();
                                 $isFromYudisium = false;
                                 
-                                // Cek apakah sudah ada di yudisium
+                                // Cek apakah sudah ada di yudisium (Only if not explicitly uploaded/revised by user recently?)
+                                // Priority: User manual upload > Yudisium auto-fill
+                                // But if user hasn't uploaded anything, and Yudisium has it, we consider it fulfilled.
                                 if (isset($yudisiumMapping[$key]) && $yudisium && $yudisium->{$yudisiumMapping[$key]}) {
                                     $isFromYudisium = true;
                                 }
@@ -110,57 +141,95 @@
                                 <label class="font-['Inter'] font-semibold text-[20px] text-[#0061DF]">
                                     {{ $label }}
                                     @if($isFromYudisium)
-                                        <span class="text-green-600 text-sm ml-2"><i class="fas fa-check-circle"></i> Sudah dari Yudisium</span>
+                                        <span class="ml-2 text-sm text-green-600 font-normal bg-green-100 px-2 py-0.5 rounded-full border border-green-200">
+                                            <i class="fas fa-check-circle mr-1"></i>Sudah dari Yudisium
+                                        </span>
                                     @endif
                                 </label>
 
                                 @if($isFromYudisium)
                                     {{-- Tampilan jika sudah ada dari Yudisium --}}
-                                    <div class="w-full p-4 bg-green-50 border border-green-200 rounded-[10px] flex items-center gap-3">
+                                    <div class="w-full p-4 bg-[#E8F5E9] border border-green-200 rounded-[10px] flex items-center gap-3">
                                         <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                                             <i class="fas fa-check text-green-600 text-xl"></i>
                                         </div>
                                         <div>
-                                            <p class="font-semibold text-green-800">Sudah Terpenuhi</p>
-                                            <p class="text-sm text-green-600">File diambil dari data Yudisium</p>
+                                            <p class="font-semibold text-green-800">Status: Terpenuhi</p>
+                                            <p class="text-xs text-green-600">Dokumen diambil otomatis dari data Yudisium</p>
                                         </div>
-                                        <a href="{{ route('yudisium.download', basename($yudisium->{$yudisiumMapping[$key]})) }}" target="_blank" class="ml-auto text-blue-600 hover:underline text-sm">Lihat File</a>
+                                        <a href="{{ route('yudisium.download', basename($yudisium->{$yudisiumMapping[$key]})) }}" target="_blank" class="ml-auto text-[#0061DF] hover:underline text-sm font-semibold">Lihat File</a>
+                                        <input type="hidden" name="existing_{{ $key }}" value="1">
                                     </div>
-                                @elseif($existing)
-                                    {{-- Tampilan jika sudah diupload di Wisuda --}}
-                                    <div class="w-full p-4 bg-blue-50 border border-blue-200 rounded-[10px] flex items-center gap-3 relative z-10">
-                                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-file-alt text-blue-600 text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-semibold text-blue-800">File Terupload</p>
-                                            <p class="text-sm text-blue-600">{{ $existing->status == 'menunggu' ? 'Menunggu Verifikasi' : ucfirst($existing->status) }}</p>
-                                        </div>
-                                        <div class="ml-auto flex gap-2">
-                                            <a href="{{ Storage::url($existing->file_path) }}" target="_blank" class="text-blue-600 hover:underline text-sm relative z-20">Lihat</a>
-                                            
-                                            @if($existing->status !== 'terverifikasi')
-                                                <form action="{{ route('wisuda.persyaratan.hapus', $existing->id) }}" method="POST" onsubmit="return confirm('Hapus file ini?')" class="relative z-20">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:underline text-sm">Hapus</button>
-                                                </form>
-                                            @endif
-                                        </div>
-                                    </div>
+
                                 @else
-                                    {{-- Form Upload --}}
-                                    <form action="{{ route('wisuda.persyaratan.upload') }}" method="POST" enctype="multipart/form-data" class="relative z-10">
-                                        @csrf
-                                        <input type="hidden" name="jenis" value="{{ $key }}">
+                                    {{-- Form Upload (Handles New, Menunggu, Revisi, Terverifikasi) --}}
+                                    
+                                    @php
+                                        // Default Styling to match Yudisium Edit Form
+                                        $statusColor = 'bg-[#D6D4FF] border-black'; 
+                                        $icon = 'fas fa-folder-plus';
+                                        $iconColor = 'text-[#0061DF]';
+                                        $statusText = 'Upload ulang untuk mengganti';
+                                        $subText = 'PDF maks 2MB';
                                         
-                                        <div class="relative w-full h-[126px] bg-[#D6D4FF] border border-dashed border-black rounded-[10px] flex flex-col justify-center items-center cursor-pointer hover:bg-[#c4c1ff] transition-colors group" onclick="document.getElementById('file-{{ $key }}').click()">
-                                            <input type="file" id="file-{{ $key }}" name="file" class="hidden" onchange="this.form.submit()" accept=".pdf,.jpg,.jpeg,.png">
-                                            <i class="fas fa-cloud-upload-alt text-[40px] text-[#0061DF] mb-2"></i>
-                                            <span class="font-['Inter'] text-[12px] text-[#0061DF]">Klik untuk upload {{ $label }}</span>
-                                            <span class="text-[10px] text-[#4B4F8F] mt-1">PDF/JPG/PNG Maks 2MB</span>
+                                        // We can still subtly indicate status if desired, but user requested uniformity.
+                                        // However, if it's 'terverifikasi', we usually show a checkmark or just the file.
+                                        // But Yudisium edit form allows re-uploading even verified files? 
+                                        // Usually 'terverifikasi' shouldn't be changed easily, but let's stick to the requested visual.
+                                        // For now, I will keep the "Terverifikasi" distinct to avoid confusion, 
+                                        // but unify Revisi/Menunggu/New into the "Upload" style.
+                                        
+                                        if ($existing && $existing->status == 'terverifikasi') {
+                                            $statusColor = 'bg-[#E8F5E9] border-green-500';
+                                            $icon = 'fas fa-check-circle';
+                                            $iconColor = 'text-green-500';
+                                            $statusText = 'Terverifikasi';
+                                            $subText = 'Dokumen valid';
+                                        }
+                                    @endphp
+
+                                    <div class="relative w-full h-40 {{ $statusColor }} border border-dashed rounded-[10px] p-4 overflow-hidden group">
+                                        {{-- Placeholder / Info --}}
+                                        <div class="w-full h-full flex flex-col items-center justify-center text-center gap-1 pointer-events-none" id="placeholder-{{ $key }}">
+                                            <i class="{{ $icon }} text-[40px] {{ $iconColor }}"></i>
+                                            <span class="font-['Inter'] text-[12px] {{ $existing && $existing->status == 'terverifikasi' ? 'text-green-700 font-bold' : 'text-[#0061DF]' }}">
+                                                {{ $statusText }}
+                                            </span>
+                                            <small class="text-[11px] {{ $existing && $existing->status == 'terverifikasi' ? 'text-green-600' : 'text-[#4B4F8F]' }}">
+                                                {{ $subText }}
+                                            </small>
                                         </div>
-                                    </form>
+
+                                        {{-- Preview Wrapper --}}
+                                        <div class="absolute inset-0 hidden px-4 py-4 z-20" id="preview-wrapper-{{ $key }}">
+                                            <div class="w-full h-full bg-[#D6D4FF] flex flex-col items-center justify-center gap-4 text-center">
+                                                <div class="w-full bg-white rounded-lg border border-[#0061DF]/30 shadow-sm p-4 flex items-center gap-3 text-left">
+                                                    <i class="fas fa-file-pdf text-2xl text-[#BA1B1D]" id="preview-icon-{{ $key }}"></i>
+                                                    <div class="flex-1">
+                                                        <p class="text-sm font-semibold text-[#0061DF] truncate" id="preview-name-{{ $key }}"></p>
+                                                        <p class="text-xs text-gray-500" id="preview-info-{{ $key }}"></p>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="text-sm text-red-600 hover:underline" data-reset-preview="{{ $key }}">Batal pilih file</button>
+                                            </div>
+                                        </div>
+
+                                        {{-- File Input --}}
+                                        @if(!$existing || $existing->status != 'terverifikasi')
+                                            <input type="file" id="input-{{ $key }}" data-preview-id="{{ $key }}" name="{{ $key }}" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer previewable-file z-10" accept=".pdf">
+                                        @endif
+                                    </div>
+                                    
+                                    {{-- Admin Note if Revisi --}}
+                                    @if($existing && $existing->status == 'revisi' && $existing->catatan_admin)
+                                        <div class="mt-2 text-sm text-red-600 bg-red-50 p-3 rounded border border-red-200 flex items-start gap-2">
+                                            <i class="fas fa-exclamation-circle mt-0.5"></i>
+                                            <div>
+                                                <strong>Perlu Revisi:</strong> {{ $existing->catatan_admin }}
+                                            </div>
+                                        </div>
+                                    @endif
+
                                 @endif
                             </div>
                         @endforeach
@@ -168,50 +237,105 @@
                     </div>
                 </div>
 
-                <div class="mt-12 flex justify-center">
-                    <a href="{{ route('wisuda.index') }}" class="w-full md:w-[200px] h-[50px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] rounded-[10px] text-white font-bold text-[18px] flex items-center justify-center hover:shadow-lg transition-all">
-                        Kembali
-                    </a>
+                {{-- Submit Button --}}
+                <div class="mt-12 flex justify-center gap-4">
+                    {{-- Tombol Kembali dihapus sesuai permintaan --}}
+                    <button type="submit" class="w-full md:w-[200px] h-[50px] bg-[linear-gradient(95.08deg,#0A0061_-3.06%,#0061DF_95.31%)] rounded-[10px] text-white font-bold text-[18px] hover:shadow-lg transition-all">
+                        Konfirmasi
+                    </button>
                 </div>
+
+                </form>
 
             </div>
         </div>
     </div>
 @endsection
 
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInputs = document.querySelectorAll('.previewable-file');
+    const allowedMime = ['application/pdf'];
+    const allowedExtensions = ['.pdf'];
 
+    const togglePlaceholder = (previewId, show = true) => {
+        const placeholder = document.getElementById(`placeholder-${previewId}`);
+        if (!placeholder) return;
+        placeholder.classList.toggle('hidden', !show);
+    };
 
-    @push('scripts')
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.dragdrop-input').forEach(function (input) {
-            var previewId = input.dataset.preview;
-            var placeholder = document.getElementById('placeholder-' + previewId);
-            var successState = document.getElementById('success-' + previewId);
-            var fileNameSpan = successState ? successState.querySelector('.file-name') : null;
+    const showPreview = (file, previewId) => {
+        const wrapper = document.getElementById(`preview-wrapper-${previewId}`);
+        const iconEl = document.getElementById(`preview-icon-${previewId}`);
+        const nameEl = document.getElementById(`preview-name-${previewId}`);
+        const infoEl = document.getElementById(`preview-info-${previewId}`);
 
-            input.addEventListener('change', function (event) {
-                var file = event.target.files[0];
+        if (!wrapper || !iconEl || !nameEl || !infoEl) return;
 
-                if (!placeholder || !successState) {
-                    return;
-                }
+        nameEl.textContent = file.name;
+        infoEl.textContent = 'PDF siap diunggah';
 
-                if (file) {
-                    placeholder.classList.add('hidden');
-                    successState.classList.remove('hidden');
-                    if (fileNameSpan) {
-                        fileNameSpan.textContent = file.name;
-                    }
-                } else {
-                    placeholder.classList.remove('hidden');
-                    successState.classList.add('hidden');
-                    if (fileNameSpan) {
-                        fileNameSpan.textContent = '';
-                    }
-                }
-            });
+        togglePlaceholder(previewId, false);
+        wrapper.classList.remove('hidden');
+    };
+
+    const resetPreview = (previewId) => {
+        const wrapper = document.getElementById(`preview-wrapper-${previewId}`);
+        const iconEl = document.getElementById(`preview-icon-${previewId}`);
+        const nameEl = document.getElementById(`preview-name-${previewId}`);
+        const infoEl = document.getElementById(`preview-info-${previewId}`);
+        const input = document.getElementById(`input-${previewId}`);
+
+        if (wrapper) {
+            wrapper.classList.add('hidden');
+        }
+        if (nameEl) {
+            nameEl.textContent = '';
+        }
+        if (infoEl) {
+            infoEl.textContent = '';
+        }
+        if (iconEl) {
+            iconEl.classList.add('fa-file-pdf');
+        }
+        if (input) {
+            input.value = '';
+        }
+        togglePlaceholder(previewId, true);
+    };
+
+    fileInputs.forEach(input => {
+        input.addEventListener('change', event => {
+            const file = event.target.files[0];
+            const previewId = event.target.dataset.previewId;
+
+            if (!previewId) return;
+
+            if (!file) {
+                resetPreview(previewId);
+                return;
+            }
+
+            const isPdf = allowedMime.includes(file.type) || allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+
+            if (!isPdf) {
+                alert('Harap unggah file berformat PDF.');
+                event.target.value = '';
+                resetPreview(previewId);
+                return;
+            }
+
+            showPreview(file, previewId);
         });
     });
-    </script>
-    @endpush
+
+    document.querySelectorAll('[data-reset-preview]').forEach(button => {
+        button.addEventListener('click', () => {
+            const previewId = button.dataset.resetPreview;
+            resetPreview(previewId);
+        });
+    });
+});
+</script>
+@endpush
