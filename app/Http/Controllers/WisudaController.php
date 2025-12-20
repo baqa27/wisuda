@@ -10,6 +10,7 @@ use App\Models\QrPresensi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class WisudaController extends Controller
 {
@@ -20,6 +21,7 @@ class WisudaController extends Controller
         'bebas_perpus',
         'foto_wisuda',
     ];
+
     public function index()
     {
         $mhs = Auth::user();
@@ -213,6 +215,53 @@ class WisudaController extends Controller
         ];
 
         return view('wisuda.persyaratan', compact('jenisPersyaratan', 'pendaftaran', 'persyaratan', 'yudisium'));
+    }
+
+    public function simpanPersyaratan(Request $request)
+    {
+        $mhs = Auth::user();
+        $updatedCount = 0;
+
+        $keys = [
+            'toefl',
+            'sertifikasi',
+            'tahfidz',
+            'bebas_perpus',
+            'foto_wisuda',
+            'buku_kenangan'
+        ];
+
+        foreach ($keys as $key) {
+            if ($request->hasFile($key)) {
+                $request->validate([
+                    $key => 'file|mimes:pdf,jpeg,png,jpg|max:2048'
+                ]);
+
+                $file = $request->file($key);
+                $path = $file->store('persyaratan_wisuda', 'public');
+
+                PersyaratanWisuda::updateOrCreate(
+                    [
+                        'mahasiswa_id' => $mhs->id,
+                        'jenis' => $key
+                    ],
+                    [
+                        'file_path' => $path,
+                        'status' => 'menunggu',
+                        'catatan_admin' => null // Clear admin note on re-upload
+                    ]
+                );
+
+                $updatedCount++;
+            }
+        }
+
+        if ($updatedCount > 0) {
+            return redirect()->route('wisuda.persyaratan.form')->with('success', 'Persyaratan berhasil diupload dan disimpan.');
+        }
+
+        // If no files uploaded, check if we're just confirming existing ones (which might happen if all are from yudisium)
+        return redirect()->route('wisuda.persyaratan.form')->with('info', 'Tidak ada file baru yang diupload.');
     }
 
     public function uploadPersyaratan(Request $request)

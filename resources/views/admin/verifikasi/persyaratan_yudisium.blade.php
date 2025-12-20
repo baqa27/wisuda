@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="mb-8">
-        <h1 class="text-4xl font-bold bg-linear-to-r from-[#0A0061] to-[#0061DF] bg-clip-text text-transparent">
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-[#056100] to-[#00DF1A] bg-clip-text text-transparent">
             Verifikasi Persyaratan Yudisium
         </h1>
         <p class="text-gray-600 text-lg mt-2">Verifikasi persyaratan yudisium dari mahasiswa</p>
@@ -17,7 +17,7 @@
                 <div class="flex items-center justify-between">
                     <div class="text-sm">
                         <span class="font-semibold text-gray-700">Total Menunggu Verifikasi:</span>
-                        <span class="text-[#0061DF] font-bold ml-2">{{ $persyaratan->count() }}</span>
+                        <span class="text-[#056100] font-bold ml-2">{{ $persyaratan->count() }}</span>
                     </div>
                     <div class="text-xs text-gray-500">
                         Diperbarui: {{ now()->format('d/m/Y H:i') }}
@@ -51,7 +51,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                     <div class="flex flex-col gap-1">
                                         <span class="font-semibold text-gray-900 flex items-center gap-1">
-                                            <i class="fas fa-phone text-[#0061DF]"></i>
+                                            <i class="fas fa-phone text-[#056100]"></i>
                                             {{ $item->no_whatsapp ?? '-' }}
                                         </span>
                                         <span class="text-xs text-gray-500">Email: {{ $item->mahasiswa->email }}</span>
@@ -70,9 +70,8 @@
                                     <div class="space-y-1">
                                         @foreach ($files as $label => $path)
                                             @if ($path)
-                                                <a href="{{ route('admin.view.persyaratan-yudisium', basename($path)) }}"
-                                                    target="_blank"
-                                                    class="flex items-center gap-2 text-[#0061DF] hover:text-[#0A0061] font-semibold transition text-sm">
+                                                <a href="{{ route('admin.view.persyaratan-yudisium', basename($path)) }}" target="_blank"
+                                                    class="flex items-center gap-2 text-[#056100] hover:text-[#00DF1A] font-semibold transition text-sm">
                                                     <i class="fas fa-file-pdf"></i>
                                                     <span>{{ $label }}</span>
                                                 </a>
@@ -88,7 +87,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                     <div class="flex flex-col">
                                         <span>{{ $item->created_at->format('d/m/Y H:i') }}</span>
-                                        <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                                        <span
+                                            class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
                                             <i class="fas fa-clock"></i> Menunggu Verifikasi
                                         </span>
                                         @if($item->catatan_admin)
@@ -125,7 +125,7 @@
         <div id="revisiModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
             <div class="auth-card w-full max-w-md">
                 <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-[#0A0061]">Berikan Catatan Revisi</h3>
+                    <h3 class="text-lg font-bold text-[#056100]">Berikan Catatan Revisi</h3>
                     <button type="button" onclick="hideRevisiModal()" class="text-gray-500 hover:text-gray-700">
                         <i class="fas fa-times text-xl"></i>
                     </button>
@@ -136,8 +136,8 @@
                     <input type="hidden" name="status" value="revisi">
                     <div class="mb-4">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Catatan Revisi</label>
-                        <textarea name="catatan" rows="4" class="auth-input w-full"
-                            placeholder="Masukkan catatan revisi..." required></textarea>
+                        <textarea name="catatan" rows="4" class="auth-input w-full" placeholder="Masukkan catatan revisi..."
+                            required></textarea>
                     </div>
                     <div class="flex justify-end gap-3">
                         <button type="button" onclick="hideRevisiModal()"
@@ -166,7 +166,7 @@
             }
 
             // Tutup modal ketika klik di luar
-            document.getElementById('revisiModal').addEventListener('click', function(e) {
+            document.getElementById('revisiModal').addEventListener('click', function (e) {
                 if (e.target.id === 'revisiModal') {
                     hideRevisiModal();
                 }

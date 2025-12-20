@@ -5,16 +5,17 @@
 @section('content')
 <div class="mb-8 flex items-center justify-between">
     <div>
-        <h1 class="text-4xl font-bold bg-linear-to-r from-[#0A0061] to-[#0061DF] bg-clip-text text-transparent">
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-[#056100] to-[#00DF1A] bg-clip-text text-transparent">
             Data Final Wisuda
         </h1>
         <p class="text-gray-600 text-lg mt-2">Data mahasiswa yang menyelesaikan semua persyaratan wisuda</p>
     </div>
-    <a href="{{ route('admin.export-data-final') }}"
-       class="btn-primary px-6 py-3 inline-flex items-center gap-2 text-sm">
-        <i class="fas fa-download"></i>
-        Export CSV
-    </a>
+<a href="{{ route('admin.export-data-final') }}"
+   class="px-6 py-3 inline-flex items-center gap-2 text-sm text-white font-semibold rounded-md 
+          bg-gradient-to-r from-green-700 to-green-900 hover:from-green-700 hover:to-green-800">
+    <i class="fas fa-download"></i>
+    Export CSV
+</a>
 </div>
 
 @if($data->count() > 0)
@@ -24,16 +25,16 @@
         <div class="flex items-center gap-6 flex-wrap">
             <div class="text-sm">
                 <span class="font-semibold text-gray-700">Total Data:</span>
-                <span class="text-[#0061DF] font-bold ml-2">{{ $data->total() }}</span>
+                <span class="text-[#056100] font-bold ml-2">{{ $data->total() }}</span>
             </div>
             <div class="text-sm">
                 <span class="font-semibold text-gray-700">Halaman:</span>
-                <span class="text-[#0061DF] font-bold ml-2">{{ $data->currentPage() }}/{{ $data->lastPage() }}</span>
+                <span class="text-[#056100] font-bold ml-2">{{ $data->currentPage() }}/{{ $data->lastPage() }}</span>
             </div>
         </div>
         <div class="flex items-center gap-2">
             <span class="text-sm font-semibold text-gray-700">Tampil:</span>
-            <select onchange="window.location.href = this.value" class="text-sm border border-gray-300 rounded-[10px] px-3 py-2 focus:outline-none focus:border-[#0061DF]">
+            <select onchange="window.location.href = this.value" class="text-sm border border-gray-300 rounded-[10px] px-3 py-2 focus:outline-none focus:border-[#00DF1A]">
                 <option value="{{ request()->fullUrlWithQuery(['per_page' => 10]) }}" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10 per halaman</option>
                 <option value="{{ request()->fullUrlWithQuery(['per_page' => 25]) }}" {{ request('per_page', 10) == 25 ? 'selected' : '' }}>25 per halaman</option>
                 <option value="{{ request()->fullUrlWithQuery(['per_page' => 50]) }}" {{ request('per_page', 10) == 50 ? 'selected' : '' }}>50 per halaman</option>
@@ -58,7 +59,7 @@
             <tbody class="divide-y divide-gray-200">
                 @foreach($data as $item)
                 <tr class="hover:bg-gray-50 transition border-b border-gray-200">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-[#0A0061]">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-[#056100]">
                         {{ $item->NIM }}
                     </td>
                     <td class="px-6 py-4">
@@ -95,7 +96,7 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button onclick="showDetailModal({{ $item->id }})"
-                                class="text-[#0061DF] hover:text-[#0A0061] transition mr-4" title="Lihat Detail">
+                                class="text-[#056100] hover:text-[#00DF1A] transition mr-4" title="Lihat Detail">
                             <i class="fas fa-eye"></i>
                         </button>
                         <a href="{{ route('admin.generate-qr') }}?mahasiswa_id={{ $item->mahasiswa_id }}"
@@ -136,7 +137,7 @@
 <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
     <div class="auth-card w-full max-w-2xl max-h-96 overflow-y-auto">
         <div class="border-b border-gray-200 px-6 py-4 sticky top-0 bg-white flex items-center justify-between">
-            <h3 class="text-lg font-bold text-[#0A0061]">Detail Data Final</h3>
+            <h3 class="text-lg font-bold text-[#056100]">Detail Data Final</h3>
             <button type="button" onclick="hideDetailModal()" class="text-gray-500 hover:text-gray-700">
                 <i class="fas fa-times text-xl"></i>
             </button>

@@ -16,11 +16,11 @@ class CheckRole
     public function handle(Request $request, Closure $next, string $role): Response
     {
         // Cek jika user belum login
-        if (!$request->user()) {
+        if (!\Illuminate\Support\Facades\Auth::check()) {
             return redirect()->route('login');
         }
 
-        $user = $request->user();
+        $user = \Illuminate\Support\Facades\Auth::user();
 
         // Cek role user
         if ($user->role !== $role) {

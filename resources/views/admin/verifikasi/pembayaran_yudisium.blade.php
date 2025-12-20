@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="mb-8">
-        <h1 class="text-4xl font-bold bg-linear-to-r from-[#0A0061] to-[#0061DF] bg-clip-text text-transparent">
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-[#056100] to-[#00DF1A] bg-clip-text text-transparent">
             Verifikasi Pembayaran Yudisium
         </h1>
         <p class="text-gray-600 text-lg mt-2">Kelola dan verifikasi pembayaran yudisium dari mahasiswa</p>
@@ -15,8 +15,8 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-[15px] border-2 border-gray-200 p-6 shadow-sm">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-[10px] bg-blue-100 flex items-center justify-center">
-                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                    <div class="w-12 h-12 rounded-[10px] bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-users text-green-600 text-xl"></i>
                     </div>
                     <div>
                         <p class="text-sm text-gray-500">Total Pendaftar</p>
@@ -71,7 +71,7 @@
                 <div class="flex items-center justify-between">
                     <div class="text-sm">
                         <span class="font-semibold text-gray-700">Total Data:</span>
-                        <span class="text-[#0061DF] font-bold ml-2">{{ $pembayaran->count() }}</span>
+                        <span class="text-[#056100] font-bold ml-2">{{ $pembayaran->count() }}</span>
                     </div>
                     <div class="text-xs text-gray-500">
                         Diperbarui: {{ now()->format('d/m/Y H:i') }}
@@ -100,7 +100,7 @@
                                     <div class="text-xs text-gray-500">{{ $item->mahasiswa->nim }}</div>
                                     <div class="hidden md:block text-xs text-gray-400">{{ $item->mahasiswa->email }}</div>
                                 </td>
-                                <td class="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm font-mono text-[#0061DF] font-semibold max-w-[150px] truncate" title="{{ $item->kode_invoice }}">
+                                <td class="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm font-mono text-[#056100] font-semibold max-w-[150px] truncate" title="{{ $item->kode_invoice }}">
                                     {{ $item->kode_invoice }}
                                 </td>
                                 <td class="px-4 md:px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
@@ -108,7 +108,7 @@
                                 </td>
                                 <td class="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
                                     @if($item->payment_method == 'midtrans')
-                                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
                                             <i class="fas fa-credit-card"></i> Midtrans
                                         </span>
                                     @elseif($item->payment_method == 'manual')

@@ -93,18 +93,39 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'identity' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt($request->only('email', 'password'))) {
+        $identity = $request->identity;
+        $field = filter_var($identity, FILTER_VALIDATE_EMAIL) ? 'email' : 'nim';
+
+        // Cek credential: email/nim, password, dan role=mahasiswa
+        if (
+            Auth::attempt([
+                $field => $identity,
+                'password' => $request->password,
+                'role' => 'mahasiswa'
+            ])
+        ) {
             $request->session()->regenerate();
-            return $this->redirectByRole(Auth::user());
+            return redirect()->route('dashboard');
+        }
+
+        // Cek jika admin mencoba login disini (opsional, tapi bagus untuk UX)
+        // Jika input adalah email, kita bisa cek user admin
+        if ($field === 'email') {
+            $user = User::where('email', $identity)->first();
+            if ($user && Hash::check($request->password, $user->password) && $user->isAdmin()) {
+                return back()->withErrors([
+                    'identity' => 'Admin harap login melalui halaman /admin',
+                ])->onlyInput('identity');
+            }
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ])->onlyInput('email');
+            'identity' => 'Email/NIM atau password salah.',
+        ])->onlyInput('identity');
     }
 
     /** Logout */
@@ -179,5 +200,68 @@ class AuthController extends Controller
         $this->sendVerificationEmail($user, $verificationToken);
 
         return back()->with('success', 'Email verifikasi telah dikirim ulang. Silakan cek inbox Anda.');
+    }
+
+    // ==========================
+    // 👑 ADMIN AUTH
+    // ==========================
+
+    /** Halaman Login Admin */
+    public function showAdminLogin()
+    {
+        if (Auth::guard('admin')->check()) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return view('auth.admin-login');
+    }
+
+    /** Proses Login Admin */
+    public function adminLogin(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        // Coba login sebagai admin menggunakan guard 'admin'
+        \Log::info('Admin Login Attempt', ['email' => $request->email]);
+        if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password, 'role' => 'admin'])) {
+            $request->session()->regenerate();
+
+            \Log::info('Admin Login Success. Session Regenerated.', [
+                'user_id' => Auth::guard('admin')->id(),
+                'check' => Auth::guard('admin')->check()
+            ]);
+
+            return redirect()->route('admin.dashboard');
+        } else {
+            \Log::warning('Admin Login Failed via Guard Attempt');
+        }
+
+        // Cek apakah user ada di database
+        $user = User::where('email', $request->email)->first();
+
+        // Jika user ada, password benar, TAPI role bukan admin
+        if ($user && Hash::check($request->password, $user->password) && !$user->isAdmin()) {
+            return back()->withErrors([
+                'email' => 'Akun ini terdaftar sebagai Mahasiswa, bukan Admin.',
+            ])->onlyInput('email');
+        }
+
+        return back()->withErrors([
+            'email' => 'Email atau password salah.',
+        ])->onlyInput('email');
+    }
+
+    /** Logout Admin */
+    public function adminLogout(Request $request)
+    {
+        Auth::guard('admin')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('admin.login.form')
+            ->with('success', 'Berhasil logout (Admin).');
     }
 }

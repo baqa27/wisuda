@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="mb-8">
-        <h1 class="text-4xl font-bold bg-linear-to-r from-[#0A0061] to-[#0061DF] bg-clip-text text-transparent">
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-[#056100] to-[#00DF1A] bg-clip-text text-transparent">
             Dashboard Admin
         </h1>
         <p class="text-gray-600 text-lg mt-2">Selamat datang di Sistem Wisuda - Kelola Pendaftaran & Verifikasi</p>
@@ -13,15 +13,15 @@
     <!-- Statistik Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <!-- Total Mahasiswa -->
-        <div class="auth-card p-6 border-l-4 border-l-[#0061DF] hover:shadow-lg transition-all">
+        <div class="auth-card p-6 border-l-4 border-l-[#00DF1A] hover:shadow-lg transition-all">
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-gray-600 text-sm font-medium mb-2">Total Mahasiswa</p>
-                    <p class="text-4xl font-bold text-[#0A0061]">{{ $stats['total_mahasiswa'] }}</p>
+                    <p class="text-4xl font-bold text-[#056100]">{{ $stats['total_mahasiswa'] }}</p>
                     <p class="text-xs text-gray-500 mt-2">Terdaftar dalam sistem</p>
                 </div>
-                <div class="icon-container bg-blue-100">
-                    <i class="fas fa-users text-[#0061DF] text-2xl"></i>
+                <div class="icon-container bg-green-100">
+                    <i class="fas fa-users text-[#00DF1A] text-2xl"></i>
                 </div>
             </div>
         </div>
@@ -112,7 +112,7 @@
 
         <!-- Verifikasi Panel -->
         <div class="auth-card overflow-hidden">
-            <div class="bg-linear-to-r from-[#0A0061] to-[#0061DF] p-6">
+            <div class="bg-gradient-to-r from-[#056100] to-[#00DF1A] p-6">
                 <h2 class="text-xl font-bold text-white flex items-center gap-2">
                     <i class="fas fa-check-double"></i>
                     Verifikasi
@@ -121,15 +121,15 @@
             <div class="p-6 space-y-3">
 
                 <a href="{{ route('admin.verifikasi.pembayaran-yudisium') }}"
-                    class="flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 rounded-[10px] transition border border-blue-200">
+                    class="flex items-center justify-between p-4 bg-gray-50 hover:bg-green-50 rounded-[10px] transition border border-gray-200 hover:border-green-200">
                     <div class="flex items-center gap-3">
-                        <i class="fas fa-credit-card text-[#0061DF] text-lg"></i>
+                        <i class="fas fa-credit-card text-[#00DF1A] text-lg"></i>
                         <div>
                             <p class="font-semibold text-gray-800">Pembayaran Yudisium</p>
                             <p class="text-xs text-gray-600">Verifikasi bukti pembayaran</p>
                         </div>
                     </div>
-                    <span class="bg-[#0061DF] text-white px-3 py-1 rounded-full text-sm font-bold">
+                    <span class="bg-[#00DF1A] text-white px-3 py-1 rounded-full text-sm font-bold">
                         {{ $stats['yudisium_menunggu'] }}
                     </span>
                 </a>
@@ -181,7 +181,7 @@
 
         <!-- Data & Laporan Panel -->
         <div class="auth-card overflow-hidden">
-            <div class="bg-linear-to-r from-[#0A0061] to-[#0061DF] p-6">
+            <div class="bg-gradient-to-r from-[#056100] to-[#00DF1A] p-6">
                 <h2 class="text-xl font-bold text-white flex items-center gap-2">
                     <i class="fas fa-database"></i>
                     Data & Laporan
@@ -190,7 +190,7 @@
             <div class="p-6 space-y-3">
 
                 <a href="{{ route('admin.manajemen-mahasiswa') }}"
-                    class="flex items-center gap-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-[10px] transition border border-gray-200">
+                    class="flex items-center gap-3 p-4 bg-gray-50 hover:bg-green-50 rounded-[10px] transition border border-gray-200 hover:border-green-200">
                     <i class="fas fa-list text-gray-700 text-lg"></i>
                     <div>
                         <p class="font-semibold text-gray-800">Manajemen Mahasiswa</p>
@@ -236,7 +236,7 @@
 
     <!-- Daftar Mahasiswa Terbaru -->
     <div class="auth-card overflow-hidden">
-        <div class="bg-linear-to-r from-[#0A0061] to-[#0061DF] p-6">
+        <div class="bg-gradient-to-r from-[#056100] to-[#00DF1A] p-6">
             <h2 class="text-xl font-bold text-white flex items-center gap-2">
                 <i class="fas fa-user-clock"></i>
                 Mahasiswa Terbaru
@@ -271,7 +271,7 @@
     <!-- Pembayaran Terbaru -->
     @if(isset($recentPayments) && $recentPayments->count() > 0)
         <div class="auth-card overflow-hidden mt-8">
-            <div class="bg-linear-to-r from-green-600 to-green-700 p-6">
+            <div class="bg-gradient-to-r from-green-600 to-green-700 p-6">
                 <h2 class="text-xl font-bold text-white flex items-center gap-2">
                     <i class="fas fa-credit-card"></i>
                     Pembayaran Terbaru
@@ -296,7 +296,7 @@
                                     <div class="text-gray-900 font-medium">{{ $payment->mahasiswa->name }}</div>
                                     <div class="text-xs text-gray-500">{{ $payment->mahasiswa->nim }}</div>
                                 </td>
-                                <td class="px-6 py-4 font-mono text-sm text-[#0061DF] font-semibold">
+                                <td class="px-6 py-4 font-mono text-sm text-[#00DF1A] font-semibold">
                                     {{ $payment->kode_invoice }}
                                 </td>
                                 <td class="px-6 py-4 text-gray-900 font-bold">
@@ -351,7 +351,7 @@
             </div>
             <div class="p-4 bg-gray-50 border-t">
                 <a href="{{ route('admin.verifikasi.pembayaran-yudisium') }}"
-                    class="text-[#0061DF] hover:underline font-semibold text-sm">
+                    class="text-[#00DF1A] hover:underline font-semibold text-sm">
                     Lihat semua pembayaran →
                 </a>
             </div>

@@ -32,10 +32,10 @@ Route::middleware('guest')->group(function () {
 
 // Admin Guest (Login)
 // Admin Guest (Login)
-// Route::middleware('guest:admin')->group(function () {
+Route::middleware('guest:admin')->group(function () {
     Route::get('/admin', [AuthController::class, 'showAdminLogin'])->name('admin.login.form');
     Route::post('/admin', [AuthController::class, 'adminLogin'])->name('admin.login');
-// });
+});
 
 // ==========================
 // 📧 EMAIL VERIFICATION
@@ -132,7 +132,7 @@ Route::middleware('auth')->group(function () {
     // ======================
     // Menggunakan auth:admin agar terpisah sessionnya
     Route::middleware('auth:admin')->prefix('admin')->group(function () {
-        
+
         // Admin Logout
         Route::post('/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');
 
@@ -179,7 +179,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/manajemen-mahasiswa', [AdminController::class, 'storeMahasiswa'])->name('admin.manajemen-mahasiswa.store');
         Route::put('/manajemen-mahasiswa/{id}', [AdminController::class, 'updateMahasiswa'])->name('admin.manajemen-mahasiswa.update');
         Route::delete('/manajemen-mahasiswa/{id}', [AdminController::class, 'destroyMahasiswa'])->name('admin.manajemen-mahasiswa.destroy');
-        
+
         Route::get('/export-data-final', [AdminController::class, 'exportDataFinal'])->name('admin.export-data-final');
 
         // ---- QR Code ----

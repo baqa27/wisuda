@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="mb-8">
-        <h1 class="text-4xl font-bold bg-linear-to-r from-[#0A0061] to-[#0061DF] bg-clip-text text-transparent">
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-[#056100] to-[#00DF1A] bg-clip-text text-transparent">
             Verifikasi Persyaratan Wisuda
         </h1>
         <p class="text-gray-600 text-lg mt-2">Verifikasi persyaratan wisuda dari mahasiswa</p>
@@ -17,7 +17,7 @@
                 <div class="flex items-center justify-between">
                     <div class="text-sm">
                         <span class="font-semibold text-gray-700">Total Menunggu Verifikasi:</span>
-                        <span class="text-[#0061DF] font-bold ml-2">{{ $mahasiswa->count() }}</span>
+                        <span class="text-[#056100] font-bold ml-2">{{ $mahasiswa->count() }}</span>
                     </div>
                     <div class="text-xs text-gray-500">
                         Diperbarui: {{ now()->format('d/m/Y H:i') }}
@@ -52,7 +52,7 @@
                                     <div class="flex flex-col gap-1">
                                         <span class="text-xs text-gray-500">Email: {{ $mhs->email }}</span>
                                         {{-- If Phone is available --}}
-                                        {{-- <span class="font-semibold text-gray-900 flex items-center gap-1"><i class="fas fa-phone text-[#0061DF]"></i> ...</span> --}}
+                                        {{-- <span class="font-semibold text-gray-900 flex items-center gap-1"><i class="fas fa-phone text-[#056100]"></i> ...</span> --}}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm">
@@ -74,7 +74,7 @@
                                             @if($item->status == 'menunggu')
                                                 <a href="{{ route('admin.download.persyaratan-wisuda', basename($item->file_path)) }}"
                                                     target="_blank"
-                                                    class="flex items-center gap-2 text-[#0061DF] hover:text-[#0A0061] font-semibold transition text-sm">
+                                                    class="flex items-center gap-2 text-[#056100] hover:text-[#00DF1A] font-semibold transition text-sm">
                                                     <i class="fas fa-file-pdf"></i>
                                                     <span class="truncate max-w-[150px]">{{ $jenisLabels[$item->jenis] ?? $item->jenis }}</span>
                                                     <span class="text-[10px] bg-yellow-100 text-yellow-800 px-1 rounded">Baru</span>
@@ -135,7 +135,7 @@
             <div id="revisiModal-{{ $mhs->id }}" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4 revisi-modal">
                 <div class="auth-card w-full max-w-md">
                     <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-                        <h3 class="text-lg font-bold text-[#0A0061]">Berikan Catatan Revisi</h3>
+                        <h3 class="text-lg font-bold text-[#056100]">Berikan Catatan Revisi</h3>
                         <button type="button" onclick="hideRevisiModal({{ $mhs->id }})" class="text-gray-500 hover:text-gray-700">
                             <i class="fas fa-times text-xl"></i>
                         </button>

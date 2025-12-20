@@ -14,25 +14,25 @@
 
 <body class="bg-gray-50">
     <!-- Navbar -->
-    <nav class="bg-linear-to-r from-[#0A0061] to-[#0061DF] text-white shadow-lg">
+    <nav class="bg-gradient-to-r from-[#056100] to-[#00DF1A] text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center gap-3">
                     <i class="fas fa-graduation-cap text-2xl"></i>
                     <div>
                         <span class="text-xl font-bold block">Sistem Wisuda</span>
-                        <span class="text-xs text-blue-200">Administrator</span>
+                        <span class="text-xs text-green-100">Administrator</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
                     <div class="text-right hidden sm:block">
                         <p class="text-white font-semibold text-sm">{{ Auth::user()->name }}</p>
-                        <p class="text-blue-200 text-xs">Admin</p>
+                        <p class="text-green-100 text-xs">Admin</p>
                     </div>
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
                         <button type="submit"
-                            class="bg-white text-[#0061DF] hover:bg-blue-50 px-5 py-2 rounded-[10px] transition font-bold text-sm shadow-lg hover:shadow-xl">
+                            class="bg-white text-[#03A310] hover:bg-green-50 px-5 py-2 rounded-[10px] transition font-bold text-sm shadow-lg hover:shadow-xl">
                             <i class="fas fa-sign-out-alt mr-2"></i>Logout
                         </button>
                     </form>
@@ -43,11 +43,11 @@
 
     <div class="flex min-h-screen">
         <!-- Sidebar -->
-        <div class="w-64 bg-white shadow-lg border-r-4 border-r-[#0061DF]">
+        <div class="w-64 bg-white shadow-lg border-r-4 border-r-[#00DF1A]">
             <div class="p-6">
                 <nav class="space-y-2">
                     <a href="{{ route('admin.dashboard') }}"
-                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.dashboard' ? 'bg-linear-to-r from-[#0A0061] to-[#0061DF] text-white shadow-md' : 'hover:bg-gray-100' }}">
+                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.dashboard' ? 'bg-gradient-to-r from-[#056100] to-[#00DF1A] text-white shadow-md' : 'hover:bg-green-50' }}">
                         <i class="fas fa-tachometer-alt w-5"></i>
                         <span>Dashboard</span>
                         @if(Route::currentRouteName() === 'admin.dashboard')
@@ -59,7 +59,7 @@
                     </div>
 
                     <a href="{{ route('admin.verifikasi.pembayaran-yudisium') }}"
-                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.verifikasi.pembayaran-yudisium' ? 'bg-linear-to-r from-[#0A0061] to-[#0061DF] text-white shadow-md' : 'hover:bg-gray-100' }}">
+                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.verifikasi.pembayaran-yudisium' ? 'bg-gradient-to-r from-[#056100] to-[#00DF1A] text-white shadow-md' : 'hover:bg-green-50' }}">
                         <i class="fas fa-money-bill-wave w-5"></i>
                         <span>Pembayaran Yudisium</span>
                         @if(Route::currentRouteName() === 'admin.verifikasi.pembayaran-yudisium')
@@ -67,7 +67,7 @@
                         @endif
                     </a>
                     <a href="{{ route('admin.verifikasi.persyaratan-yudisium') }}"
-                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.verifikasi.persyaratan-yudisium' ? 'bg-linear-to-r from-[#0A0061] to-[#0061DF] text-white shadow-md' : 'hover:bg-gray-100' }}">
+                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.verifikasi.persyaratan-yudisium' ? 'bg-gradient-to-r from-[#056100] to-[#00DF1A] text-white shadow-md' : 'hover:bg-green-50' }}">
                         <i class="fas fa-file-alt w-5"></i>
                         <span>Persyaratan Yudisium</span>
                         @if(Route::currentRouteName() === 'admin.verifikasi.persyaratan-yudisium')
@@ -75,7 +75,7 @@
                         @endif
                     </a>
                     <a href="{{ route('admin.verifikasi.pembayaran-wisuda') }}"
-                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.verifikasi.pembayaran-wisuda' ? 'bg-linear-to-r from-[#0A0061] to-[#0061DF] text-white shadow-md' : 'hover:bg-gray-100' }}">
+                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.verifikasi.pembayaran-wisuda' ? 'bg-gradient-to-r from-[#056100] to-[#00DF1A] text-white shadow-md' : 'hover:bg-green-50' }}">
                         <i class="fas fa-money-bill-wave w-5"></i>
                         <span>Pembayaran Wisuda</span>
                         @if(Route::currentRouteName() === 'admin.verifikasi.pembayaran-wisuda')
@@ -83,7 +83,7 @@
                         @endif
                     </a>
                     <a href="{{ route('admin.verifikasi.persyaratan-wisuda') }}"
-                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.verifikasi.persyaratan-wisuda' ? 'bg-linear-to-r from-[#0A0061] to-[#0061DF] text-white shadow-md' : 'hover:bg-gray-100' }}">
+                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.verifikasi.persyaratan-wisuda' ? 'bg-gradient-to-r from-[#056100] to-[#00DF1A] text-white shadow-md' : 'hover:bg-green-50' }}">
                         <i class="fas fa-file-alt w-5"></i>
                         <span>Persyaratan Wisuda</span>
                         @if(Route::currentRouteName() === 'admin.verifikasi.persyaratan-wisuda')
@@ -94,7 +94,7 @@
                     <div class="px-4 pt-3 mt-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Data</div>
 
                     <a href="{{ route('admin.manajemen-mahasiswa') }}"
-                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.manajemen-mahasiswa' ? 'bg-linear-to-r from-[#0A0061] to-[#0061DF] text-white shadow-md' : 'hover:bg-gray-100' }}">
+                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.manajemen-mahasiswa' ? 'bg-gradient-to-r from-[#056100] to-[#00DF1A] text-white shadow-md' : 'hover:bg-green-50' }}">
                         <i class="fas fa-users w-5"></i>
                         <span>Manajemen Mahasiswa</span>
                         @if(Route::currentRouteName() === 'admin.manajemen-mahasiswa')
@@ -102,7 +102,7 @@
                         @endif
                     </a>
                     <a href="{{ route('admin.data-final') }}"
-                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.data-final' ? 'bg-linear-to-r from-[#0A0061] to-[#0061DF] text-white shadow-md' : 'hover:bg-gray-100' }}">
+                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.data-final' ? 'bg-gradient-to-r from-[#056100] to-[#00DF1A] text-white shadow-md' : 'hover:bg-green-50' }}">
                         <i class="fas fa-database w-5"></i>
                         <span>Data Final</span>
                         @if(Route::currentRouteName() === 'admin.data-final')
@@ -113,7 +113,7 @@
                     <div class="px-4 pt-3 mt-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Presensi</div>
 
                     <a href="{{ route('admin.generate-qr') }}"
-                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.generate-qr' ? 'bg-linear-to-r from-[#0A0061] to-[#0061DF] text-white shadow-md' : 'hover:bg-gray-100' }}">
+                        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-[10px] transition font-medium {{ Route::currentRouteName() === 'admin.generate-qr' ? 'bg-gradient-to-r from-[#056100] to-[#00DF1A] text-white shadow-md' : 'hover:bg-green-50' }}">
                         <i class="fas fa-qrcode w-5"></i>
                         <span>Generate QR</span>
                         @if(Route::currentRouteName() === 'admin.generate-qr')
