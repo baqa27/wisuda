@@ -112,8 +112,7 @@ class AuthController extends Controller
             return redirect()->route('dashboard');
         }
 
-        // Cek jika admin mencoba login disini (opsional, tapi bagus untuk UX)
-        // Jika input adalah email, kita bisa cek user admin
+        // Cek jika admin mencoba login disini
         if ($field === 'email') {
             $user = User::where('email', $identity)->first();
             if ($user && Hash::check($request->password, $user->password) && $user->isAdmin()) {
@@ -138,7 +137,6 @@ class AuthController extends Controller
         return redirect('/')
             ->with('success', 'Berhasil logout.');
     }
-
 
     /** Redirect Sesuai Role */
     private function redirectByRole(User $user)
@@ -224,19 +222,9 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Coba login sebagai admin menggunakan guard 'admin'
-        \Log::info('Admin Login Attempt', ['email' => $request->email]);
         if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password, 'role' => 'admin'])) {
             $request->session()->regenerate();
-
-            \Log::info('Admin Login Success. Session Regenerated.', [
-                'user_id' => Auth::guard('admin')->id(),
-                'check' => Auth::guard('admin')->check()
-            ]);
-
             return redirect()->route('admin.dashboard');
-        } else {
-            \Log::warning('Admin Login Failed via Guard Attempt');
         }
 
         // Cek apakah user ada di database
