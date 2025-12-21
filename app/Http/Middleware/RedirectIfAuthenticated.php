@@ -24,12 +24,17 @@ class RedirectIfAuthenticated
             if (Auth::guard($guard)->check()) {
                 $user = Auth::guard($guard)->user();
 
-                // Redirect berdasarkan guard
-                if ($guard === 'admin') {
+                // Redirect berdasarkan guard dan role
+                if ($guard === 'admin' && $user->role === 'admin') {
                     return redirect()->route('admin.dashboard');
                 }
 
-                return redirect()->route('dashboard');
+                if ($guard === null || $guard === 'web') {
+                    if ($user->role === 'admin') {
+                        return redirect()->route('admin.dashboard');
+                    }
+                    return redirect()->route('dashboard');
+                }
             }
         }
 

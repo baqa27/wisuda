@@ -116,7 +116,7 @@
     </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Toggle password visibility
@@ -134,4 +134,4 @@
             }
         });
     </script>
-@endsection
+@endpush
